@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<channels>
+    <channel>
+        <url>http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio2_mf_q</url>
+        <name>BBC Radio 2</name>
+    </channel>
+    <channel>
+        <url>http://bbcmedia.ic.llnwd.net/stream/bbcmedia_6music_mf_p</url>
+        <name>BBC 6</name>
+    </channel>
+    <channel>
+        <url>http://media-ice.musicradio.com/CapitalSouthCoastMP3</url>
+        <name>103.2 Capital FM</name>
+    </channel>
+    <channel>
+        <url>http://ice-sov.musicradio.com:80/CapitalXTRALondon</url>
+        <name>Capital XTRA London</name>
+    </channel>
+    <channel>
+        <url>http://media-ice.musicradio.com:80/ClassicFMMP3</url>
+        <name>Classic FM</name>
+    </channel>
+    <channel>
+        <url>http://ice01.va.audionow.com:8000/DesiBite.mp3</url>
+        <name>Desi Bite Radio</name>
+    </channel>
+    <channel>
+        <url>http://ice-sov.musicradio.com:80/HeartLondonMP3</url>
+        <name>Heart 106.2 FM</name>
+    </channel>
+    <channel>
+        <url>http://icy-e-bz-03-gos.sharp-stream.com:8000/metro.mp3</url>
+        <name>Metro Radio</name>
+    </channel>
+    <channel>
+        <url>http://s3.xrad.io:8096</url>
+        <name>107.7 Splash FM</name>
+    </channel>
+    <channel>
+        <url>http://s04.whooshclouds.net:8220/live</url>
+        <name>Totalrock</name>
+    </channel>
+    <channel>
+        <url>http://radio.virginradio.co.uk/stream</url>
+        <name>Virgin Radio UK</name>
+    </channel>
+    <channel>
+        <url>http://media-ice.musicradio.com:80/Capital</url>
+        <name>Capital FM</name>
+    </channel>
+</channels>

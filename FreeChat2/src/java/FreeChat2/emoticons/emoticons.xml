@@ -1,0 +1,633 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<messaging_emoticons>
+  <folder>
+      <path>emoticons-icons-pack-42286</path>
+      <name>general</name>
+    <emoticon>
+<path>smile.gif</path>
+      <string>:)</string>
+      <String>:-)</String>
+      <string>:smile:</string>
+    </emoticon>
+    <emoticon>
+        <path>grin.png</path>
+      <string>:D</string>
+      <String>:d</String>
+      <string>:grin:</string>
+    </emoticon>
+    <emoticon>
+<path>0.gif</path>
+      <string>:kiss:</string>
+      <string>:*</string>
+      <string>:-*</string>
+    </emoticon>
+
+    <emoticon>
+<path>1.gif</path>
+      <string>:snigger:</string>
+      <string>:chuckle:</string>
+    </emoticon>
+<emoticon>
+<path>2.gif</path>
+      <string>:cry:</string>
+      <string>:'(</string>
+      <string>:,(</string>
+    </emoticon>
+
+    <emoticon>
+        <path>3.gif</path>
+      <string>:laugh:</string>
+      <string>:lol:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>4.gif</path>
+      <string>:sun:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>5.gif</path>
+      <string>:doubt:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>6.gif</path>
+      <string>:rara:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>7.gif</path>
+      <string>>:clap:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>8.gif</path>
+      <string>:present:</string>
+      <string>:gift:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>9.gif</path>
+      <string>:angry:</string>
+      <string>:snarl:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>10.gif</path>
+      <string>:mobile:</string>
+      <string>:cell:</string>
+      <string>:phone:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>12.gif</path>
+      <string>:brokenheart:</string>
+      <string>:nolove:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>13.gif</path>
+      <string>&lt;3</string>
+      <string>:heart:</string>
+      <string>:love:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>14.gif</path>
+      <string>:drink:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>15.gif</path>
+      <string>:peace:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>16.gif</path>
+      <string>:wine:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>17.gif</path>
+      <string>:fedup:</string>
+      <string>:bored:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>18.gif</path>
+      <string>:hide:</string>
+      <string>:peak:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>19.gif</path>
+      <string>:cloud:</string>
+      <string>:clouds:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>20.gif</path>
+      <string>:music:</string>
+      <string>:notes:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>21.gif</path>
+      <string>:speachless:</string>
+      <string>:shocked:</string>
+      <string>:O</string>
+      <string>:o</string>
+    </emoticon>
+
+    <emoticon>
+        <path>23.gif</path>
+      <string>:disgusted:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>24.gif</path>
+      <string>:karate:</string>
+      <string>:threaten:</string>
+    </emoticon>
+
+
+    <emoticon>
+        <path>25.gif</path>
+      <string>:moon:</string>
+      <string>:night:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>26.gif</path>
+      <string>:bomb:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>27.gif</path>
+      <string>:wink:</string>
+      <string>;)</string>
+      <string>;-)</string>
+    </emoticon>
+
+    <emoticon>
+        <path>28.gif</path>
+      <string>:agent:</string>
+      <string>:spy:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>29.gif</path>
+      <string>:teary:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>30.gif</path>
+      <string>:balloons:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>31.gif</path>
+        <string>:rainbow:</string>
+
+    </emoticon>
+
+    <emoticon>
+        <path>32.gif</path>
+      <string>:chopper:</string>
+      <string>:cleaver:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>35.gif</path>
+      <string>:handshake:</string>
+      <string>:shake:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>36.gif</path>
+      <string>:stars:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>37.gif</path>
+      <string>:coffee:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>39.gif</path>
+      <string>:cake:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>40.gif</path>
+      <string>:delight:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>41.gif</path>
+      <string>:blush:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>43.gif</path>
+      <string>:sad:</string>
+      <string>:(</string>
+    </emoticon>
+
+    <emoticon>
+        <path>45.gif</path>
+      <string>:snail:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>46.gif</path>
+      <string>:poop:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>47.gif</path>
+      <string>:wave:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>48.gif</path>
+      <string>:idea:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>53.gif</path>
+      <string>:shhh:</string>
+    </emoticon>
+
+    <emoticon>
+        <path>42.gif</path>
+      <string>:impertinent:</string>
+      <string>:-P</string>
+      <string>:-p</string>
+      <string>:P</string>
+      <string>:p</string>
+    </emoticon>
+
+    <emoticon>
+        <path>54.gif</path>
+      <string>:ok:</string>
+    </emoticon>
+  </folder>
+  
+  <folderXXX>
+      <path>evil</path>
+      <name>evil</name>
+    <emoticon>
+        <path>animated-devil-smiley-image-0164.gif</path>
+      <string>:evil1:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>smileys-devil-006872.gif</path>
+      <string>:666:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>smileys-devil-195541.gif</path>
+      <string>:satan:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>smileys-devil-558545.gif</path>
+      <string>:evil5:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>smileys-devil-229910.gif</path>
+      <string>:evil2:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>smileys-devil-352992.gif</path>
+      <string>:evil3:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>smileys-devil-360723.gif</path>
+      <string>:evil4:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>smileys-devil-828560.gif</path>
+      <string>:evil6:</string>
+    </emoticon>
+  </folderXXX>
+  
+  <folderXXX>
+    <path>offensive</path>
+    <name>offensive</name>
+    <emoticon>
+        <path>animated-bizarre-smiley-image-0021.gif</path>
+      <string>:bukake:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>animated-bizarre-smiley-image-0043.gif</path>
+      <string>:breast:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>animated-bizarre-smiley-image-0038.gif</path>
+        <string>:zoophilia:</string>
+      <string>:welsh:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>animated-bizarre-smiley-image-0047.gif</path>
+      <string>:shag:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>animated-love-smiley-image-0051.gif</path>
+      <string>:dogging:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>animated-bizarre-smiley-image-0004.gif</path>
+      <string>:flash:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>animated-bizarre-smiley-image-0019.gif</path>
+      <string>:wank:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>0084.gif</path>
+      <string>:bums:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>fart1.gif</path>
+      <string>:fart:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>frombehind.gif</path>
+      <string>:anal:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>spermy3.gif</path>
+      <string>:sperm:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>animated-bizarre-smiley-image-0017.gif</path>
+      <string>:oral:</string>
+    </emoticon>
+  </folderXXX>
+  
+  <folderXXX>
+      <path>toilet</path>
+      <name>toilet</name>
+    <emoticon>
+        <path>smiley-toilet06.gif</path>
+      <string>:2:</string>
+    </emoticon>
+    
+    <emoticon>
+        <path>smiley-toilet13.gif</path>
+      <string>:sitting:</string>
+    </emoticon>
+    
+    
+    <emoticon>
+        <path>smiley-toilet02.gif</path>
+      <string>:urinal:</string>
+    </emoticon>
+  </folderXXX>
+  <folder>
+      <path>aliens</path>
+      <name>aliens</name>
+    <emoticon>
+        <path>alien42.gif</path>
+      <string>:alien42:</string>
+    </emoticon>
+    <emoticon>
+        <path>alien47.gif</path>
+      <string>:alien47:</string>
+    </emoticon>
+    <emoticon>
+        <path>alien48.gif</path>
+      <string>:alien48:</string>
+    </emoticon>
+    <emoticon>
+        <path>alien49.gif</path>
+      <string>:alien49:</string>
+    </emoticon>
+    <emoticon>
+        <path>alien51.gif</path>
+      <string>:alien51:</string>
+    </emoticon>
+    <emoticon>
+        <path>alien60.gif</path>
+      <string>:alien60:</string>
+    </emoticon>
+    <emoticon>
+        <path>alien66.gif</path>
+      <string>:alien66:</string>
+    </emoticon>
+    <emoticon>
+        <path>alien70.gif</path>
+      <string>:alien70:</string>
+    </emoticon>
+    <emoticon>
+        <path>alien72.gif</path>
+      <string>:alien72:</string>
+    </emoticon>
+    <emoticon>
+        <path>alien73.gif</path>
+      <string>:alien73:</string>
+    </emoticon>
+    <emoticon>
+        <path>alien80.gif</path>
+      <string>:alien80:</string>
+    </emoticon>
+    <emoticon>
+        <path>alien81.gif</path>
+      <string>:alien81:</string>
+    </emoticon>
+    <emoticon>
+        <path>alien82.gif</path>
+      <string>:alien82:</string>
+    </emoticon>
+    <emoticon>
+        <path>alien85.gif</path>
+      <string>:alien85:</string>
+    </emoticon>
+    <emoticon>
+        <path>alien93.gif</path>
+      <string>:alien93:</string>
+    </emoticon>
+    <emoticon>
+        <path>alien95.gif</path>
+      <string>:alien95:</string>
+    </emoticon>
+    <emoticon>
+        <path>alien96.gif</path>
+      <string>:alien96:</string>
+    </emoticon>
+  </folder>
+  <folder>
+      <path>signs</path>
+      <name>signs</name>
+    <emoticon>
+        <path>smileys-smiley-with-sign-363798.gif</path>
+      <string>:do not feed:</string>
+    </emoticon>
+    <emoticonXXX>
+        <path>smileys-smiley-with-sign-083208.gif</path>
+      <string>:idiot:</string>
+    </emoticonXXX>
+    <emoticon>
+        <path>welcome1.gif</path>
+      <string>:welcome:</string>
+    </emoticon>
+    <emoticonXXX>
+        <path>feminazi_smiley.gif</path>
+      <string>:feminazi:</string>
+    </emoticonXXX>
+  </folder>
+  <folder>
+      <path>animals</path>
+      <name>animals</name>
+    <emoticon>
+        <path>serpentbleu.gif</path>
+      <string>:snake:</string>
+    </emoticon>
+    <emoticon>
+        <path>sponge1.gif</path>
+      <string>:spongebob:</string>
+    </emoticon>
+    <emoticonXXX>
+        <path>bear1.gif</path>
+      <string>:bear:</string>
+    </emoticonXXX>
+    <emoticon>
+        <path>butterfly07.gif</path>
+      <string>:butterfly1:</string>
+    </emoticon>
+    <emoticon>
+        <path>butterfly08.gif</path>
+      <string>:butterfly2:</string>
+    </emoticon>
+    <emoticon>
+        <path>fish5.gif</path>
+      <string>:fish1:</string>
+    </emoticon>
+    <emoticon>
+        <path>fish10.gif</path>
+      <string>:fish2:</string>
+    </emoticon>
+    <emoticon>
+        <path>parrot.gif</path>
+      <string>:parrot:</string>
+    </emoticon>
+  </folder>
+  <folderXXX>
+      <path>drugs</path>
+      <name>drugs</name>
+    <emoticon>
+        <path>bong.gif</path>
+      <string>:bong:</string>
+    </emoticon>
+    <emoticon>
+      <string>:cigarette:</string>
+        <path>cigarette.gif</path>
+    </emoticon>
+    <emoticon>
+        <path>joint.gif</path>
+      <string>:joint:</string>
+    </emoticon>
+    <emoticon>
+        <path>passing-joint-smiley-emoticon.gif</path>
+      <string>:passing_joint:</string>
+    </emoticon>
+    <emoticon>
+        <path>smiley-rolling-joint.gif</path>
+      <string>:rolling:</string>
+    </emoticon>
+    <emoticon>
+        <path>drugs.gif</path>
+      <string>:drugs:</string>
+    </emoticon>
+  </folderXXX>
+  <folder>
+      <path>transport</path>
+      <name>transport</name>
+    <emoticon>
+        <path>smiley-transport003.gif</path>
+      <string>:sherif:</string>
+    </emoticon>
+    <emoticon>
+        <path>smiley-transport022.gif</path>
+      <string>:train:</string>
+    </emoticon>
+    <emoticon>
+        <path>smiley-transport029.gif</path>
+      <string>:school_bus:</string>
+    </emoticon>
+  </folder>
+  <folder>
+      <path>violent</path>
+      <name>violent</name>
+    <emoticon>
+        <path>smiley-violent013.gif</path>
+      <string>:chainsaw:</string>
+    </emoticon>
+    <emoticon>
+        <path>smiley-violent029.gif</path>
+      <string>:microwave:</string>
+    </emoticon>
+  </folder>
+  <folder>
+      <path>sport</path>
+      <name>sport</name>
+    <emoticon>
+        <path>smiley-sport002.gif</path>
+      <string>:header:</string>
+    </emoticon>
+    <emoticon>
+        <path>smiley-sport003.gif</path>
+      <string>:goal:</string>
+    </emoticon>
+    <emoticon>
+        <path>smiley-sport006.gif</path>
+      <string>:football:</string>
+    </emoticon>
+    <emoticon>
+        <path>smiley-sport007.gif</path>
+      <string>:surfing:</string>
+    </emoticon>
+    <emoticon>
+        <path>smiley-sport017.gif</path>
+      <string>:weights:</string>
+    </emoticon>
+    <emoticon>
+        <path>smiley-sport031.gif</path>
+      <string>:ref:</string>
+    </emoticon>
+    <emoticon>
+        <path>smiley-sport035.gif</path>
+      <string>:spectator:</string>
+    </emoticon>
+    <emoticon>
+        <path>smiley-sport037.gif</path>
+      <string>:shooting:</string>
+    </emoticon>
+    <emoticon>
+        <path>smiley-sport038.gif</path>
+      <string>:diving:</string>
+    </emoticon>
+    <emoticon>
+        <path>smiley-sport041.gif</path>
+      <string>:fishing:</string>
+    </emoticon>
+  </folder>
+</messaging_emoticons>

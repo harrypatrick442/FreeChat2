@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!-- was: <?xml version='1.0' encoding='UTF-8' ?> --> 
+<!-- was: <?xml version='1.0' encoding='UTF-8' ?> --> 
+<!-- was: <?xml version="1.0" encoding="UTF-8"?> -->
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template path, choose Tools | Templates
+and open the template in the editor.
+-->
+<messaging_sound_effects>
+
+  <!-- first emoticons (9/13/14) -->
+  
+  <folder>
+      <path>all</path>
+      <name>all</name>
+    <sound>
+<path>aplaus.wav</path>
+<name>Applause</name>
+    </sound>
+    <sound>
+<path>baboon2.mp3</path>
+<name>Baboon</name>
+    </sound>
+    <sound>
+<path>bark.mp3</path>
+<name>Bark</name>
+    </sound>
+    <sound>
+<path>bear.mp3</path>
+<name>Bear</name>
+    </sound>
+    <sound>
+<path>boar_oink.wav</path>
+<name>Wild boar</name>
+    </sound>
+    <sound>
+<path>bomb_depth.mp3</path>
+<name>Nuclear bomb</name>
+    </sound>
+    <sound>
+<path>car_horn.mp3</path>
+<name>Car horn</name>
+    </sound>
+    <sound>
+<path>cow.wav</path>
+<name>Cow</name>
+    </sound>
+    <soundXXX>
+<path>evil_laugh.wav</path>
+<name>Laugh Evil</name>
+    </soundXXX>
+    <soundXXX>
+<path>fart_2.wav</path>
+<name>Fart 2</name>
+    </soundXXX>
+    <soundXXX>
+<path>fck_you_all.wav</path>
+<name>Fck you all</name>
+    </soundXXX>
+    <soundXXX>
+<path>fuc_you.mp3</path>
+<name>Fck you</name>
+    </soundXXX>
+    <sound>
+<path>girl_scream_1.wav</path>
+<name>Girl scream 1</name>
+    </sound>
+    <sound>
+<path>girl_scream_2.wav</path>
+<name>Girl scream 2</name>
+    </sound>
+    <sound>
+<path>horse_neigh.wav</path>
+<name>Horse</name>
+    </sound>
+    <sound>
+<path>lady_giggle.mp3</path>
+<name>Lady giggle</name>
+    </sound>
+    <sound>
+<path>machine_gun.wav</path>
+<name>Machine gun</name>
+    </sound>
+    <soundXXX>
+<path>orgasm_1.mp3</path>
+<name>Orgasm 1</name>
+    </soundXXX>
+    <soundXXX>
+<path>orgasm_2.mp3</path>
+<name>Orgasm 2</name>
+    </soundXXX>
+    <sound>
+<path>pig_squeal.wav</path>
+<name>Pig squeal</name>
+    </sound>
+    <sound>
+<path>rooster.mp3</path>
+<name>Rooster</name>
+    </sound>
+    <soundXXX>
+<path>stfu_cnt.mp3</path>
+<name>Stfu cnt</name>
+    </soundXXX>
+    <sound>
+<path>uk_ambulance.wav</path>
+<name>UK ambulance</name>
+    </sound>
+  </folder>
+</messaging_sound_effects>

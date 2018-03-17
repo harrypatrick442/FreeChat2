@@ -1,0 +1,23 @@
+{
+  "name": "Injecta",
+  "version": "0.0.1",
+  "manifest_version": 2,
+  "description": "Helps identify members who were contacted in the last week",
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": true
+  },
+  "browser_action": {
+    "default_title": "Fling Helper!"
+  },
+  "permissions": [
+          "webRequest",
+    "https://*/*",
+    "http://*/*",
+    "tabs",
+	"activeTab"
+  ],
+ "icons":{"48":"logo.png"}
+}
