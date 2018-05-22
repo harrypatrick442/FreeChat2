@@ -47,7 +47,7 @@ public class TableRoomUuidToMessages extends Table implements IRoomUuidToMessage
             + ")",
             "DROP PROCEDURE IF EXISTS `room_uuid_to_messages_get`; ",
             "CREATE PROCEDURE `room_uuid_to_messages_get`("
-            + "IN roomUuid BINARY(16),"
+            + "IN roomUuid VARCHAR(32),"
             + "IN fromTimestamp BIGINT(20), "
             + "IN toTimestamp BIGINT(20)"
             + ")"
@@ -56,19 +56,19 @@ public class TableRoomUuidToMessages extends Table implements IRoomUuidToMessage
             + " END;",
             "DROP PROCEDURE IF EXISTS `room_uuid_to_messages_get_n_messages`; ",
             "CREATE PROCEDURE `room_uuid_to_messages_get_n_messages`("
-            + "IN roomUuid BINARY(16),"
+            + "IN roomUuidIn VARCHAR(32),"
             + "IN nMessages INT(10) UNSIGNED"
             + ")"
             + "BEGIN "
-            + "SELECT * FROM room_uuid_to_messages WHERE roomUuid=UNHEX(roomUuid) ORDER BY timestamp DESC LIMIT nMessages;"
+            + "SELECT a.message FROM (SELECT timestamp, message FROM room_uuid_to_messages WHERE roomUuid=UNHEX(roomUuidIn) ORDER BY timestamp DESC LIMIT nMessages) a ORDER BY a.timestamp;"
             + " END;",
             "DROP PROCEDURE IF EXISTS `room_uuid_to_messages_add`; ",
             "CREATE PROCEDURE `room_uuid_to_messages_add` ("
-            + "IN roomUuid BINARY(16),"
-            + "IN fromUuid BINARY(16),"
+            + "IN roomUuid VARCHAR(32),"
+            + "IN fromUuid VARCHAR(32),"
             + "IN message TEXT,"
             + "IN timestamp BIGINT(20)"
-            + ")INSERT INTO room_uuid_to_messages(roomUuid, message, timestamp) VALUES(UNHEX(roomUuid), message, timestamp)",};
+            + ")INSERT INTO room_uuid_to_messages(roomUuid, fromUuid, message, timestamp) VALUES(UNHEX(roomUuid), UNHEX(fromUuid), message, timestamp)",};
         try {
             conn = getConnection();
             st = conn.createStatement();
@@ -188,9 +188,12 @@ public class TableRoomUuidToMessages extends Table implements IRoomUuidToMessage
             st.setString(1, roomUuid.toString());
             st.setInt(2, nMessages);
             ResultSet rS = st.executeQuery();
-            if (rS.next()) {
-                returns.add(rS.getString("message"));
+            System.out.println("rs"+nMessages);
+            while (rS.next()) {
+                System.out.println("got a message");
+                returns.add(rS.getString(1));
             }
+        return returns;
         } catch (SQLException se) {
             se.printStackTrace();
             throw se;
@@ -212,7 +215,6 @@ public class TableRoomUuidToMessages extends Table implements IRoomUuidToMessage
                 se.printStackTrace();
             }
         }
-        return returns;
     }
 }
 

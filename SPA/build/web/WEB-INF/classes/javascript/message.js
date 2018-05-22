@@ -1,4 +1,4 @@
-function Message(str, callbackEmoticons, color, font, bold, italic, size, unqiue_id, user, backgroundColor)
+function Message(str, callbackEmoticons, fontObj, unqiue_id, user, backgroundColor, pending)
 {
     var fontScale = isMobile?Font.mobileScale: 1;
     if (str == undefined)
@@ -9,14 +9,17 @@ function Message(str, callbackEmoticons, color, font, bold, italic, size, unqiue
     this.div.style.backgroundColor = backgroundColor;
     this.div.style.padding = '0px 1px 0px 1px';
     var lookupTree = callbackEmoticons.getLookupTree();
+    var font = fontObj.font;
     if (font == undefined)
     {
         font = 'Arial';
     }
+    var color = fontObj.color;
     if (color == undefined)
     {
         color = '#000000';
     }
+    var size = fontObj.size;
     if (!size)
     {
         size = 12;
@@ -24,9 +27,11 @@ function Message(str, callbackEmoticons, color, font, bold, italic, size, unqiue
     var div = document.createElement("div");
     div.style.padding='0px';
     div.style.margin='0px';
+    var bold = fontObj.bold;
     if(bold){
     div.style.fontWeight = 'bold';
     }
+    var italic = fontObj.italic;
     if(italic)
     {
         div.style.fontStyle='italic';
@@ -62,7 +67,15 @@ function Message(str, callbackEmoticons, color, font, bold, italic, size, unqiue
     createText(str, font, color, italic, bold, size, indexChar2, indexChar);
     
     this.div.appendChild(div);
-    
+    this.unpend = function(){
+        if(pending){
+            
+        };
+    };
+    this.equals = function(jObject){
+        var font = jObject.font;
+        return str==jObject.content&&isEquivalent(jObject.font, fontObj);
+    };
     function createText(strAll, font, color, italic, bold, size, indexFrom, indexTo)
     {
             var str = (indexFrom != undefined && indexTo != undefined)?strAll.substring(indexFrom, indexTo):strAll;

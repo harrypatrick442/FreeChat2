@@ -160,8 +160,10 @@ websocket.addEventListener('message', function(e){
     var timerEnableAlerts;
     function gotUsername(jObject)
     {
+        console.log('setting username');
         if (jObject.successful)
         {
+        console.log('setting username');
             timerEnableAlerts = new Timer(function () {
                 Tab.enableFlash(true);
             }, 3000, 1);
@@ -173,6 +175,7 @@ websocket.addEventListener('message', function(e){
             }
         }
     }
+    this.authenticate = gotUsername;
     function showImageUploaderProfilePicture()
     {
         ImageUploader.show(true, 1, {}, {send: function (jObject) {
@@ -225,7 +228,7 @@ websocket.addEventListener('message', function(e){
         {
             console.log("lobby chat");
             console.log(jObject);
-            console.log(jObject.type);
+            console.log( 'type: '+jObject.type);
             switch (jObject.type)
             {
                 case "connect":

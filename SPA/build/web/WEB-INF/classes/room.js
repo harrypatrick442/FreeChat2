@@ -15,6 +15,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     this.taskBarInformation = {tooltip: 'A room you have open', icon: ('images/' + cssName + '-icon.gif'), style: {backgroundColor: 'transparent'}, hoverStyle: {backgroundColor: 'rgba(0,255,255, 0.5)'}, activeStyle: {backgroundColor: 'rgba(0, 128, 255, 0.5)'}, attentionStyle: {backgroundColor: 'rgba(255,80,80,0.5)'}};
     this.div = document.createElement('div');
     var enterPassword;
+    var pendingMessages = new PendingMessages();
     var divInner = document.createElement('div');
     if (!useCalc)
     {
@@ -757,6 +758,8 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     Font.addCallback(callbackFontChanged);
     function addMessage(jObject)
     {
+        if(pendingMessages.unpendIfPending(jObject))
+            return;
         if (addMessage.color1)
         {
             addMessage.color1 = false;
@@ -766,7 +769,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
             addMessage.color1 = true;
             addMessage.backgroundColor = '#e6e6ff';
         }
-        var div = new Message(jObject.content, callbacksEmoticons, jObject.font.color, jObject.font.family, jObject.font.bold, jObject.font.italic, jObject.font.size, jObject.unique_id, jObject.name, addMessage.backgroundColor).div;
+        var div = new Message(jObject.content, callbacksEmoticons, jObject.font, jObject.unique_id, jObject.name, addMessage.backgroundColor).div;
         if (div)
         {
             divFeed.appendChild(div);
@@ -786,17 +789,18 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
             addMessage.color1 = true;
             addMessage.backgroundColor = '#e6e6ff';
         }
-        var div = new Message(str, callbacksEmoticons, font.color, font.family, font.bold, font.italic, font.size, userInformation.unique_id, userInformation.name, addMessage.backgroundColor).div;
-        if (div)
+        var message = new Message(str, callbacksEmoticons, font, userInformation.unique_id, userInformation.name, addMessage.backgroundColor, true);
+        if (message.div)
         {
-            divFeed.appendChild(div);
+            divFeed.appendChild(message.div);
+            pendingMessages.add(message);
         }
         scrollFeed();
         overflowFeed();
     }
     function addAdminMessage(str)
     {
-        var div = new Message(str, callbacksEmoticons, "#4e0000", "Arial", true, false, 10, undefined, "Admin", addMyMessage.backgroundColor).div;
+        var div = new Message(str, callbacksEmoticons, {color:"#4e0000", font:"Arial", bold:true, italic:false, size:10}, undefined, "Admin", addMyMessage.backgroundColor).div;
         if (div)
         {
             divFeed.appendChild(div);

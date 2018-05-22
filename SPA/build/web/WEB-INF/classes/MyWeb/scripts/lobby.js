@@ -42,14 +42,18 @@ function Lobby()
         switch (message.type)
         {
             case "authenticate":
-                if (message.successful)
+                if (message.successful){
                     Authenticate.hide();
+                    authenticateLobbies(message);
+                }
                 else
                     Authenticate.error(message.reason);
                 break;
             case "register":
-                if (message.successful)
+                if (message.successful){
                     Authenticate.hide();
+                    authenticateLobbies(message);
+                }
                 else
                     Authenticate.error(message.reason);
                 break;
@@ -57,6 +61,12 @@ function Lobby()
                 window.activity.setTimeReference(message.reference);
         }
     });
+    function authenticateLobbies(jObject){
+        foreach(lobbies, function(lobby){
+            if(lobby.authenticate)
+                lobby.authenticate(jObject);
+        });
+    }
     mySocketProfiles.addEventListener('close', function()
     {
         optionPane = new OptionPane(document.documentElement);

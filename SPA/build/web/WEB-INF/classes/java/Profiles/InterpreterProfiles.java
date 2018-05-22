@@ -108,6 +108,7 @@ public class InterpreterProfiles extends Interpreter {
         if (success) {
             jObjectReply.put("username", username);
             jObjectReply.put("userId", user.getUuid().toString());
+            System.out.println("mapping");
             Database.getInstance().getUserUuidToSession().map(session.id, user.getUuid());
         } else {
             jObjectReply.put("reason", message);

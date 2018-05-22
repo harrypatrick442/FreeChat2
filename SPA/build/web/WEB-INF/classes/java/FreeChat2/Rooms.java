@@ -47,7 +47,7 @@ public class Rooms {
             popular.remove(i);
         return popular;
     }
-    public static ArrayList<Room> getPopular(IDatabase iDatabase, IGetAsynchronousSender iGetAsynchronousSender) throws Exception
+    private static ArrayList<Room> getPopular(IDatabase iDatabase, IGetAsynchronousSender iGetAsynchronousSender) throws Exception
     {
         System.out.println("getting popular");
         return PopularRooms.getInstance().get(iDatabase, iGetAsynchronousSender);

@@ -23,6 +23,11 @@ public class Users {
 
 
     public static User validate(UUID session, IDatabase iDatabase) throws Exception{
+        System.out.println("session is: ");        
+        System.out.println(session);
+
+        System.out.println("from session is: ");
+        System.out.println( iDatabase.getUserUuidToSession().get(session));
         return new User(iDatabase.getUserUuidToSession().get(session));
     }
     public static ArrayList<Tuple<User, String>> getAll(IDatabase iDatabase) throws Exception{

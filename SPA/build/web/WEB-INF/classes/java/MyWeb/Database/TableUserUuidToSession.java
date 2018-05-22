@@ -43,10 +43,10 @@ public class TableUserUuidToSession extends Table implements IUserUuidToSession 
             + ")",
             "DROP PROCEDURE IF EXISTS `user_uuid_to_session_get`; ",
             "CREATE PROCEDURE `user_uuid_to_session_get`("
-            + "IN sessionUuid VARCHAR (32)"
+            + "IN sessionUuidIn VARCHAR (32)"
             + ")"
             + "BEGIN "
-            + "SELECT userUuid FROM user_uuid_to_session WHERE sessionUuid=UNHEX(sessionUuid);"
+            + "SELECT HEX(userUuid) FROM user_uuid_to_session WHERE sessionUuid=UNHEX(sessionUuidIn);"
             +" END;",
             "DROP PROCEDURE IF EXISTS `user_uuid_to_session_add`; ",
             "CREATE PROCEDURE `user_uuid_to_session_add`("
@@ -100,8 +100,12 @@ public class TableUserUuidToSession extends Table implements IUserUuidToSession 
             st.setString(1, sessionUuid.toString());
             ResultSet rS = st.executeQuery();
             if (rS.next()) {
+                System.out.println("not returning null");
                 return new UUID(rS.getString(1));
             }
+            System.out.println("returning null as suspected");
+                System.out.println(sessionUuid);
+            System.out.println(".");
             return null;
         } catch (SQLException se) {
             se.printStackTrace();

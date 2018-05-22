@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Base64;
+import java.util.Iterator;
 import javax.imageio.ImageIO;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -81,11 +82,15 @@ public class InterpreterRoom extends Interpreter implements Serializable {
         }
     }
     private void authenticate(JSONObject jObject, Session session) throws Exception{
+            System.out.println("just validated");
         if(session!=null)
         {
+            System.out.println("just validated");
             user = Users.validate(session.id, Database.getInstance());
             if(user!=null)
             {
+                System.out.println("user was not null and adding asynchronous sender");
+                System.out.println(asynchronousSender);
                 AsynchronousSenders.getInstance().add(asynchronousSender, user.id);
             }
         }
@@ -125,6 +130,7 @@ public class InterpreterRoom extends Interpreter implements Serializable {
             }
             asynchronousSender.send(jObjectReply);
             if (successful) {
+                sendHistory(iDatabase);
                 postAddUserOperations(room.getInfo(iDatabase), asynchronousSender);
             }
         } catch (Exception ex) {
@@ -133,6 +139,14 @@ public class InterpreterRoom extends Interpreter implements Serializable {
         }
     }
 
+    private void sendHistory(IDatabase iDatabase) throws Exception {
+        System.out.println("sendHistory");
+        Iterator<JSONObject> iterator = room.getHistory(iDatabase).iterator();
+        while (iterator.hasNext()) {
+            System.out.println("send");
+            asynchronousSender.send(iterator.next());
+        }
+    }
     private void postAddUserOperations(RoomInfo roomInfo, AsynchronousSender asynchronousSender) throws Exception {
         switch (roomInfo.roomType) {
             case VideoPM:
@@ -177,7 +191,7 @@ public class InterpreterRoom extends Interpreter implements Serializable {
         try {
             if (user != null && room != null) {
                 jObject.put("from", user.getName(Database.getInstance()));
-                room.sendChatMessage(user, jObject, Database.getInstance());
+                room.sendMessage(user, jObject, Database.getInstance());
             }
         } catch (Exception ex) {
             throw ex;
@@ -190,7 +204,7 @@ public class InterpreterRoom extends Interpreter implements Serializable {
                 if (stopWatchLastTyping.get_ms() > 1000) {
                     stopWatchLastTyping.Reset();
                     jObject.put("from", user.getName(Database.getInstance()));
-                    room.sendChatMessage(user, jObject, Database.getInstance());
+                    room.sendMessage(user, jObject, Database.getInstance());
                 }
             }
 
@@ -290,7 +304,7 @@ public class InterpreterRoom extends Interpreter implements Serializable {
                 jObjectReply.put("type", "image");
                 jObjectReply.put("path", relativePath);
                 jObjectReply.put("name", user.getName(iDatabase));
-                room.sendChatMessage(user, jObjectReply, iDatabase);
+                room.sendMessage(user, jObjectReply, iDatabase);
             } else {
                 jObjectReplySender.put("reason", reason);
             }

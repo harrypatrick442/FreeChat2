@@ -57,43 +57,44 @@ public class TableRoomUuidToUsers extends Table implements IRoomUuidToUsers {
             + ")",
             "DROP PROCEDURE IF EXISTS `room_uuid_to_users_get`; ",
             "CREATE PROCEDURE `room_uuid_to_users_get`("
-            + "IN roomUuid BINARY(16)"
+            + "IN roomUuidIn VARCHAR(32)"
             + ")"
             + "BEGIN "
-            + "select HEX(user) from room_uuid_to_users where roomUuid=UNHEX(roomUuid);"
+            + "select HEX(userUuid), endpoint from room_uuid_to_users where roomUuid=UNHEX(roomUuidIn);"
             + " END;",
             "DROP PROCEDURE IF EXISTS `room_uuid_to_users_count`; ",
             "CREATE PROCEDURE `room_uuid_to_users_count`("
-            + "IN roomUuid BINARY(16)"
+            + "IN roomUuid VARCHAR(32)"
             + ")"
             + "BEGIN "
-            + "SELECT COUNT(*) from room_uuid_to_users where roomUuid=UNHEX(roomUuid);"
+            + "SELECT COUNT(*) from room_uuid_to_users where roomUuid=UNHEX(roomUuidIn);"
             + " END;",
             "DROP PROCEDURE IF EXISTS `room_uuid_to_users_add`; ",
             "CREATE PROCEDURE `room_uuid_to_users_add` ("
-            + "IN roomUuidIn BINARY(16),"
-            + "IN userUuidIn BINARY(16),"
-            + "IN `joined` BIGINT(20)"
+            + "IN roomUuidIn VARCHAR(32),"
+            + "IN userUuidIn VARCHAR(32),"
+            + "IN `joined` BIGINT(20),"
+                + "IN endpointIn TEXT"
             + ")"
-            + " INSERT INTO room_uuid_to_users(roomUuid, userUuid, `joined`) VALUES(UNHEX(roomUuidIn), UNHEX(userUuidIn), `joined`) ON DUPLICATE KEY UPDATE roomUuid=roomUuid;"
+            + " INSERT INTO room_uuid_to_users(roomUuid, userUuid, `joined`, endpoint) VALUES(UNHEX(roomUuidIn), UNHEX(userUuidIn), `joined`, endpointIn) ON DUPLICATE KEY UPDATE endpoint=endpointIn;"
                 ,
             "DROP PROCEDURE IF EXISTS `room_uuid_to_users_remove`; ",
             "CREATE PROCEDURE `room_uuid_to_users_remove`("
-            + "IN roomUuid BINARY(16),"
-            + "IN userUuid BINARY(16),"
-            + "IN `left` BIGINT(20)"
+            + "IN roomUuidIn VARCHAR(32),"
+            + "IN userUuidIn VARCHAR(32),"
+            + "IN leftIn BIGINT(20)"
             + ")"
                 + "BEGIN "
             + "INSERT INTO room_uuid_to_users_history(roomUuid, userUuid, `joined`, `left`) "
-            + "VALUES( UNHEX(roomUuid), UNHEX(userUuid), (SELECT `joined` FROM room_uuid_to_users WHERE roomUuid =UNHEX(roomUuid) AND userUuid = UNHEX(userUuid)), `left`);"
-            + "DELETE FROM room_uuid_to_users WHERE roomUuid=UNHEX(roomUuid) AND userUuid = UNHEX(userUuid);"
+            + "VALUES( UNHEX(roomUuidIn), UNHEX(userUuidIn), (SELECT `joined` FROM room_uuid_to_users WHERE roomUuid =UNHEX(roomUuidIn) AND userUuid = UNHEX(userUuidIn)), leftIn);"
+            + "DELETE FROM room_uuid_to_users WHERE roomUuid=UNHEX(roomUuidIn) AND userUuid = UNHEX(userUuidIn);"
             + " END;",
             "DROP PROCEDURE IF EXISTS `room_uuid_to_users_get_n_rooms_most_users`; ",
             "CREATE PROCEDURE `room_uuid_to_users_get_n_rooms_most_users`("
             + "IN nRooms INT(10) UNSIGNED "
             + ")"
             + "BEGIN "
-            + "SELECT HEX(roomUuid) FROM room_uuid_to_users ORDER BY (SELECT COUNT(*) FROM  room_uuid_to_users where roomUuid=UNHEX(roomUuid)) DESC LIMIT nRooms;"
+            + "SELECT HEX(roomUuid) FROM room_uuid_to_users GROUP BY roomUuid ORDER BY COUNT(*)DESC LIMIT nRooms;"
             + " END;"};
         try {
             conn = getConnection();
@@ -134,9 +135,10 @@ public class TableRoomUuidToUsers extends Table implements IRoomUuidToUsers {
             st.setString(1, roomUuid.toString());
             ResultSet rS = st.executeQuery();
             if (rS.next()) {
+                        System.out.println("the returned string is: "+rS.getString(1));
                 returns.add(new Tuple<User, String>(
-                        new User(new UUID(rS.getString("userUuid"))), 
-                        rS.getString("endpoint"))
+                        new User(new UUID(rS.getString(1))), 
+                        rS.getString(2))
                         );
             }
         } catch (SQLException se) {
@@ -169,11 +171,14 @@ public class TableRoomUuidToUsers extends Table implements IRoomUuidToUsers {
         CallableStatement st = null;
         try {
             conn = getConnection();
-            String str = "CALL `room_uuid_to_users_add`(?,?,?);";
+            System.out.println("asynchronousSender.getName() is: ");
+            System.out.println(endpoint);
+            String str = "CALL `room_uuid_to_users_add`(?,?,?,?);";
             st = conn.prepareCall(str);
             st.setString(1, roomUuid.toString());
             st.setString(2, userUuid.toString());
             st.setLong(3, System.currentTimeMillis());
+            st.setString(4, endpoint);
             st.executeQuery();
         } catch (SQLException se) {
             se.printStackTrace();
@@ -323,7 +328,7 @@ public class TableRoomUuidToUsers extends Table implements IRoomUuidToUsers {
             st.setInt(1, nRooms);
             ResultSet rS = st.executeQuery();
             if (rS.next()) {
-                returns.add(new UUID(rS.getString("roomUuid")));
+                returns.add(new UUID(rS.getString(1)));
             }
         } catch (SQLException se) {
             se.printStackTrace();

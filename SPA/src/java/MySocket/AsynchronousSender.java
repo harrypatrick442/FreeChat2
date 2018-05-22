@@ -21,6 +21,8 @@ public class AsynchronousSender {
     public AsynchronousSender(IAsynchronousSender iAsynchronousSender, String name) {
         GuarbageWatch.add(this);
         this.name = name;
+        if(iAsynchronousSender==null)
+            throw new NullPointerException("iAsynchronousSender cannot be null");
         this.iAsynchronousSender = iAsynchronousSender;
     }
 

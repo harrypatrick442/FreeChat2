@@ -3,8 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
- 
-	var mySocketProfiles;
 function Lobby()
 {
     var optionPane;
@@ -28,7 +26,7 @@ function Lobby()
     document.body.style.margin = '0';
     document.body.style.padding = '0';
     MySocket.timeoutMs = Configuration.ajaxTimeout;
-    mySocketProfiles = new MySocket('profiles');
+    var mySocketProfiles = new MySocket('profiles');
     mySocketProfiles.addEventListener('open', function() {
         window.activity = new Activity(function() {
             var jObject = {type: 'set_user_active'};
@@ -44,14 +42,18 @@ function Lobby()
         switch (message.type)
         {
             case "authenticate":
-                if (message.successful)
+                if (message.successful){
                     Authenticate.hide();
+                    authenticateLobbies(message);
+                }
                 else
                     Authenticate.error(message.reason);
                 break;
             case "register":
-                if (message.successful)
+                if (message.successful){
                     Authenticate.hide();
+                    authenticateLobbies(message);
+                }
                 else
                     Authenticate.error(message.reason);
                 break;
@@ -59,6 +61,12 @@ function Lobby()
                 window.activity.setTimeReference(message.reference);
         }
     });
+    function authenticateLobbies(jObject){
+        foreach(lobbies, function(lobby){
+            if(lobby.authenticate)
+                lobby.authenticate(jObject);
+        });
+    }
     mySocketProfiles.addEventListener('close', function()
     {
         optionPane = new OptionPane(document.documentElement);
