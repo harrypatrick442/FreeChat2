@@ -65,15 +65,15 @@ websocket.addEventListener('message', function(e){
     {
         Lobby.openRoom(jObject);
     }
-    function getVideoPm(unique_id)
+    function getVideoPm(userId)
     {
 
-        if (unique_id != userInformation.unique_id)
+        if (userId != userInformation.userId)
         {
             var jObject = {};
             jObject.type = 'video_pm';
-            jObject.other_unique_id = unique_id;
-            jObject.unqiue_id = userInformation.unique_id;
+            jObject.otherUserId = userId;
+            jObject.unqiue_id = userInformation.userId;
             websocket.send(jObject);
         }
     }
@@ -85,14 +85,14 @@ websocket.addEventListener('message', function(e){
     {
         getVideoPm(name);
     };
-    function getPm(unique_id)
+    function getPm(userId)
     {
-        if (unique_id != userInformation.unique_id)
+        if (userId != userInformation.userId)
         {
             var jObject = {};
             jObject.type = 'pm';
-            jObject.other_unique_id = unique_id;
-            jObject.unique_id = userInformation.unique_id;
+            jObject.otherUserId = userId;
+            jObject.userId = userInformation.userId;
             websocket.send(jObject);
         }
     }

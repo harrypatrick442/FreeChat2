@@ -134,7 +134,7 @@ public class TableRoomUuidToUsers extends Table implements IRoomUuidToUsers {
             st = conn.prepareCall(str);
             st.setString(1, roomUuid.toString());
             ResultSet rS = st.executeQuery();
-            if (rS.next()) {
+            while (rS.next()) {
                         System.out.println("the returned string is: "+rS.getString(1));
                 returns.add(new Tuple<User, String>(
                         new User(new UUID(rS.getString(1))), 
@@ -327,7 +327,7 @@ public class TableRoomUuidToUsers extends Table implements IRoomUuidToUsers {
             st = conn.prepareCall(str);
             st.setInt(1, nRooms);
             ResultSet rS = st.executeQuery();
-            if (rS.next()) {
+            while(rS.next()) {
                 returns.add(new UUID(rS.getString(1)));
             }
         } catch (SQLException se) {

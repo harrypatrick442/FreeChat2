@@ -56,7 +56,7 @@ public class Rooms {
     {
         return new Room(id, iGetAsynchronousSender); //mapIdToRoom.get(id);
     }
-    public static void createNew(String name, RoomType roomType, Boolean passwordProtected, String password, IDatabase iDatabase, IGetAsynchronousSender iGetAsynchronousSender) throws RoomCreationException, Exception
+    public static Room createNew(String name, RoomType roomType, Boolean passwordProtected, String password, IDatabase iDatabase, IGetAsynchronousSender iGetAsynchronousSender) throws RoomCreationException, Exception
     {
         isValidName(name, iDatabase);
         Room room =new Room(iDatabase, iGetAsynchronousSender);
@@ -76,6 +76,7 @@ public class Rooms {
         {
             iDatabase.getRoomUuidToInfo().add(room.id, name, roomType.toString(), false);
         }
+        return room;
     }
 
     public static JSONObject getPopularJSONObject(IDatabase iDatabase, IGetAsynchronousSender iGetAsynchronousSender) throws JSONException, Exception {

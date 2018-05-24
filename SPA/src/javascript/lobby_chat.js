@@ -6,8 +6,7 @@
 includeJQuery = true;
 function LobbyChat(callbackFinishedLoading, otherCallbacks)
 {
-    console.log('doing lobby chat');
-    var mapIdToWall={};
+    var mapIdToWall = {};
     var mapIdToRoom = {};
     Tab.setText("ChatDimension :)");
     var settings = new Settings('#lobby_chat', function () {
@@ -21,57 +20,52 @@ function LobbyChat(callbackFinishedLoading, otherCallbacks)
     var walls;
     var users;
     var webcamSettings;
-    
+
     websocket = new MySocket("chat_lobby");
-websocket.addEventListener('open', function(){
+    websocket.addEventListener('open', function () {
         var jObject = {};
         jObject.type = "connect";
         websocket.send(jObject);
-        console.log('sent connect');
     });
-websocket.addEventListener('message', function(e){
+    websocket.addEventListener('message', function (e) {
         interpret(e.message);
     });
     var onEnter = function ()
     {
         soundEffects = new SoundEffects(userInformation);
         rooms = new Rooms(mapIdToRoom, {send:
-                websocket.send
-            }, userInformation);
-        if(Configuration.wallsEnabled)
-        walls = new Walls({send:
-                websocket.send}, userInformation);
-        users = new Users(true, "users", userInformation, undefined, undefined,  showImageUploaderProfilePicture);
-        if(Configuration.videoEnabled &&!isMobile)
-        webcamSettings = new WebcamSettings(userInformation);
+                    websocket.send
+        }, userInformation);
+        if (Configuration.wallsEnabled)
+            walls = new Walls({send:
+                        websocket.send}, userInformation);
+        users = new Users(true, "users", userInformation, undefined, undefined, showImageUploaderProfilePicture);
+        if (Configuration.videoEnabled && !isMobile)
+            webcamSettings = new WebcamSettings(userInformation);
         getRooms();
         getUsers();
-        if(Configuration.wallsEnabled)
-        getWalls();
-        for (var i = 0; i < openOnEnter.length; i++)
-        {
-            Lobby.openRoom(openOnEnter[i]);
-        }
-        if(Configuration.wallsEnabled)
-        for(var i=0; i<openOnEnterWalls.length; i++)
-        {
-            Lobby.openWall(openOnEnterWalls[i]);
-        }
+        //if(Configuration.wallsEnabled)
+        //getWalls();
+        //if(Configuration.wallsEnabled)
+        //for(var i=0; i<openOnEnterWalls.length; i++)
+        //{
+        //    Lobby.openWall(openOnEnterWalls[i]);
+        // }
         callbackFinishedLoading();
     };
     function gotVideoPm(jObject)
     {
         Lobby.openRoom(jObject);
     }
-    function getVideoPm(unique_id)
+    function getVideoPm(userId)
     {
 
-        if (unique_id != userInformation.unique_id)
+        if (userId != userInformation.userId)
         {
             var jObject = {};
             jObject.type = 'video_pm';
-            jObject.other_unique_id = unique_id;
-            jObject.unique_id = userInformation.unique_id;
+            jObject.otherUserId = userId;
+            jObject.userId = userInformation.userId;
             websocket.send(jObject);
         }
     }
@@ -79,26 +73,24 @@ websocket.addEventListener('message', function(e){
     {
         Lobby.openRoom(jObject);
     }
-    Lobby.getVideoPm = function (unique_id)
+    Lobby.getVideoPm = function (userId)
     {
-        getVideoPm(unique_id);
+        getVideoPm(userId);
     };
-    function getPm(unique_id)
+    function getPm(userId)
     {
-        console.log('get pm');
-        console.log(unique_id);
-        if (unique_id != userInformation.unique_id)
+        if (userId != userInformation.userId)
         {
             var jObject = {};
             jObject.type = 'pm';
-            jObject.other_unique_id = unique_id;
-            jObject.unique_id = userInformation.unique_id;
+            jObject.otherUserId = userId;
+            jObject.userId = userInformation.userId;
             websocket.send(jObject);
         }
     }
-    Lobby.getPm = function (unique_id)
+    Lobby.getPm = function (userId)
     {
-        getPm(unique_id);
+        getPm(userId);
     };
     function getUsers()
     {
@@ -155,27 +147,31 @@ websocket.addEventListener('message', function(e){
     }
     function gotProfilePicture(jObject)
     {
-        ProfilePicture.update(jObject.unique_id, "ServletImages?path=" + jObject.path + "&t=" + new Date().getTime());
+        ProfilePicture.update(jObject.userId, "ServletImages?path=" + jObject.path + "&t=" + new Date().getTime());
     }
     var timerEnableAlerts;
-    function gotUsername(jObject)
-    {
-        console.log('setting username');
+    this.authenticate = function (jObject) {
         if (jObject.successful)
         {
-        console.log('setting username');
+            console.log('authenticated');
+            console.log(jObject);
+            rooms.enableOpen();
+            for (var i = 0; i < openOnEnter.length; i++)
+            {
+                Lobby.openRoom(openOnEnter[i]);
+            }
             timerEnableAlerts = new Timer(function () {
                 Tab.enableFlash(true);
             }, 3000, 1);
             userInformation.name = jObject.username;
+            userInformation.userId = jObject.userId;
             var jObjectProfilePicture = settings.get('profilePicture');
             if (jObjectProfilePicture)
             {
                 websocket.send(jObjectProfilePicture);
             }
         }
-    }
-    this.authenticate = gotUsername;
+    };
     function showImageUploaderProfilePicture()
     {
         ImageUploader.show(true, 1, {}, {send: function (jObject) {
@@ -196,9 +192,9 @@ websocket.addEventListener('message', function(e){
             room.newRoomInformation(roomInformation);
             room.task.unminimize();
         } else
-        {
-            if((!isMobile)||(roomInformation.type!=Room.Type.videoDynamic&&roomInformation.type!=Room.Type.videoStatic&&roomInformation.type!=Room.Type.videoPm))
-            mapIdToRoom[roomInformation.id] = new Room(userInformation, roomInformation, callbackRoomClosed, "room", Configuration.URL_ENDPOINT_ROOM, {unminimize: font.unminimize, getFont: font.getFont}, {unminimize: emoticons.unminimize, getLookupTree: emoticons.getLookupTree}, {unminimize: soundEffects.unminimize}, {show: ImageUploader.show, interpret: ImageUploader.interpret}, {show: showImageUploaderProfilePicture});
+        {//xxx
+            if ((!isMobile) || (roomInformation.type != Room.Type.videoDynamic && roomInformation.type != Room.Type.videoStatic && roomInformation.type != Room.Type.videoPm))
+                mapIdToRoom[roomInformation.id] = new Room(userInformation, roomInformation, callbackRoomClosed, "room", Configuration.URL_ENDPOINT_ROOM, {unminimize: font.unminimize, getFont: font.getFont}, {unminimize: emoticons.unminimize, getLookupTree: emoticons.getLookupTree}, {unminimize: soundEffects.unminimize}, {show: ImageUploader.show, interpret: ImageUploader.interpret}, {show: showImageUploaderProfilePicture});
         }
     };
     Lobby.openWall = function (wallInfo)
@@ -208,57 +204,58 @@ websocket.addEventListener('message', function(e){
             var room = mapIdToWall[wallInfo.id];
             room.wallInformation(wallInfo);
             room.task.unminimize();
-        } 
+        }
         else
         {
             mapIdToWall[wallInfo.id] = new Wall(userInformation, wallInfo, Configuration.URL_ENDPOINT_WALL, {show: ImageUploader.show, interpret: ImageUploader.interpret}, {show: showImageUploaderProfilePicture});
         }
     };
-        //if (!WebSocket)
-        //{
-        //    optionPane = new OptionPane(document.documentElement);
-        //    optionPane.show([['Ok', function () {
-         //           }]], "Sorry but your browser does not support websockets, please use the latest version of Chrome, Opera, Saphari, Firefox or IE!", function () {
-         //   });
-        //    optionPane.div.style.zIndex = '30000';
-        //    optionPane.div.style.top = '30%';
-        //    optionPane.div.style.position = 'fixed';
-        //}
-   function interpret(jObject)
+    //if (!WebSocket)
+    //{
+    //    optionPane = new OptionPane(document.documentElement);
+    //    optionPane.show([['Ok', function () {
+    //           }]], "Sorry but your browser does not support websockets, please use the latest version of Chrome, Opera, Saphari, Firefox or IE!", function () {
+    //   });
+    //    optionPane.div.style.zIndex = '30000';
+    //    optionPane.div.style.top = '30%';
+    //    optionPane.div.style.position = 'fixed';
+    //}
+    function interpret(jObject)
+    {
+        console.log("lobby chat");
+        console.log(jObject);
+        console.log('type: ' + jObject.type);
+        switch (jObject.type)
         {
-            console.log("lobby chat");
-            console.log(jObject);
-            console.log( 'type: '+jObject.type);
-            switch (jObject.type)
-            {
-                case "connect":
-                    gotConnect(jObject);
-                    break;
-                case "get_rooms":
-                    gotRooms(jObject);
-                    break;
-                case "authenticate":
-                    gotUsername(jObject);
-                    break;
-                case "users":
-                    gotUsers(jObject);
-                    break;
-                case "pm":
-                    gotPm(jObject);
-                    break;
-                case "video_pm":
-                    gotVideoPm(jObject);
-                    break;
-                case "create_room":
-                    gotCreateRoom(jObject);
-                    break;
-                case "profile_picture":
-                    gotProfilePicture(jObject);
-                    break;
-                case "profile_picture_reply":
-                    gotProfilePictureReply(jObject);
-                    break;  
-            }
-        };
-    
+            case "connect":
+                gotConnect(jObject);
+                break;
+            case "get_rooms":
+                gotRooms(jObject);
+                break;
+            case "authenticate":
+                gotUsername(jObject);
+                break;
+            case "users":
+                gotUsers(jObject);
+                break;
+            case "pm":
+                gotPm(jObject);
+                break;
+            case "video_pm":
+                gotVideoPm(jObject);
+                break;
+            case "create_room":
+                gotCreateRoom(jObject);
+                break;
+            case "profile_picture":
+                gotProfilePicture(jObject);
+                break;
+            case "profile_picture_reply":
+                gotProfilePictureReply(jObject);
+                break;
+        }
+    }
+    ;
+
 }

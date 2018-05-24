@@ -48,7 +48,7 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
     public void interpret(JSONObject jObject, Session session) throws Exception {
         try {
             String type = jObject.getString("type");
-            System.out.println("InterpreterLobby.interpret type: "+type);
+            System.out.println("InterpreterLobby.interpret type: " + type);
             if (type.equals("users")) {
                 users(false);
             } else {
@@ -59,7 +59,7 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
                         getRooms();
                     } else {
                         if (type.equals("pm")) {
-                            pm(jObject);
+                            pm(jObject, session);
                             System.out.println("pm object: " + jObject.toString());
                         } else {
                             if (type.equals("video_pm")) {
@@ -113,12 +113,21 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
         } catch (JSONException ex) {
             throw ex;
         }
-
     }
 
-    private void pm(JSONObject jObject) throws Exception {
+    private void pm(JSONObject jObject, Session session) throws Exception {
         try {
-            String otherUniqueId = jObject.getString("other_unique_id");
+            authenticate(session);
+            UUID otherUserId = new UUID(jObject.getString("otherUserId"));
+            if (otherUserId != null) {
+                Room room = PmsHelper.getOrCreate(otherUserId, user.id, Database.getInstance(), AsynchronousSenders.getInstance());
+                if (room != null) {
+                    JSONObject jObjectReply = new JSONObject();
+                    jObjectReply.put("id", room.id);
+                    jObjectReply.put("type", "pm");
+                    asynchronousSender.send(jObjectReply);
+                }
+            }
             //Pms.open(otherUniqueId, user);
         } catch (Exception ex) {
             throw ex;
@@ -127,7 +136,7 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
 
     private void videoPm(JSONObject jObject) throws Exception {
         try {
-            String otherUniqueId = jObject.getString("other_unique_id");
+            String otherUniqueId = jObject.getString("otherUserId");
             //VideoPms.open(otherUniqueId, user);
 
         } catch (Exception ex) {
@@ -137,7 +146,7 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
 
     private void profilePicture(JSONObject jObject, Session session) throws Exception {
         User user = authenticate(session);
-            if (user != null) {
+        if (user != null) {
             String relativePath = null;
             Base64.Decoder decoder = Base64.getDecoder();
             JSONObject jObjectReplySender = new JSONObject();
@@ -198,13 +207,15 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
             //}
         }
     }
-    private User authenticate(Session session) throws Exception{
-            user = Users.validate(session.id, Database.getInstance());
-            if (user != null) {
-                AsynchronousSenders.getInstance().add(asynchronousSender, user.id);
-            }
-            return user;
+
+    private User authenticate(Session session) throws Exception {
+        user = Users.validate(session.id, Database.getInstance());
+        if (user != null) {
+
+        }
+        return user;
     }
+
     private void createRoom(JSONObject jObject, Session session) throws Exception {
         try {
             JSONObject jObjectReply = new JSONObject();
@@ -215,11 +226,11 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
             if (user != null) {
                 String name = jObject.getString("name");
                 boolean hasPassword = jObject.getBoolean("has_password");
-                try{
-                    Rooms.createNew(name, RoomType.Text, hasPassword, hasPassword?jObject.getString("password"):null, Database.getInstance(), AsynchronousSenders.getInstance());
+                try {
+                    Rooms.createNew(name, RoomType.Text, hasPassword, hasPassword ? jObject.getString("password") : null, Database.getInstance(), AsynchronousSenders.getInstance());
                     successful = true;
-                }
-                catch(RoomCreationException ex){
+                    Users.sendMessageToAllOnline(Rooms.getPopularJSONObject(Database.getInstance(), AsynchronousSenders.getInstance()), Database.getInstance(), AsynchronousSenders.getInstance());
+                } catch (RoomCreationException ex) {
                     reason = ex.toString();
                 }
             } else {
@@ -246,11 +257,18 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
 
     @Override
     public void preSendAuthenticationReply(String username, Boolean successful, Profiles.User user) throws Exception {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (successful) {
+            AsynchronousSenders.getInstance().add(asynchronousSender, user.getUuid());
+            System.out.println("name is: ");
+            System.out.println(asynchronousSender.getName());
+            Database.getInstance().getLobbyToUsers().add(user.getUuid(), asynchronousSender.getName());
+        }
     }
 
     @Override
     public void postSendAuthenticationReply(Boolean successful, JSONObject jObjectReply) throws Exception {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (successful) {
+            users(true);
+        }
     }
 }

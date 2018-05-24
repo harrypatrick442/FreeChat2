@@ -39,11 +39,11 @@ public class Pms {
            
             JSONObject jObjectReply = new JSONObject();
             jObjectReply.put("type", "pm");
-            jObjectReply.put("unique_id", me.id);
+            jObjectReply.put("userId", me.id);
             System.out.println("id being obtained is: "+room.id);
             Tuple<UUID, UUID> userUuids = iDatabase.getPmUuidsToRoomUuid().getUserUuids(room.id);
             UUID otherUniqueId=(userUuids.x==me.id?userUuids.y:userUuids.x);
-            jObjectReply.put("other_unique_id", otherUniqueId);
+            jObjectReply.put("otherUserId", otherUniqueId);
             jObjectReply.put("id", room.id);
             jObjectReply.put("message", jObjectMessage);
             User otherUser = Users.userFromId(otherUniqueId);
@@ -56,8 +56,8 @@ public class Pms {
         JSONObject jObjectReply = new JSONObject();
         jObjectReply.put("type", "pm");
         if (id != null) {
-            jObjectReply.put("unique_id", id);
-            jObjectReply.put("other_unique_id", otherUniqueId);
+            jObjectReply.put("userId", id);
+            jObjectReply.put("otherUserId", otherUniqueId);
             UUID roomId = getId(id, otherUniqueId, iDatabase);
             Room room = null;
             if (roomId != null) {

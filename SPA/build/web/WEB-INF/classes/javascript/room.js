@@ -226,7 +226,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     var videos;
     if (roomInformation.type == Room.Type.pm)
     {
-        if (roomInformation.other_unique_id == userInformation.unique_id)
+        if (roomInformation.otherUserId == userInformation.userId)
         {
             setText(divName, "PM with " + roomInformation.username);
         } else
@@ -238,7 +238,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         if (roomInformation.type == Room.Type.videoPm)
         {
 
-            if (roomInformation.other_unique_id == userInformation.unique_id)
+            if (roomInformation.otherUserId == userInformation.userId)
             {
                 setText(divName, "Private Video with " + roomInformation.username);
             } else
@@ -769,7 +769,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
             addMessage.color1 = true;
             addMessage.backgroundColor = '#e6e6ff';
         }
-        var div = new Message(jObject.content, callbacksEmoticons, jObject.font, jObject.unique_id, jObject.name, addMessage.backgroundColor).div;
+        var div = new Message(jObject.content, callbacksEmoticons, jObject.font, jObject.userId, jObject.name, addMessage.backgroundColor).div;
         if (div)
         {
             divFeed.appendChild(div);
@@ -789,7 +789,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
             addMessage.color1 = true;
             addMessage.backgroundColor = '#e6e6ff';
         }
-        var message = new Message(str, callbacksEmoticons, font, userInformation.unique_id, userInformation.name, addMessage.backgroundColor, true);
+        var message = new Message(str, callbacksEmoticons, font, userInformation.userId, userInformation.name, addMessage.backgroundColor, true);
         if (message.div)
         {
             divFeed.appendChild(message.div);
@@ -946,7 +946,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     }
     function gotMessage(jObject)
     {
-        if (!Ignore.isIgnored(jObject.unique_id))
+        if (!Ignore.isIgnored(jObject.userId))
         {
             if (roomInformation.type == Room.Type.pm)
             {
@@ -962,7 +962,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     var timerGotTyping;
     function gotTyping(jObject)
     {
-        if (!Ignore.isIgnored(jObject.unique_id))
+        if (!Ignore.isIgnored(jObject.userId))
         {
             if (!timerGotTyping)
             {
@@ -980,7 +980,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     {
         if (roomInformation.type == Room.Type.videoPm)
         {
-            if ((jObject.users.indexOf(roomInformation.other_unique_id) < 0) && video && video.connected)
+            if ((jObject.users.indexOf(roomInformation.otherUserId) < 0) && video && video.connected)
             {
                 video.disconnect();
             }
@@ -995,7 +995,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     }
     function gotSound(jObject)
     {
-        if (!Ignore.isIgnored(jObject.unique_id))
+        if (!Ignore.isIgnored(jObject.userId))
         {
             SoundEffects.playUserSoundEffect(jObject.url);
             if (roomInformation.type == Room.Type.dynamic || roomInformation.type == Room.Type.static || roomInformation.type == Room.Type.pm)
@@ -1006,7 +1006,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     }
     function gotImage(jObject)
     {
-        if (!Ignore.isIgnored(jObject.unique_id))
+        if (!Ignore.isIgnored(jObject.userId))
         {
             addImageMessage(jObject.name, jObject.path);
         }

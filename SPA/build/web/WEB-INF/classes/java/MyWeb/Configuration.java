@@ -19,8 +19,13 @@ import java.util.List;
 import java.util.Map;
     
 public class Configuration implements InterfaceConfiguration, IConfigurationPassword {
-    public static int ROOM_NAME_LENGTH_MAX=21;
-    public static int ROOM_NAME_LENGTH_MIN=3;
+    public static int ROOM_NAME_LENGTH_MAX=30;
+    public final static int ROOM_NAME_LENGTH_MIN=3;
+    public final static int MAX_LENGTH_USERNAME=20;
+    public final static int MIN_LENGTH_USERNAME=2;
+    public final static int LENGTH_PASSWORD_MAX = 40;
+    public final static int LENGTH_PASSWORD_MIN = 10;
+    public final static String PM_PREFIX="PM with: ";
   
     public enum PageType {
 
@@ -28,8 +33,6 @@ public class Configuration implements InterfaceConfiguration, IConfigurationPass
     }
     public static PageType pageType = PageType.All;
     public final static boolean consoleEnabled = true;
-    public final static int LENGTH_PASSWORD_MAX = 40;
-    public final static int LENGTH_PASSWORD_MIN = 10;
     private final static int passwordNSpecialMin = 1;
     private final static int passwordNCapitalMin = 1;
     public static boolean videoEnabled = true;
@@ -46,6 +49,11 @@ public class Configuration implements InterfaceConfiguration, IConfigurationPass
     public static String pageUrl = "http://chatdimension.com";
     public static String pageUrlDeveloping = "http://localhost/FreeChat2";
     public static Boolean isOnServer = false;
+    static{
+       int l = MAX_LENGTH_USERNAME+PM_PREFIX.length();
+       if(ROOM_NAME_LENGTH_MAX<l)
+           ROOM_NAME_LENGTH_MAX=l;
+    }
 
     public static void initialize() {
 

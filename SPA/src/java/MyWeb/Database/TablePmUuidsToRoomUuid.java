@@ -44,31 +44,31 @@ public class TablePmUuidsToRoomUuid extends Table implements IPmUuidsToRoomUuid 
             + ")",
             "DROP PROCEDURE IF EXISTS `pm_uuids_to_room_uuid_get_room_uuid`; ",
             "CREATE PROCEDURE `pm_uuids_to_room_uuid_get_room_uuid`("
-            + "IN userUuid1 BINARY(16),"
-            + "IN userUuid2 BINARY(16)"
+            + "IN userUuid1 VARCHAR(32),"
+            + "IN userUuid2 VARCHAR(32)"
             + ")"
             + "BEGIN "
             + "SELECT * FROM pm_uuids_to_room_uuid WHERE ((userUuid1=UNHEX(userUuid1) AND userUuid2=UNHEX(userUuid2)) OR (userUuid1=UNHEX(userUuid2) AND userUuid2=UNHEX(userUuid1)));"
             + " END;",
             "DROP PROCEDURE IF EXISTS `pm_uuids_to_room_uuid_contains_room_uuid`; ",
             "CREATE PROCEDURE `pm_uuids_to_room_uuid_contains_room_uuid` ("
-            + "IN roomUuid BINARY(16)"
+            + "IN roomUuid VARCHAR(32)"
             + ")"
             + "BEGIN "
             + "SELECT COUNT(*) FROM pm_uuids_to_room_uuid WHERE roomUuid=UNHEX(roomUuid);"
             + " END;\n",
             "DROP PROCEDURE IF EXISTS `pm_uuids_to_room_uuid_get_user_uuids`; ",
             "CREATE PROCEDURE `pm_uuids_to_room_uuid_get_user_uuids` ("
-            + "IN roomUuid BINARY(16)"
+            + "IN roomUuid VARCHAR(32)"
             + ")"
             + "BEGIN "
             + "select * from pm_uuids_to_room_uuid where roomUuid=UNHEX(roomUuid);"
             + " END;",
             "DROP PROCEDURE IF EXISTS `pm_uuids_to_room_uuid_add`; ",
             "CREATE PROCEDURE `pm_uuids_to_room_uuid_add` ("
-            + "IN roomUuid BINARY(16),"
-            + " IN userUuid1 BINARY(16),"
-            + "IN userUuid2 BINARY(16)"
+            + "IN roomUuid VARCHAR(32),"
+            + " IN userUuid1 VARCHAR(32),"
+            + "IN userUuid2 VARCHAR(32)"
             + ")"
             + "BEGIN "
             + "INSERT INTO pm_uuids_to_room_uuid(roomUuid, userUuid1, userUuid2) VALUES(UNHEX(roomUuid), UNHEX(userUuid1), UNHEX(userUuid2));"

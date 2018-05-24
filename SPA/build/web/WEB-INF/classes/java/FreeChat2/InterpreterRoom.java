@@ -177,7 +177,7 @@ public class InterpreterRoom extends Interpreter implements Serializable {
             if (jObjectString != lastMessage && stopWatchLastMessage.get_ms() > 1300) {
                 if (user != null && room != null) {
                     lastMessage = jObjectString;
-                    jObject.put("unique_id", user.id);
+                    jObject.put("userId", user.id);
                     room.sendChatMessage(user, jObject, Database.getInstance());
                 }
             }
@@ -191,7 +191,7 @@ public class InterpreterRoom extends Interpreter implements Serializable {
         try {
             if (user != null && room != null) {
                 jObject.put("from", user.getName(Database.getInstance()));
-                room.sendMessage(user, jObject, Database.getInstance());
+                room.sendMessage(jObject, Database.getInstance());
             }
         } catch (Exception ex) {
             throw ex;
@@ -204,7 +204,7 @@ public class InterpreterRoom extends Interpreter implements Serializable {
                 if (stopWatchLastTyping.get_ms() > 1000) {
                     stopWatchLastTyping.Reset();
                     jObject.put("from", user.getName(Database.getInstance()));
-                    room.sendMessage(user, jObject, Database.getInstance());
+                    room.sendMessage(jObject, Database.getInstance(), user);
                 }
             }
 
@@ -304,7 +304,7 @@ public class InterpreterRoom extends Interpreter implements Serializable {
                 jObjectReply.put("type", "image");
                 jObjectReply.put("path", relativePath);
                 jObjectReply.put("name", user.getName(iDatabase));
-                room.sendMessage(user, jObjectReply, iDatabase);
+                room.sendMessage(jObjectReply, iDatabase);
             } else {
                 jObjectReplySender.put("reason", reason);
             }

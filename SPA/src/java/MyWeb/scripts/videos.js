@@ -25,9 +25,9 @@ function Videos(userInformation, callbacks)
         for (var i = 0; i < users.length; i++)
         {
             var user = users[i];
-            if (user.unique_id != userInformation.unique_id)
+            if (user.userId != userInformation.userId)
             {
-                var video = mapUserToVideo[user.unique_id];
+                var video = mapUserToVideo[user.userId];
                 if (video)
                 {
 
@@ -36,7 +36,7 @@ function Videos(userInformation, callbacks)
                 {
                     addUser(user);
                 }
-                uniqueUuids.push(user.unique_id);
+                uniqueUuids.push(user.userId);
             }
 
         }
@@ -134,8 +134,8 @@ function Videos(userInformation, callbacks)
             send: function (obj)
             {
                 obj.type = 'video';
-                obj.from = userInformation.unique_id;
-                obj.to = toUser.unique_id;
+                obj.from = userInformation.userId;
+                obj.to = toUser.userId;
                 callbacks.send(obj);
             },
             ask: function (offer)
@@ -168,8 +168,8 @@ function Videos(userInformation, callbacks)
         video.div.style.backgroundColor = '#222222';
         video.div.style.display='none';
         self.div.appendChild(video.div);
-        mapUserToVideo[toUser.unique_id] = video;
-        arrayUsers.push(toUser.unique_id);
+        mapUserToVideo[toUser.userId] = video;
+        arrayUsers.push(toUser.userId);
         sendReady(toUser);
     }
     function sendReady(toUser)
@@ -177,8 +177,8 @@ function Videos(userInformation, callbacks)
         var jObject = {};
         jObject.type = 'video';
         jObject.webcam_type = 'ready';
-        jObject.to = toUser.unique_id;
-        jObject.from = userInformation.unique_id;
+        jObject.to = toUser.userId;
+        jObject.from = userInformation.userId;
         callbacks.send(jObject);
     }
     this.recieved = function (jObject)

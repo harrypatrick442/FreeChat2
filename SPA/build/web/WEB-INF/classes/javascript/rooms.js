@@ -77,6 +77,8 @@ function Rooms(mapIdToRoom, callbacks, userInformation)
     divMain.style.paddingBottom = '1px';
     var mapIdToRoomEntry = {};
     var arrayRoomEntries = [];
+    var openEnabled=false;
+    this.enableOpen=function(){openEnabled=true;};
     this.listRooms = function (rooms)
     {
         var alreadyPresent = [];
@@ -210,31 +212,28 @@ function Rooms(mapIdToRoom, callbacks, userInformation)
         this.div.onmousedown = function ()
         {
             Windows.cancelBringToFront(selfRooms);
-            if (r.type == Room.Type.videoDynamic || r.type == Room.Type.videoStatic)
-            {
-                if (userInformation.name)
-                {
+           // if (r.type == Room.Type.videoDynamic || r.type == Room.Type.videoStatic)
+            //{
                     //Video.getWebcamPermission(function () {
                     showRoom();
                     //});
-                }
-                else
-                {
+            //}
+          //  else
+          //  {
+      //          showRoom();
+           // }
+            function showRoom()
+            {
+                if(!openEnabled){
                     var optionPaneSignIn = new OptionPane(divMain);
                     optionPaneSignIn.show([['Ok', function () {
-                            }]], "You must enter a username to access video rooms!", function () {
+                            }]], "You must enter a username to access chatrooms!", function () {
                     });
                     optionPaneSignIn.div.style.left = '6px';
                     optionPaneSignIn.div.style.width = '180px';
                     optionPaneSignIn.div.style.marginLeft = '0px';
+                    return;
                 }
-            }
-            else
-            {
-                showRoom();
-            }
-            function showRoom()
-            {
                 var room = mapIdToRoom[r.id];
                 if (room)
                 {

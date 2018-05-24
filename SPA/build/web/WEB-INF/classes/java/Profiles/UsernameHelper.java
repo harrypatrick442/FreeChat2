@@ -6,6 +6,7 @@
 package Profiles;
 
 import FreeChat2.Users;
+import MyWeb.Configuration;
 
 
 /**
@@ -15,10 +16,10 @@ import FreeChat2.Users;
 public class UsernameHelper { 
     public static String isValid(String name, IDatabase iDatabase) throws Exception {
         int length = name.length();
-        if (length > 20) {
+        if (length > Configuration.MAX_LENGTH_USERNAME) {
             return "Username too long. Should be between 2 and 20 characters length!";
         } else {
-            if (length < 2) {
+            if (length < Configuration.MIN_LENGTH_USERNAME) {
                 return "Username too short. Should be between 2 and 20 characters length!";
             } else {
                 String lower = name.toLowerCase();

@@ -35,8 +35,8 @@ public class TableLobbyToUsers extends Table implements ILobbyToUsers {
         String[] strs = {"CREATE TABLE IF NOT EXISTS `lobby_users`"
             + "("         
             + "`userUuid` BINARY(16) NOT NULL,"
-            + "`joined` BIGINT(20), "
-            + "`endpoint` TEXT, "
+            + "`joined` BIGINT(20) NOT NULL, "
+            + "`endpoint` TEXT NOT NULL, "
             + "PRIMARY KEY (`userUuid`),"
             + "INDEX `indexJoined` (`joined`)"
             + ")",
@@ -44,7 +44,7 @@ public class TableLobbyToUsers extends Table implements ILobbyToUsers {
             "CREATE PROCEDURE `lobby_users_get`("
             + ")"
             + "BEGIN "
-            + "SELECT HEX(userUuid) FROM lobby_users;"
+            + "SELECT HEX(userUuid), endpoint FROM lobby_users;"
             + " END;",
             "DROP PROCEDURE IF EXISTS `lobby_users_count`; ",
             "CREATE PROCEDURE `lobby_users_count`("
@@ -54,13 +54,14 @@ public class TableLobbyToUsers extends Table implements ILobbyToUsers {
             + " END;",
             "DROP PROCEDURE IF EXISTS `lobby_users_add`; ",
             "CREATE PROCEDURE `lobby_users_add` ("
-            + "IN userUuid BINARY(16),"
-            + "IN joined BIGINT(20)"
-            +")" 
-            +"INSERT INTO lobby_users(userUuid, joined) VALUES(UNHEX(userUuid), joined) ON DUPLICATE KEY UPDATE userUuid = userUuid;",
+            + "IN userUuidIn VARCHAR(32),"
+            + "IN joined BIGINT(20),"
+                + "IN endpointIn TEXT"
+            +") "
+            +"INSERT INTO lobby_users(userUuid, joined, endpoint) VALUES(UNHEX(userUuidIn), joined, endpointIn) ON DUPLICATE KEY UPDATE userUuid = UNHEX(userUuidIn), endpoint = endpointIn;",
             "DROP PROCEDURE IF EXISTS `lobby_users_remove`; ",
             "CREATE PROCEDURE `lobby_users_remove`("
-            + "IN userUuid BINARY(16),"
+            + "IN userUuid VARCHAR(32),"
             + "IN `left` BIGINT(20)"
             + ")"
             + "BEGIN "
@@ -106,10 +107,10 @@ public class TableLobbyToUsers extends Table implements ILobbyToUsers {
             String str = "CALL `lobby_users_get`();";
             st = conn.prepareCall(str);
             ResultSet rS = st.executeQuery();
-            if (rS.next()) {
+            while (rS.next()) {
                 returns.add(new Tuple<User, String>(
-                        new User(new UUID(rS.getString("userUuid"))), 
-                        rS.getString("endpoint"))
+                        new User(new UUID(rS.getString(1))), 
+                        rS.getString(2))
                         );
             }
         } catch (SQLException se) {
@@ -142,10 +143,11 @@ public class TableLobbyToUsers extends Table implements ILobbyToUsers {
         CallableStatement st = null;
         try {
             conn = getConnection();
-            String str = "CALL `lobby_users_add`(?,?);";
+            String str = "CALL `lobby_users_add`(?,?,?);";
             st = conn.prepareCall(str);
             st.setString(1, userUuid.toString());
             st.setLong(2, System.currentTimeMillis());
+            st.setString(3, endpoint);
             st.executeQuery();
         } catch (SQLException se) {
             se.printStackTrace();

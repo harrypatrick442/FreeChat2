@@ -195,7 +195,7 @@ public class TableRoomUuidToInfo extends Table implements IRoomUuidToInfo {
             st = conn.prepareCall(str);
             st.setInt(1, nRooms);
             ResultSet rS = st.executeQuery();
-            if (rS.next()) {
+            while (rS.next()) {
                 list.add(new UUID(rS.getString(1)));
             }
             return list;

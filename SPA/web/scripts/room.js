@@ -225,24 +225,24 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     var videos;
     if (roomInformation.type == Room.Type.pm)
     {
-        if (roomInformation.other_unique_id== userInformation.unique_id)
+        if (roomInformation.otherUserId== userInformation.userId)
         {
             setText(divName, "PM with " + roomInformation.username);
         } else
         {
-            setText(divName, "PM with " + roomInformation.other_unique_id);
+            setText(divName, "PM with " + roomInformation.otherUserId);
         }
     } else
     {
         if (roomInformation.type == Room.Type.videoPm)
         {
 
-            if (roomInformation.other_unique_id == userInformation.unique_id)
+            if (roomInformation.otherUserId == userInformation.userId)
             {
                 setText(divName, "Private Video with " + roomInformation.username);
             } else
             {
-                setText(divName, "Private Video with " + roomInformation.other_unique_id);
+                setText(divName, "Private Video with " + roomInformation.otherUserId);
             }
             optionPane = new OptionPane(divFeed);
             video = new Video({

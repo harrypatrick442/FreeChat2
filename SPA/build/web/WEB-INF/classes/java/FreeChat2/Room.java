@@ -37,40 +37,41 @@ public class Room implements Serializable {
         this.id = id;
         this.iGetAsynchronousSender = iGetAsynchronousSender;
     }
-    
-    public RoomInfo getInfo(IDatabase iDatabase) throws Exception{
+
+    public RoomInfo getInfo(IDatabase iDatabase) throws Exception {
         System.out.println(id.toString());
         return iDatabase.getRoomUuidToInfo().get(id);
     }
     /*public AsynchronousSender getAsynchronousSender(User user) {
      return iGetAsynchronousSender.getAsynchronousSender();
      }*/
+
     public void sendChatMessage(User user, JSONObject jObjectMessage, IDatabase iDatabase) throws Exception {
         addMessageToHistory(user, jObjectMessage, iDatabase);
-        sendMessage(user, jObjectMessage, iDatabase);
+        sendMessage(jObjectMessage, iDatabase);
     }
-    public void sendMessage(User user, JSONObject jObject, IDatabase iDatabase) throws Exception{
-    Iterator<Tuple<User, String>> iterator = iDatabase.getRoomUuidToUsers().get(id).iterator();
+
+    public void sendMessage(JSONObject jObject, IDatabase iDatabase) throws Exception {
+        sendMessage(jObject, iDatabase, null);
+    }
+
+    public void sendMessage(JSONObject jObject, IDatabase iDatabase, User user) throws Exception {
+        Iterator<Tuple<User, String>> iterator = iDatabase.getRoomUuidToUsers().get(id).iterator();
         while (iterator.hasNext()) {
             try {
-                iGetAsynchronousSender.getAsynchronousSender(user.id, iterator.next().y).send(jObject);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
-    public void send(JSONObject jObject, List<AsynchronousSender> asynchronousSenders) throws Exception {
-        Iterator<AsynchronousSender> iterator = asynchronousSenders.iterator();
-        System.out.println("about to iterate");
-        while (iterator.hasNext()) {
-            try {
-                System.out.println("iterating: ");
-                System.out.println(jObject);
-                System.out.println("was jObject");
-                AsynchronousSender asynchronousSender = iterator.next();
-                System.out.println(asynchronousSender);
-                System.out.println("was asynchronous sender");
-                asynchronousSender.send(jObject);
+                Tuple<User, String> pair = iterator.next();
+                System.out.println("dif: ");
+                System.out.println(pair.x);
+                System.out.println(user);
+                System.out.println(pair.x.id);
+                System.out.println(user);
+                System.out.println(pair.x.equals(user));
+                if(!pair.x.equals(user)){
+                    AsynchronousSender as = iGetAsynchronousSender.getAsynchronousSender(pair.x.id, pair.y);
+                    if (as != null) {
+                        as.send(jObject);
+                    }
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -83,8 +84,6 @@ public class Room implements Serializable {
 
     public List<JSONObject> getHistory(IDatabase iDatabase) throws Exception {
         List<JSONObject> returns = new ArrayList<JSONObject>();
-        
-        System.out.println("getNHisotry");
         for (String message : iDatabase.getRoomUuidToMessages().getNMessages(id, 40)) {
             returns.add(new JSONObject(message));
         }
@@ -124,7 +123,7 @@ public class Room implements Serializable {
     public List<Tuple<User, String>> getUsers(IDatabase iDatabase) throws Exception {
         return iDatabase.getRoomUuidToUsers().get(id);
     }
-    
+
     public List<JSONObject> getAdminMessages() {
         return new ArrayList<JSONObject>();
     }
@@ -150,17 +149,18 @@ public class Room implements Serializable {
             while (iterator.hasNext()) {
                 Tuple<User, String> pair = iterator.next();
                 AsynchronousSender asynchronousSender = iGetAsynchronousSender.getAsynchronousSender(pair.x.id, pair.y);
-                if(asynchronousSender==null)
-                    new NullPointerException("An asynchronousSender was returned as null").printStackTrace(System.out); 
-                else
+                if (asynchronousSender == null) {
+                    new NullPointerException("An asynchronousSender was returned as null").printStackTrace(System.out);
+                } else {
                     asynchronousSenders.add(asynchronousSender);
+                }
                 JSONObject jObjectUser = pair.x.getJSONObject(iDatabase);
                 if (jObjectUser != null) {
                     jArrayUsers.put(jObjectUser);
                 }
             }
             jObject.put("users", jArrayUsers);
-            send(jObject, asynchronousSenders);
+            sendMessage(jObject, iDatabase);
         } catch (Exception ex) {
             throw ex;
         }

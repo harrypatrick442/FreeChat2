@@ -7,6 +7,6 @@
 
 function UserInformation(id)
 {
-    this.unique_id=id;
+    this.userId=id;
     this.id=id;
 }

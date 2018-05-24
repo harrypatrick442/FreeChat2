@@ -9,6 +9,7 @@ import Database.UUID;
 import MyWeb.Configuration;
 import MyWeb.Interpreter;
 import MySocket.AsynchronousSender;
+import MySocket.AsynchronousSenders;
 import MyWeb.Database.Database;
 import MyWeb.GuarbageWatch;
 import MyWeb.IInterfaces;
@@ -110,6 +111,7 @@ public class InterpreterProfiles extends Interpreter {
             jObjectReply.put("userId", user.getUuid().toString());
             System.out.println("mapping");
             Database.getInstance().getUserUuidToSession().map(session.id, user.getUuid());
+            AsynchronousSenders.getInstance().add(asynchronousSender, user.getUuid());
         } else {
             jObjectReply.put("reason", message);
         }
@@ -131,7 +133,11 @@ public class InterpreterProfiles extends Interpreter {
                 String usernameOrEmail = jObject.getString("username");
                 String password = jObject.getString("password");
                 Result result = AuthenticationHelper.authenticate(usernameOrEmail, password, getIDatabase());
-                _authenticate(result.getSuccess() ? ((Tuple<User, String>) result.getPayload()).x : null, result.getSuccess() ? ((Tuple<User, String>) result.getPayload()).y : null, result.getSuccess(), result.getMessage(), session);
+                if (result.getSuccess()) {
+                    _authenticate(((Tuple<User, String>) result.getPayload()).x, ((Tuple<User, String>) result.getPayload()).y, true, result.getMessage(), session);
+                }else{
+                    _authenticate(null, null, false, result.getMessage(), session);
+                }
 
             } catch (JSONException ex) {
                 throw ex;
@@ -333,6 +339,6 @@ public class InterpreterProfiles extends Interpreter {
 
     @Override
     public void close() {
-    
+
     }
 }

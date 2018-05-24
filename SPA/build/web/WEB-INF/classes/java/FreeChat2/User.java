@@ -35,7 +35,7 @@ public class User  implements Serializable{
     public JSONObject getJSONObject(IDatabase iDatabase) throws JSONException, Exception {
         JSONObject jObject = new JSONObject();
         jObject.put("name", iDatabase.getUuidToUsername().getUsernameFromUuid(id));
-        jObject.put("unique_id", id);
+        jObject.put("userId", id);
         /*if(picture!=null)
         {
             jObject.put("picture", picture);
@@ -45,5 +45,15 @@ public class User  implements Serializable{
 
     void setPictureRelativePath(String relativePath, IDatabase instance) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    @Override
+    public boolean equals(Object o) {
+
+        if (o == this) return true;
+        if (!(o instanceof User)) {
+            return false;
+        }
+        User user = (User) o;
+        return user.id.equals(this.id);
     }
 }

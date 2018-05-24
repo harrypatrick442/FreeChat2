@@ -14,11 +14,11 @@ public class UUID{
     private String str;
     public UUID() {
         java.util.UUID uuid =  java.util.UUID.randomUUID();
-        str = uuid.toString().replace("-", "");
+        str = uuid.toString().replace("-", "").toLowerCase();
     }
     public UUID(String shortString)
     {
-        str = shortString.toString().replace("-", "");
+        str = shortString.toString().replace("-", "").toLowerCase();
     }
     @Override
     public String toString()

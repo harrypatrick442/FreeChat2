@@ -49,7 +49,7 @@ public class VideoPms {
     public static void openForOtherUser(User me, Room room, JSONObject jObjectMessage) throws JSONException {
         JSONObject jObjectReply = new JSONObject();
         jObjectReply.put("type", "video_pm");
-        jObjectReply.put("unique_id", me.id);
+        jObjectReply.put("userId", me.id);
         Tuple<UUID, UUID> userUuids= mapRoomIdToUsersIds.get(room.id);
         String otherUniqueId;
         if (ids[0] == me.id) {
@@ -57,7 +57,7 @@ public class VideoPms {
         } else {
             otherUniqueId = ids[0];
         }
-        jObjectReply.put("other_unique_id", otherUniqueId);
+        jObjectReply.put("otherUserId", otherUniqueId);
         jObjectReply.put("message", jObjectMessage);
         jObjectReply.put("id", room.id);
         Users.userFromId(otherUniqueId).asynchronousSender.send(jObjectReply);
@@ -69,8 +69,8 @@ public class VideoPms {
         JSONObject jObjectReply = new JSONObject();
         jObjectReply.put("type", "video_pm");
         if (id != null) {
-            jObjectReply.put("unique_id", id);
-            jObjectReply.put("other_unique_id", otherUniqueId);
+            jObjectReply.put("userId", id);
+            jObjectReply.put("otherUserId", otherUniqueId);
             String roomId = getId(id, otherUniqueId);
             Room room = null;
             if (roomId != null) {

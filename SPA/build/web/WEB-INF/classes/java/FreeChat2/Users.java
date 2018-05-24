@@ -7,6 +7,7 @@ package FreeChat2;
 
 import Database.ILobbyToUsers;
 import Database.UUID;
+import MySocket.AsynchronousSender;
 import MySocket.IGetAsynchronousSender;
 import static MyWeb.Configuration.AuthenticationType.username;
 import MyWeb.Tuple;
@@ -43,7 +44,9 @@ public class Users {
     public static void sendMessageToAllOnline(JSONObject jObject, IDatabase iDatabase, IGetAsynchronousSender iGetAsynchronousSender) throws Exception{
         ILobbyToUsers iLobbyToUsers = iDatabase.getLobbyToUsers();
         for(Tuple<User, String> p : iLobbyToUsers.get()){
-           iGetAsynchronousSender.getAsynchronousSender(p.x.id, p.y);
+           AsynchronousSender as = iGetAsynchronousSender.getAsynchronousSender(p.x.id, p.y);
+           if(as!=null)
+            as.send(jObject);
         }
     }
     public static Boolean nameInUse(String name, IDatabase iDatabase) throws Exception{

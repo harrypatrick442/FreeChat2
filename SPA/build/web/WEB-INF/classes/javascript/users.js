@@ -104,21 +104,21 @@ function Users(independant, cssName, userInformation, callbackEntered, callbackL
     var currentUsers = [];
     var currentUsernames = [];
     var menuOptions = [{name: 'PM', callback: function (r) {
-                Lobby.getPm(r.unique_id);
+                Lobby.getPm(r.userId);
             }}, {name: 'Ignore', callback: function (r) {
-                if (Ignore.isIgnored(r.unique_id))
+                if (Ignore.isIgnored(r.userId))
                 {
-                    Ignore.unignore(r.unique_id);
+                    Ignore.unignore(r.userId);
                 } else
                 {
-                    Ignore.ignore(r.unique_id);
+                    Ignore.ignore(r.userId);
                 }
             }}];
     if (Configuration.videoEnabled)
     {
         menuOptions.push({name: 'Video PM', callback: function (r) {
                 Video.getWebcamPermission(function () {
-                    Lobby.getVideoPm(r.unique_id);
+                    Lobby.getVideoPm(r.userId);
                 });
             }});
     }
@@ -143,7 +143,7 @@ function Users(independant, cssName, userInformation, callbackEntered, callbackL
                     {
                         divMain.insertBefore(user.div, divMain.children[j]);
                         currentUsers.splice(j, 0, user);
-                        self.mapUniqueIdToUser[user.unique_id]=user;
+                        self.mapUniqueIdToUser[user.userId]=user;
                         currentUsernames.splice(j, 0, user.name);
                         inserted = true;
                         break;
@@ -152,7 +152,7 @@ function Users(independant, cssName, userInformation, callbackEntered, callbackL
                 if (!inserted)
                 {
                     divMain.appendChild(user.div);
-                    self.mapUniqueIdToUser[user.unique_id]=user;
+                    self.mapUniqueIdToUser[user.userId]=user;
                     currentUsers.push(user);
                     currentUsernames.push(user.name);
                 }
@@ -169,7 +169,7 @@ function Users(independant, cssName, userInformation, callbackEntered, callbackL
                     callbackLeft(currentUsers[i].name);
                 }
                 divMain.removeChild(currentUsers[i].div);
-                delete self.mapUniqueIdToUser[currentUsers[i].unique_id];
+                delete self.mapUniqueIdToUser[currentUsers[i].userId];
                 currentUsers.splice(i, 1);
                 currentUsernames.splice(i, 1);
             } else
@@ -188,7 +188,7 @@ function Users(independant, cssName, userInformation, callbackEntered, callbackL
     {
         var self = this;
         this.name = r.name;
-        this.unique_id = r.unique_id;
+        this.userId = r.userId;
         this.div = document.createElement('div');
         this.div.style.position = 'relative';
         this.div.style.height = '32px';
@@ -239,10 +239,12 @@ function Users(independant, cssName, userInformation, callbackEntered, callbackL
 
             if (!e)
                 var e = window.event;
-            if (r.unique_id != userInformation.unique_id)
+            console.log(r.userId);
+            console.log(userInformation)
+            if (r.userId != userInformation.userId)
             {
                 var ignoreStr = 'Ignore';
-                if (Ignore.isIgnored(r.unique_id))
+                if (Ignore.isIgnored(r.userId))
                 {
                     ignoreStr = 'Unignore';
 
