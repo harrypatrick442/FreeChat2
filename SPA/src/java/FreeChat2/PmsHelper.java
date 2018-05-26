@@ -64,7 +64,7 @@ public class PmsHelper {
         iDatabase.getUuidToNotifications().add(otherUserId, room.id, user.id);
         AsynchronousSender asynchronousSender = iGetAsynchronousSender.getAsynchronousSender(otherUserId, iDatabase.getLobbyToUsers().getEndpoint(otherUserId));
         if(asynchronousSender!=null)
-        {
+        { 
             JSONObject jObject = new JSONObject();
             jObject.put("type", "notify");
             jObject.put("fromUuid", user.id);
