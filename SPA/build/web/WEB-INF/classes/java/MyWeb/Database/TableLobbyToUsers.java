@@ -46,6 +46,13 @@ public class TableLobbyToUsers extends Table implements ILobbyToUsers {
             + "BEGIN "
             + "SELECT HEX(userUuid), endpoint FROM lobby_users;"
             + " END;",
+            "DROP PROCEDURE IF EXISTS `lobby_users_get_endpoint`; ",
+            "CREATE PROCEDURE `lobby_users_get_endpoint`("
+                + "IN userUuidIn VARCHAR(32)"
+            + ")"
+            + "BEGIN "
+            + "SELECT endpoint FROM lobby_users WHERE userUuid = UNHEX(userUuidIn);"
+            + " END;",
             "DROP PROCEDURE IF EXISTS `lobby_users_count`; ",
             "CREATE PROCEDURE `lobby_users_count`("
             + ")"
@@ -220,8 +227,8 @@ public class TableLobbyToUsers extends Table implements ILobbyToUsers {
             st = conn.prepareCall(str);
             st.setString(1, userUuid.toString());
             ResultSet rS= st.executeQuery();
-            if(rS!=null)
-                return rS.getString("endpoint");
+            if(rS.next())
+                return rS.getString(1);
         } catch (SQLException se) {
             se.printStackTrace();
             throw se;

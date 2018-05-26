@@ -105,9 +105,11 @@ public class InterpreterRoom extends Interpreter implements Serializable {
             jObjectReply.put("type", "connect");
             String reason = null;
             while (true) {
-                UUID roomId = new UUID(jObject.getString("room_id"));
+                UUID roomId = new UUID(jObject.getString("roomUuid"));
                 if (user != null) {
                     room = Rooms.get(roomId, AsynchronousSenders.getInstance());
+                    System.out.println("room: ");
+                    System.out.println(room.id);
                     if (room.hasPassword(iDatabase)) {
                         if (room.validatePassword(jObject.getString("password"), Database.getInstance())) {
                             room.addUser(user, asynchronousSender, Database.getInstance());
@@ -178,6 +180,10 @@ public class InterpreterRoom extends Interpreter implements Serializable {
                 if (user != null && room != null) {
                     lastMessage = jObjectString;
                     jObject.put("userId", user.id);
+                    if(jObject.has("notify")){
+                        PmsHelper.notifyOtherUser(user, Database.getInstance(), AsynchronousSenders.getInstance(), room);
+                        jObject.remove("notify");
+                    }
                     room.sendChatMessage(user, jObject, Database.getInstance());
                 }
             }

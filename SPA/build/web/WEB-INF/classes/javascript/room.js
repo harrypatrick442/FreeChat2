@@ -6,7 +6,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         this.set("size");
         //this is a reset function for this particualr instance of this particular class.
     });
-    this.isRoom=true;
+    this.isRoom = true;
     var minWidth = 292;
     var minHeight = 240;
     this.acceptsEmoticons = true;
@@ -92,10 +92,10 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     var divFeed = document.createElement('div');
     var spinner = new Spinner(1);
     spinner.div.style.position = 'absolute';
-    spinner.div.style.width='109px';
-    spinner.div.style.height='109px';
-    spinner.div.style.left='calc(50% - 55px)';
-    spinner.div.style.top='calc(50% - 55px)';
+    spinner.div.style.width = '109px';
+    spinner.div.style.height = '109px';
+    spinner.div.style.left = 'calc(50% - 55px)';
+    spinner.div.style.top = 'calc(50% - 55px)';
     divMain.appendChild(spinner.div);
     var users = new Users(false, "users", userInformation, function (username) {
         if (roomInformation.type == Room.Type.dynamic || roomInformation.type == Room.Type.static)
@@ -113,13 +113,13 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     this.div.style.height = '500px';
     this.div.style.left = '430px';
     this.div.style.top = '80px';
-        var startPosition = settings.get("position");
-        if (!startPosition)
-        {
-            startPosition = Window.getStartPosition();
-        }
-        this.div.style.left = String(startPosition[0]) + 'px';
-        this.div.style.top = String(startPosition[1]) + 'px';
+    var startPosition = settings.get("position");
+    if (!startPosition)
+    {
+        startPosition = Window.getStartPosition();
+    }
+    this.div.style.left = String(startPosition[0]) + 'px';
+    this.div.style.top = String(startPosition[1]) + 'px';
     var startSize = settings.get("size");
     if (startSize)
     {
@@ -130,11 +130,11 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         this.div.style.width = String(startSize[0]) + 'px';
         this.div.style.height = String(startSize[1]) + 'px';
     }
-        var startZIndex = settings.get("zIndex");
-        if (startZIndex)
-        {
-            self.div.style.zIndex=String(startZIndex);
-        }
+    var startZIndex = settings.get("zIndex");
+    if (startZIndex)
+    {
+        self.div.style.zIndex = String(startZIndex);
+    }
     divInner.style.position = 'absolute';
     divInner.style.border = '1px solid #66a3ff';
     divInner.style.backgroundColor = '#0099ff';
@@ -224,68 +224,57 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     var video;
     var optionPane;
     var videos;
-    if (roomInformation.type == Room.Type.pm)
+
+    if (roomInformation.type == Room.Type.videoPm)
     {
+
         if (roomInformation.otherUserId == userInformation.userId)
         {
-            setText(divName, "PM with " + roomInformation.username);
+            setText(divName, "Private Video with " + roomInformation.username);
         } else
         {
-            setText(divName, "PM with " + roomInformation.other_username);
+            setText(divName, "Private Video with " + roomInformation.other_username);
         }
+        optionPane = new OptionPane(divFeed);
+        video = new Video({
+            send: function (obj)
+            {
+                obj.type = 'video';
+                websocket.send(obj);
+            },
+            ask: function (offer)
+            {
+                optionPane.show([['Yes', function () {
+                            video.accept();
+                        }], ['No', function () {
+                            video.decline();
+                        }]], "Accept Video chat request from " + userInformation.name + "?", function () {
+                    video.decline();
+                });
+            },
+            connected: function ()
+            {
+                divVideoStart.style.display = 'none';
+                divVideoStop.style.display = 'inline';
+            },
+            disconnected: function ()
+            {
+                roomInformation.accepted = false;
+                divVideoStart.style.display = 'inline';
+                divVideoStop.style.display = 'none';
+            }
+        });
+        divFeed.appendChild(video.div);
     } else
     {
-        if (roomInformation.type == Room.Type.videoPm)
-        {
-
-            if (roomInformation.otherUserId == userInformation.userId)
-            {
-                setText(divName, "Private Video with " + roomInformation.username);
-            } else
-            {
-                setText(divName, "Private Video with " + roomInformation.other_username);
-            }
-            optionPane = new OptionPane(divFeed);
-            video = new Video({
-                send: function (obj)
-                {
-                    obj.type = 'video';
-                    websocket.send(obj);
-                },
-                ask: function (offer)
-                {
-                    optionPane.show([['Yes', function () {
-                                video.accept();
-                            }], ['No', function () {
-                                video.decline();
-                            }]], "Accept Video chat request from " + userInformation.name + "?", function () {
-                        video.decline();
-                    });
-                },
-                connected: function ()
-                {
-                    divVideoStart.style.display = 'none';
-                    divVideoStop.style.display = 'inline';
-                },
-                disconnected: function ()
-                {
-                    roomInformation.accepted = false;
-                    divVideoStart.style.display = 'inline';
-                    divVideoStop.style.display = 'none';
-                }
-            });
-            divFeed.appendChild(video.div);
-        } else
-        {
-            if (roomInformation.type == Room.Type.videoStatic || roomInformation.type == Room.Type.videoDynamic)
-            {
-                videos = new Videos(userInformation, {send: function (jObject) {
-                        websocket.send(jObject);
-                    }});
-                divFeed.appendChild(videos.div);
-            }
-            setText(divName, roomInformation.name);
-        }
+        //if (roomInformation.type == Room.Type.videoStatic || roomInformation.type == Room.Type.videoDynamic)
+        //{
+        //    videos = new Videos(userInformation, {send: function (jObject) {
+        //           websocket.send(jObject);
+        //       }});
+        //    divFeed.appendChild(videos.div);
+        // }
+        setText(divName, roomInformation.name);
     }
 
     function close()
@@ -315,7 +304,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         websocket.close();
         self.task.remove(self);
         Windows.remove(self);
-        callbackClosed(roomInformation.id);
+        callbackClosed(roomInformation.roomUuid);
         Themes.remove(themesObject);
         Themes.remove(themesObjectWindow);
         users.dispose();
@@ -342,11 +331,11 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     //if(!isMobile)
     //{
     divControls.style.height = '20px';
-    divControlsInner.style.float='right';
-    divControlsInner.style.height='16px';
-    divControlsInner.style.marginTop='2px';
+    divControlsInner.style.float = 'right';
+    divControlsInner.style.height = '16px';
+    divControlsInner.style.marginTop = '2px';
     divControlsInner.style.overflow = 'hidden';
-   text.style.height = '26px';
+    text.style.height = '26px';
     //}
     //else
     //{
@@ -432,21 +421,21 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     {
         div.style.position = 'relative';
         div.style.height = '16px';
-        div.style.minWidth='16px';
+        div.style.minWidth = '16px';
         div.style.float = 'right';
         div.style.marginRight = '5px';
         div.style.cursor = 'pointer';
         div.style.zIndex = '10';
         verticallyCenter(div);
         img.style.height = '100%';
-        img.src = window.thePageUrl+srcImg;
+        img.src = window.thePageUrl + srcImg;
         new Hover(img, function () {
-            img.src = window.thePageUrl+srcImgHover;
+            img.src = window.thePageUrl + srcImgHover;
         }, function () {
-            img.src = window.thePageUrl+srcImg;
+            img.src = window.thePageUrl + srcImg;
         });
         div.addEventListener("click", clickCallback);
-        
+
     }
     var timerIsTyping;
     var sendTyping = true;
@@ -492,7 +481,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         lastSentMessage = newTime;
         if (badCount > 2)
         {
-            Lobby.closedReason='spam';
+            Lobby.closedReason = 'spam';
             MySocket.closeAll();
             this.optionPaneDisconnected = new OptionPane(document.body);
             this.optionPaneDisconnected.show([['Ok', function () {
@@ -758,7 +747,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     Font.addCallback(callbackFontChanged);
     function addMessage(jObject)
     {
-        if(pendingMessages.unpendIfPending(jObject))
+        if (pendingMessages.unpendIfPending(jObject))
             return;
         if (addMessage.color1)
         {
@@ -800,7 +789,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     }
     function addAdminMessage(str)
     {
-        var div = new Message(str, callbacksEmoticons, {color:"#4e0000", font:"Arial", bold:true, italic:false, size:10}, undefined, "Admin", addMyMessage.backgroundColor).div;
+        var div = new Message(str, callbacksEmoticons, {color: "#4e0000", font: "Arial", bold: true, italic: false, size: 10}, undefined, "Admin", addMyMessage.backgroundColor).div;
         if (div)
         {
             divFeed.appendChild(div);
@@ -830,6 +819,11 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         jObject.content = str;
         jObject.font = callbacksFont.getFont();
         jObject.name = userInformation.name;
+        if (roomInformation.type == Room.Type.pm)
+        {
+            console.log("notify");
+            jObject.notify = true;
+        }
         if (websocket)
         {
             websocket.send(jObject);
@@ -941,7 +935,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     {
         var jObject = {};
         jObject.type = 'users';
-        jObject.room_id = roomInformation.id;
+        jObject.roomUuid = roomInformation.roomUuid;
         websocket.send(jObject);
     }
     function gotMessage(jObject)
@@ -1033,6 +1027,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     }
     function connect(password)
     {
+        console.log("connecting");
         spinner.show();
         var jObject = {};
         jObject.type = "connect";
@@ -1041,7 +1036,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
             jObject.password = password;
         }
         jObject.user_id = userInformation.id;
-        jObject.room_id = roomInformation.id;
+        jObject.roomUuid = roomInformation.roomUuid;
         websocket.send(jObject);
     }
     function interpret(jObject)
@@ -1127,7 +1122,9 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
                     },
                     function () {
                         close();
-                    }, function(zIndex){settings.set("zIndex", zIndex);}));
+                    }, function (zIndex) {
+                settings.set("zIndex", zIndex);
+            }));
     TaskBar.add(this);
     if (roomInformation.type == Room.Type.pm && roomInformation.username != userInformation.name)
     {
@@ -1138,5 +1135,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         }
         self.task.flash();
     }
+    if (roomInformation.show)
+        self.task.unminimize();
 }
 Room.Type = {static: 'static', dynamic: 'dynamic', pm: 'pm', videoStatic: 'video_static', videoDynamic: 'video_dynamic', videoPm: 'video_pm'};

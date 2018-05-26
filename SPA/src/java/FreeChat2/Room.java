@@ -133,7 +133,7 @@ public class Room implements Serializable {
         System.out.println(roomInfo);
         JSONObject jObject = new JSONObject();
         jObject.put("name", roomInfo.name);
-        jObject.put("id", id);
+        jObject.put("roomUuid", id);
         jObject.put("has_password", roomInfo.passwordProtected);
         jObject.put("type", roomInfo.roomType.toString());
         return jObject;

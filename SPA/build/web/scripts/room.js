@@ -314,7 +314,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         websocket.close();
         self.task.remove(self);
         Windows.remove(self);
-        callbackClosed(roomInformation.id);
+        callbackClosed(roomInformation.roomUuid);
         Themes.remove(themesObject);
         Themes.remove(themesObjectWindow);
         users.dispose();
@@ -937,7 +937,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     {
         var jObject = {};
         jObject.type = 'users';
-        jObject.room_id = roomInformation.id;
+        jObject.roomUuid = roomInformation.roomUuid;
         websocket.send(jObject);
     }
     function gotMessage(jObject)
@@ -1037,7 +1037,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
             jObject.password = password;
         }
         jObject.user_id = userInformation.id;
-        jObject.room_id = roomInformation.id;
+        jObject.roomUuid = roomInformation.roomUuid;
         websocket.send(jObject);
     }
     function interpret(jObject)

@@ -188,15 +188,15 @@ websocket.addEventListener('message', function(e){
     }
     Lobby.openRoom = function (roomInformation)
     {
-        if (mapIdToRoom[roomInformation.id])
+        if (mapIdToRoom[roomInformation.roomUuid])
         {
-            var room = mapIdToRoom[roomInformation.id];
+            var room = mapIdToRoom[roomInformation.roomUuid];
             room.newRoomInformation(roomInformation);
             room.task.unminimize();
         } else
         {
             if((!isMobile)||(roomInformation.type!=Room.Type.videoDynamic&&roomInformation.type!=Room.Type.videoStatic&&roomInformation.type!=Room.Type.videoPm))
-            mapIdToRoom[roomInformation.id] = new Room(userInformation, roomInformation, callbackRoomClosed, "room", Configuration.URL_ENDPOINT_ROOM, {unminimize: font.unminimize, getFont: font.getFont}, {unminimize: emoticons.unminimize, getLookupTree: emoticons.getLookupTree}, {unminimize: soundEffects.unminimize}, {show: ImageUploader.show, interpret: ImageUploader.interpret}, {show: showImageUploaderProfilePicture});
+            mapIdToRoom[roomInformation.roomUuid] = new Room(userInformation, roomInformation, callbackRoomClosed, "room", Configuration.URL_ENDPOINT_ROOM, {unminimize: font.unminimize, getFont: font.getFont}, {unminimize: emoticons.unminimize, getLookupTree: emoticons.getLookupTree}, {unminimize: soundEffects.unminimize}, {show: ImageUploader.show, interpret: ImageUploader.interpret}, {show: showImageUploaderProfilePicture});
         }
     };
     Lobby.openWall = function (wallInfo)

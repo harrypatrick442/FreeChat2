@@ -55,7 +55,24 @@ public class PmsHelper {
          otherUser.asynchronousSender.send(jObjectReply);
          }
          */    }
-
+    public static void notifyOtherUser(User user, IDatabase iDatabase, IGetAsynchronousSender iGetAsynchronousSender, Room room) throws Exception{
+        UUID otherUserId = iDatabase.getPmUuidsToRoomUuid()
+                .getOtherUser(user.id, room.id);
+        System.out.println(otherUserId);
+        if(otherUserId==null)
+            return;
+        iDatabase.getUuidToNotifications().add(otherUserId, room.id, user.id);
+        AsynchronousSender asynchronousSender = iGetAsynchronousSender.getAsynchronousSender(otherUserId, iDatabase.getLobbyToUsers().getEndpoint(otherUserId));
+        if(asynchronousSender!=null)
+        {
+            JSONObject jObject = new JSONObject();
+            jObject.put("type", "notify");
+            jObject.put("fromUuid", user.id);
+            jObject.put("roomUuid", room.id);
+            jObject.put("roomName", room.getInfo(iDatabase).name);
+            asynchronousSender.send(jObject);
+        }
+    }
     public static Room getOrCreate(UUID otherUserId, UUID userId, IDatabase iDatabase, IGetAsynchronousSender iGetAsynchronousSender) throws Exception {
         IPmUuidsToRoomUuid iPmUuidsToRoomUuid = iDatabase.getPmUuidsToRoomUuid();
         UUID roomUuid = iPmUuidsToRoomUuid.getRoomUuid(otherUserId, userId);
@@ -72,5 +89,4 @@ public class PmsHelper {
         iPmUuidsToRoomUuid.add(room.id, otherUserId, userId);
         return room;
     }
-
 }

@@ -44,11 +44,19 @@ public class TablePmUuidsToRoomUuid extends Table implements IPmUuidsToRoomUuid 
             + ")",
             "DROP PROCEDURE IF EXISTS `pm_uuids_to_room_uuid_get_room_uuid`; ",
             "CREATE PROCEDURE `pm_uuids_to_room_uuid_get_room_uuid`("
-            + "IN userUuid1 VARCHAR(32),"
-            + "IN userUuid2 VARCHAR(32)"
+            + "IN userUuid1In VARCHAR(32),"
+            + "IN userUuid2In VARCHAR(32)"
             + ")"
             + "BEGIN "
-            + "SELECT * FROM pm_uuids_to_room_uuid WHERE ((userUuid1=UNHEX(userUuid1) AND userUuid2=UNHEX(userUuid2)) OR (userUuid1=UNHEX(userUuid2) AND userUuid2=UNHEX(userUuid1)));"
+            + "SELECT HEX(roomUuid) FROM pm_uuids_to_room_uuid WHERE ((userUuid1=UNHEX(userUuid1In) AND userUuid2=UNHEX(userUuid2In)) OR (userUuid1=UNHEX(userUuid2In) AND userUuid2=UNHEX(userUuid1In)));"
+            + " END;",
+            "DROP PROCEDURE IF EXISTS `pm_uuids_to_room_uuid_get_other_user`; ",
+            "CREATE PROCEDURE `pm_uuids_to_room_uuid_get_other_user`("
+            + "IN userUuidIn VARCHAR(32),"
+            + "IN roomUuidIn VARCHAR(32)"
+            + ")"
+            + "BEGIN "
+            + "SELECT HEX(IF(userUuid1 = UNHEX(userUuidIn), userUuid2, userUuid1)) FROM pm_uuids_to_room_uuid WHERE (userUuid1=UNHEX(userUuidIn) OR userUuid2=UNHEX(userUuidIn)) AND roomUuid = UNHEX   (roomUuidIn);"
             + " END;",
             "DROP PROCEDURE IF EXISTS `pm_uuids_to_room_uuid_contains_room_uuid`; ",
             "CREATE PROCEDURE `pm_uuids_to_room_uuid_contains_room_uuid` ("
@@ -56,7 +64,7 @@ public class TablePmUuidsToRoomUuid extends Table implements IPmUuidsToRoomUuid 
             + ")"
             + "BEGIN "
             + "SELECT COUNT(*) FROM pm_uuids_to_room_uuid WHERE roomUuid=UNHEX(roomUuid);"
-            + " END;\n",
+            + " END;",
             "DROP PROCEDURE IF EXISTS `pm_uuids_to_room_uuid_get_user_uuids`; ",
             "CREATE PROCEDURE `pm_uuids_to_room_uuid_get_user_uuids` ("
             + "IN roomUuid VARCHAR(32)"
@@ -112,8 +120,11 @@ public class TablePmUuidsToRoomUuid extends Table implements IPmUuidsToRoomUuid 
             st.setString(1, userUuid1.toString());
             st.setString(2, userUuid2.toString());
             ResultSet rS = st.executeQuery();
+            System.out.println("done");
+            
             if (rS.next()) {
-                return new UUID(rS.getString("roomUuid"));
+                System.out.println("returned it");
+                return new UUID(rS.getString(1));
             }
         } catch (SQLException se) {
             se.printStackTrace();
@@ -218,11 +229,11 @@ public class TablePmUuidsToRoomUuid extends Table implements IPmUuidsToRoomUuid 
         CallableStatement st = null;
         try {
             conn = getConnection();
-            String str = "CALL `pm_uuids_to_room_uuid_get_user_uuids`(?);";
+            String str = "CALL `pm_uuids_to_room_uuid_add`(?, ?, ?);";
             st = conn.prepareCall(str);
             st.setString(1, roomUuid.toString());
-            st.setString(1, userUuid1.toString());
-            st.setString(1, userUuid2.toString());
+            st.setString(2, userUuid1.toString());
+            st.setString(3, userUuid2.toString());
             st.executeQuery();
         } catch (SQLException se) {
             se.printStackTrace();
@@ -245,6 +256,43 @@ public class TablePmUuidsToRoomUuid extends Table implements IPmUuidsToRoomUuid 
                 se.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public UUID getOtherUser(UUID userUuid, UUID roomUuid) throws Exception {Connection conn = null;
+        CallableStatement st = null;
+        try {
+            conn = getConnection();
+            String str = "CALL `pm_uuids_to_room_uuid_get_other_user`(?,?);";
+            st = conn.prepareCall(str);
+            st.setString(1, userUuid.toString());
+            st.setString(2, roomUuid.toString());
+            ResultSet rS = st.executeQuery();
+            if (rS.next()) {
+                return new UUID(rS.getString(1));
+            }
+        } catch (SQLException se) {
+            se.printStackTrace();
+            throw se;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+            } catch (SQLException se) {
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+        }
+        return null;
     }
 
     @Override

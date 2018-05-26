@@ -20,6 +20,7 @@ function LobbyChat(callbackFinishedLoading, otherCallbacks)
     var walls;
     var users;
     var webcamSettings;
+    var notifications;
 
     websocket = new MySocket("chat_lobby");
     websocket.addEventListener('open', function () {
@@ -115,6 +116,12 @@ function LobbyChat(callbackFinishedLoading, otherCallbacks)
     {
         rooms.listRooms(jObject.rooms);
     }
+    function gotNotifications(jObject)
+    {
+		console.log('got notifications');
+		if(notifications)
+			notifications.listNotifications(jObject.notifications);
+    }
     function getRooms()
     {
         var jObject = {};
@@ -158,6 +165,8 @@ function LobbyChat(callbackFinishedLoading, otherCallbacks)
             rooms.enableOpen();
             for (var i = 0; i < openOnEnter.length; i++)
             {
+                console.log("room example: ");
+                console.log(openOnEnter[i]);
                 Lobby.openRoom(openOnEnter[i]);
             }
             timerEnableAlerts = new Timer(function () {
@@ -170,6 +179,7 @@ function LobbyChat(callbackFinishedLoading, otherCallbacks)
             {
                 websocket.send(jObjectProfilePicture);
             }
+            notifications = new Notifications(mapIdToRoom, websocket.send);
         }
     };
     function showImageUploaderProfilePicture()
@@ -186,15 +196,16 @@ function LobbyChat(callbackFinishedLoading, otherCallbacks)
     }
     Lobby.openRoom = function (roomInformation)
     {
-        if (mapIdToRoom[roomInformation.id])
+		console.log(roomInformation);
+        if (mapIdToRoom[roomInformation.roomUuid])
         {
-            var room = mapIdToRoom[roomInformation.id];
+            var room = mapIdToRoom[roomInformation.roomUuid];
             room.newRoomInformation(roomInformation);
             room.task.unminimize();
         } else
         {//xxx
             if ((!isMobile) || (roomInformation.type != Room.Type.videoDynamic && roomInformation.type != Room.Type.videoStatic && roomInformation.type != Room.Type.videoPm))
-                mapIdToRoom[roomInformation.id] = new Room(userInformation, roomInformation, callbackRoomClosed, "room", Configuration.URL_ENDPOINT_ROOM, {unminimize: font.unminimize, getFont: font.getFont}, {unminimize: emoticons.unminimize, getLookupTree: emoticons.getLookupTree}, {unminimize: soundEffects.unminimize}, {show: ImageUploader.show, interpret: ImageUploader.interpret}, {show: showImageUploaderProfilePicture});
+                mapIdToRoom[roomInformation.roomUuid] = new Room(userInformation, roomInformation, callbackRoomClosed, "room", Configuration.URL_ENDPOINT_ROOM, {unminimize: font.unminimize, getFont: font.getFont}, {unminimize: emoticons.unminimize, getLookupTree: emoticons.getLookupTree}, {unminimize: soundEffects.unminimize}, {show: ImageUploader.show, interpret: ImageUploader.interpret}, {show: showImageUploaderProfilePicture});
         }
     };
     Lobby.openWall = function (wallInfo)
@@ -232,6 +243,9 @@ function LobbyChat(callbackFinishedLoading, otherCallbacks)
                 break;
             case "get_rooms":
                 gotRooms(jObject);
+                break;
+            case "notifications":
+                gotNotifications(jObject);
                 break;
             case "authenticate":
                 gotUsername(jObject);

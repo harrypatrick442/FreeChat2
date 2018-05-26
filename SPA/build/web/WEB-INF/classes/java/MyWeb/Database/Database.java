@@ -31,6 +31,7 @@ import Database.IUuidToImages;
 import Database.IUuidToInterests;
 import Database.IUuidToJoined;
 import Database.IUuidToLocation;
+import Database.IUuidToNotifications;
 import Database.IUuidToUsername;
 import MyWeb.MyConsole;
 import java.util.Iterator;
@@ -67,6 +68,7 @@ public class Database implements IDatabase {
     private TableRoomUuidToAuthenticationInfo tableRoomUuidToAuthenticationInfo;
     private TableUserUuidToSession tableUserUuidToSession;
     private TableLobbyToUsers tableLobbyToUsers;
+    private TableUuidToNotifications tableUuidToNotifications;
     private List<ISetup> iSetups = new ArrayList<ISetup>();
 
     public Database() {
@@ -117,6 +119,8 @@ public class Database implements IDatabase {
         iSetups.add(tableRoomUuidToUsers);
         tableLobbyToUsers = new TableLobbyToUsers(iConnectionsPool);
         iSetups.add(tableLobbyToUsers);
+        tableUuidToNotifications = new TableUuidToNotifications(iConnectionsPool);
+        iSetups.add(tableUuidToNotifications);
         Iterator<ISetup> iterator = iSetups.iterator();
         while (iterator.hasNext()) {
             ISetup iSetup = iterator.next();
@@ -133,6 +137,11 @@ public class Database implements IDatabase {
         }
     }
 
+    @Override
+    public IUuidToNotifications getUuidToNotifications() {
+        return tableUuidToNotifications;
+    }
+    
     @Override
     public IUuidToEmail getUuidToEmail() {
         return tableUuidToEmail;

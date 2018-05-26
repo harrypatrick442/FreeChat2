@@ -9,7 +9,6 @@ import Database.UUID;
 import MyWeb.Interpreter;
 import MyWeb.ImageProcessing;
 import MyWeb.GuarbageWatch;
-import MyWeb.Ip;
 import MyWeb.StopWatch;
 import MySocket.AsynchronousSender;
 import MySocket.AsynchronousSenders;
@@ -60,23 +59,26 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
                     } else {
                         if (type.equals("pm")) {
                             pm(jObject, session);
-                            System.out.println("pm object: " + jObject.toString());
                         } else {
-                            if (type.equals("video_pm")) {
-                                videoPm(jObject);
+                            if (type.equals("get_notifications")) { System.out.println("get_notifications");
+                                getNotifications(session);
                             } else {
-                                if (type.equals("create_room")) {
-                                    createRoom(jObject, session);
+                                if (type.equals("video_pm")) {
+                                    videoPm(jObject);
                                 } else {
-                                    if (type.equals("profile_picture")) {
-                                        profilePicture(jObject, session);
+                                    if (type.equals("create_room")) {
+                                        createRoom(jObject, session);
+                                    } else {
+                                        if (type.equals("profile_picture")) {
+                                            profilePicture(jObject, session);
+                                        }
                                     }
                                 }
                             }
+
                         }
 
                     }
-
                 }
             }
         } catch (Exception ex) {
@@ -100,6 +102,13 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
         asynchronousSender.send(Rooms.getPopularJSONObject(Database.getInstance(), AsynchronousSenders.getInstance()));
     }
 
+    private void getNotifications(Session session) throws Exception {
+        authenticate(session);
+        if (user != null) {
+            NotificationsHelper.sendNotifications(user, Database.getInstance(), asynchronousSender);
+        }
+    }
+
     private void users(boolean toAll) throws Exception {
         try {
             JSONObject jObjectReply = new JSONObject();
@@ -118,15 +127,26 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
     private void pm(JSONObject jObject, Session session) throws Exception {
         try {
             authenticate(session);
+            if (user == null) {
+                return;
+            }
+
             UUID otherUserId = new UUID(jObject.getString("otherUserId"));
-            if (otherUserId != null) {
-                Room room = PmsHelper.getOrCreate(otherUserId, user.id, Database.getInstance(), AsynchronousSenders.getInstance());
-                if (room != null) {
-                    JSONObject jObjectReply = new JSONObject();
-                    jObjectReply.put("id", room.id);
-                    jObjectReply.put("type", "pm");
-                    asynchronousSender.send(jObjectReply);
-                }
+            if (otherUserId == null) {
+                return;
+            }
+            Room room = PmsHelper.getOrCreate(otherUserId, user.id, Database.getInstance(), AsynchronousSenders.getInstance());
+            if (room != null) {
+                JSONObject jObjectReply = new JSONObject();
+                jObjectReply.put("roomUuid", room.id);
+                jObjectReply.put("type", "pm");
+                jObjectReply.put("name", room.getInfo(Database.getInstance()).name);
+                    //AsynchronousSender asynchronousSenderOtherUser =asynchronousSenderOtherUser =asynchronousSenderOtherUser = AsynchronousSenders.getInstance().getAsynchronousSender(otherUserId, Database.getInstance().getLobbyToUsers().getEndpoint(otherUserId));
+                //if(asynchronousSenderOtherUser!=null){
+                //    asynchronousSenderOtherUser.send(jObjectReply);
+                // }
+                jObjectReply.put("show", true);
+                asynchronousSender.send(jObjectReply);
             }
             //Pms.open(otherUniqueId, user);
         } catch (Exception ex) {

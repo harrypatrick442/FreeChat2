@@ -84,9 +84,9 @@ function Rooms(mapIdToRoom, callbacks, userInformation)
         for (var i = rooms.length - 1; i >= 0; i--)
         {
             var r = rooms[i];
-            if (r.id)
+            if (r.roomUuid)
             {
-                if (!mapIdToRoomEntry[r.id]&&((!isMobile)||(r.type!=Room.Type.videoDynamic&&r.type!=Room.Type.videoStatic&&r.type!=Room.Type.videoPm)))
+                if (!mapIdToRoomEntry[r.roomUuid]&&((!isMobile)||(r.type!=Room.Type.videoDynamic&&r.type!=Room.Type.videoStatic&&r.type!=Room.Type.videoPm)))
                 {
                     var roomEntry = new RoomEntry(r);
                     var j = 0;
@@ -97,7 +97,7 @@ function Rooms(mapIdToRoom, callbacks, userInformation)
                         var rEntry = arrayRoomEntries[j];
                         if (rEntry.info.name.toLowerCase() > lowerCaseName)
                         {
-                            mapIdToRoomEntry[r.id] = roomEntry;
+                            mapIdToRoomEntry[r.roomUuid] = roomEntry;
                             arrayRoomEntries.splice(j, 0, roomEntry);
                             divMain.insertBefore(roomEntry.div, divMain.children[j]);
                             inserted = true;
@@ -107,12 +107,12 @@ function Rooms(mapIdToRoom, callbacks, userInformation)
                     }
                     if (!inserted)
                     {
-                        mapIdToRoomEntry[r.id] = roomEntry;
+                        mapIdToRoomEntry[r.roomUuid] = roomEntry;
                         arrayRoomEntries.push(roomEntry);
                         divMain.appendChild(roomEntry.div);
                     }
                 }
-                alreadyPresent.push(r.id);
+                alreadyPresent.push(r.roomUuid);
             }
         }
         i = 0;
@@ -235,7 +235,7 @@ function Rooms(mapIdToRoom, callbacks, userInformation)
             }
             function showRoom()
             {
-                var room = mapIdToRoom[r.id];
+                var room = mapIdToRoom[r.roomUuid];
                 if (room)
                 {
                     room.task.unminimize();

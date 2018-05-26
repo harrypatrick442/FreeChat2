@@ -25,6 +25,7 @@ import Database.IUuidToImages;
 import Database.IUuidToInterests;
 import Database.IUuidToJoined;
 import Database.IUuidToLocation;
+import Database.IUuidToNotifications;
 import Database.IUuidToUsername;
 
 
@@ -54,4 +55,5 @@ public interface IDatabase {
     public IRoomUuidToUsers getRoomUuidToUsers();    
     public IUserUuidToSession getUserUuidToSession();
     public ILobbyToUsers getLobbyToUsers();
+    public IUuidToNotifications getUuidToNotifications();
 }
