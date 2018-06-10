@@ -5,7 +5,22 @@ function Profile(userId, messenger, editor, mySocketProfiles, callbacks)
     var self = this;
     var settings = new Settings('#ProfileEditor');
     var terminal = messenger.getTerminal(interpret);
-    var genericWindow = new GenericWindow(/*name*/'Profile Editor', /*tooltipMessage*/'Used to pick location', /*iconPath*/'images/profiles_logo.png', /*minWidth*/150, /*maxWidth*/1000, /*minHeight*/200, /*maxHeight*/1000, /*defaultWidth*/500, /*defaultHeight*/500, /*defaultX*/200, /*defaultY*/200, /*minimized*/false, /*minimizable*/true, /*maximizable*/true, /*minimizeOnClose*/editor);
+    var genericWindow = new GenericWindow({
+        name:'Profile Editor',
+        tooltipMessage:'Used to pick location',
+        iconPath:'images/profiles_logo.png',
+        minWidth:150,
+        maxWidth:1000,
+        minHeight:200,
+        maxHeight:1000,
+        defaultWidth:500,
+        defaultHeight:500,
+        defaultX:200,
+        defaultY:200,
+        minimized:false,
+        minimizable:true,
+        maximizable:true,
+        minimizeOnClose:editor});
     var divMainInner = document.createElement('div');
     var divCrossingColor = document.createElement('div');
     var spinner = new Spinner(1);

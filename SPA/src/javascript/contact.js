@@ -208,8 +208,9 @@ buttonSend.onclick=function()
 
             }}, undefined);
     Window.style(self.div, divInner, divTab);
-    Windows.add(this, true, divTab, divInner, new WindowInformation(true, true,200, 150, 400, 400, 0, 100, 0, Windows.maxYPx, true,false, true), 
-         new WindowCallbacks(function(){
+    
+    var windowInformation = new WindowInformation(true, true,200, 150, 400, 400, 0, 100, 0, Windows.maxYPx, true,false, true);
+        var callbacks= new WindowCallbacks(function(){
                     settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
                     settings.set("size", [200, self.div.offsetHeight]);
             }, function(){
@@ -220,7 +221,14 @@ buttonSend.onclick=function()
         self.task.minimize();}, undefined,
     function(){
         self.task.minimize();},
-    function(zIndex){settings.set("zIndex", zIndex);}));
+    function(zIndex){settings.set("zIndex", zIndex);});
+    var params = {obj: this,
+        minimized: true,
+        divTab: divTab,
+        divInner: divInner,
+        windowInformation: windowInformation,
+        callbacks: callbacks};
+    Windows.add( params);
         TaskBar.add(this);
     makeUnselectable(this.div);
 }

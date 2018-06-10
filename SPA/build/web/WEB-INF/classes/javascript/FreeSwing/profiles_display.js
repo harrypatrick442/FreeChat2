@@ -5,7 +5,22 @@ function ProfilesDisplay(mySocketProfiles, messenger, callbacks)
     var terminal = messenger.getTerminal(interpret);
     var settings = new Settings('#ProfilesDisplay');
     var rectangle = new Rectangle(new Dimension([100], Dimension.Type.Percent), new Dimension([], Dimension.Type.Auto));
-    var genericWindow = new GenericWindow(/*name*/'Profile search', /*tooltipMessage*/'Used to pick location', /*iconPath*/'images/profiles_logo.png', /*minWidth*/150, /*maxWidth*/1000, /*minHeight*/200, /*maxHeight*/1000, /*defaultWidth*/500, /*defaultHeight*/500, /*defaultX*/200, /*defaultY*/200, /*minimized*/false, /*minimizable*/true, /*maximizable*/true, /*minimizeOnClose*/true);
+    var genericWindow = new GenericWindow({
+        name:'Profile search',
+        tooltipMessage:'Used to pick location',
+        iconPath:'images/profiles_logo.png',
+        minWidth:150,
+        maxWidth:1000,
+        minHeight:200, 
+        maxHeight:1000,
+        defaultWidth:500,
+        defaultHeight:500,
+        defaultX:200,
+        defaultY:200,
+        minimized:false,
+        minimizable:true, 
+        maximizable:true,
+        minimizeOnClose:true});
     var entriesDisplay = new EntriesDisplay(function(r) {
         return r.userId;
     },

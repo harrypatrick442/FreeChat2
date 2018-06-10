@@ -783,7 +783,15 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
             addMessage.color1 = true;
             addMessage.backgroundColor = '#e6e6ff';
         }
-        var div = new Message(jObject.content, callbacksEmoticons, jObject.font, jObject.userId, jObject.name, addMessage.backgroundColor, false, menuMessages).div;
+        
+        var  div = new Message({str:jObject.content,
+            callbackEmoticons:callbacksEmoticons,
+            fontObj:jObject.font,
+            userUuid:jObject.userId,
+            username:jObject.name,
+            backgroundColor:addMessage.backgroundColor,
+            pending:false,
+            menuMessages:menuMessages}).div;
         if (div)
         {
             divFeed.appendChild(div);
@@ -803,7 +811,14 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
             addMessage.color1 = true;
             addMessage.backgroundColor = '#e6e6ff';
         }
-        var message = new Message(str, callbacksEmoticons, font, userInformation.userId, userInformation.name, addMessage.backgroundColor, true, menuMessages);
+        
+        var message = new Message({str:str,
+            callbackEmoticons:callbacksEmoticons,
+            fontObj:font, userUuid:userInformation.userId,
+            username:userInformation.name,
+            backgroundColor:addMessage.backgroundColor,
+            pending:true,
+            menuMessages:menuMessages});
         if (message.div)
         {
             divFeed.appendChild(message.div);
@@ -814,7 +829,13 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     }
     function addAdminMessage(str)
     {
-        var div = new Message(str, callbacksEmoticons, {color: "#4e0000", font: "Arial", bold: true, italic: false, size: 10}, undefined, "Admin", addMyMessage.backgroundColor, false, menuMessages).div;
+        var div = new Message({str:str,
+            callbackEmoticons:callbacksEmoticons,
+            fontObj:{color: "#4e0000", font: "Arial", bold: true, italic: false, size: 10},
+            username:"Admin",
+            backgroundColor:addMessage.backgroundColor,
+            pending:false,
+            menuMessages:menuMessages});
         if (div)
         {
             divFeed.appendChild(div);
@@ -1119,8 +1140,8 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     Themes.register(themesObject, undefined);
     initializeWebsocket();
     themesObjectWindow = Window.style(self.div, divInner, divTab);
-    Windows.add(this, false, divTab, divInner, new WindowInformation(true, true, minWidth, minHeight, Windows.maxWidthPx, Windows.maxHeightPx, 0, 100, 0, Windows.maxYPx, true, true, true),
-            new WindowCallbacks(function () {
+    var windowInformation =new WindowInformation(true, true, minWidth, minHeight, Windows.maxWidthPx, Windows.maxHeightPx, 0, 100, 0, Windows.maxYPx, true, true, true);
+          var windowCallbacks =  new WindowCallbacks(function () {
                 if (videos)
                 {
                     videos.resize();
@@ -1149,7 +1170,14 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
                         close();
                     }, function (zIndex) {
                 settings.set("zIndex", zIndex);
-            }));
+            });
+            var  params = {obj: this,
+        minimized: false,
+        divTab: divTab,
+        divInner: divInner,
+        windowInformation: windowInformation,
+        callbacks: windowCallbacks};
+    Windows.add( params);
     TaskBar.add(this);
     if (roomInformation.type == Room.Type.pm && roomInformation.username != userInformation.name)
     {

@@ -4,7 +4,22 @@ function LocationPicker(messenger) {
     var map;
     var selectedGeolocation;
     var autocomplete;
-    var genericWindow = new GenericWindow(/*name*/'Location picker', /*tooltipMessage*/'Used to pick location', /*iconPath*/'images/location_picker_icon.png', /*minWidth*/150, /*maxWidth*/1000, /*minHeight*/200, /*maxHeight*/1000, /*defaultWidth*/500, /*defaultHeight*/500, /*defaultX*/200, /*defaultY*/200, /*minimized*/false, /*minimizable*/true, /*maximizable*/true, /*minimizeOnClose*/true);
+    var genericWindow = new GenericWindow(
+            {name:'Location picker',
+        tooltipMessage:'Used to pick location', 
+        iconPath:'images/location_picker_icon.png', 
+        minWidth:150,
+        maxWidth:1000,
+        minHeight:200, maxHeight : 1000,
+        defaultWidth:500,
+        defaultHeight:500,
+        defaultX:200,
+        defaultY:200,
+        minimized:false,
+        minimizable:true,
+        maximizable:true,
+        minimizeOnClose:true}
+            );
     genericWindow.onshow = function() {
         //resizeMap();
     };

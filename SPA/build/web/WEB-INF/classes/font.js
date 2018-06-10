@@ -299,11 +299,18 @@ function Font()
         
     }}, undefined);
     Window.style(self.div, divInner, divTab);
-    Windows.add(this, true, divTab, divInner, new WindowInformation(false, true,undefined, undefined, undefined, undefined, 0, 100, 0, Windows.maxYPx, true,false, true),
-    new WindowCallbacks(undefined, undefined,
+    var windowInformation =  new WindowInformation(false, true,undefined, undefined, undefined, undefined, 0, 100, 0, Windows.maxYPx, true,false, true);
+    var callbacks=new WindowCallbacks(undefined, undefined,
     function(){
         self.task.minimize(self);}, undefined, function(){
-        self.task.minimize(self);}, function(zIndex){settings.set("zIndex", zIndex);}));
+        self.task.minimize(self);}, function(zIndex){settings.set("zIndex", zIndex);});
+    var params = {obj: this,
+        minimized: true,
+        divTab: divTab,
+        divInner: divInner,
+        windowInformation: windowInformation,
+        callbacks: callbacks};
+    Windows.add( params);
     if(!isMobile)
     divInner.style.position='relative';
     TaskBar.add(this);

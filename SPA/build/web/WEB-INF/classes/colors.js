@@ -170,16 +170,24 @@ function Colors(cssName, callback)
         
     }}, undefined);
     Window.style(self.div, divInner, divTab);
-    Windows.add(this, true, divTab, divInner, new WindowInformation(false, true, undefined, undefined, undefined, undefined, 0, 100, 0, Windows.maxYPx, false, false, true)
-            , new WindowCallbacks(
+    
+    var windowInformation = new WindowInformation(false, true, undefined, undefined, undefined, undefined, 0, 100, 0, Windows.maxYPx, false, false, true);
+    
+    var callbacks = new WindowCallbacks(
                     undefined,
             undefined,
             undefined,
             undefined,
             function(){
         self.task.minimize();}
-            
-                    ), function(zIndex){settings.set("zIndex", zIndex);});
+            , function(zIndex){settings.set("zIndex", zIndex);});
+    var params = {obj: this,
+        minimized: true,
+        divTab: divTab,
+        divInner: divInner,
+        windowInformation: windowInformation,
+        callbacks: callbacks};
+    Windows.add(params);
             if(!isMobile)
     divInner.style.position='relative';
     TaskBar.add(this);

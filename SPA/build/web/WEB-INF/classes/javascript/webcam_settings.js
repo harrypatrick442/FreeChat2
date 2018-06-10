@@ -87,8 +87,8 @@ function WebcamSettings(userInformation)
     tdMain.appendChild(divMain);
     divMain.appendChild(divPublicName);
     divMain.appendChild(sliderSwitchPublic.div);
-    Windows.add(this, false, divTab, divInner, new WindowInformation(true, true, 200, 50, 250, 50, 0, 100, 0, Windows.maxYPx, true, false, true), 
-         new WindowCallbacks(function(){ 
+    var windowInformation = new WindowInformation(true, true, 200, 50, 250, 50, 0, 100, 0, Windows.maxYPx, true, false, true);
+    var windowCallbacks=         new WindowCallbacks(function(){ 
             }, function(){
         if(self.div.offsetLeft&&self.div.offsetTop)
         settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
@@ -96,7 +96,16 @@ function WebcamSettings(userInformation)
             function(){
         self.task.minimize();}, undefined,
             function(){
-        self.task.minimize();}, function(zIndex){settings.set("zIndex", zIndex);}));
+        self.task.minimize();}, function(zIndex){settings.set("zIndex", zIndex);});
+    var  params = {obj: this,
+        minimized: false,
+        divTab: divTab,
+        divInner: divInner,
+        windowInformation: windowInformation,
+        callbacks: windowCallbacks};
+    Windows.add( params);
+    
+    
     var timerFlash;
     this.flash = function ()
     {

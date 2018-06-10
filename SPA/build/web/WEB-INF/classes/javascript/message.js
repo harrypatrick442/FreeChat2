@@ -1,26 +1,26 @@
-function Message(str, callbackEmoticons, fontObj, userUuid, username, backgroundColor, pending, menuMessages)
+function Message(params)
 {
     var fontScale = isMobile?Font.mobileScale: 1;
-    if (str == undefined)
+    if (params.str == undefined)
     {
         return;
     }
     this.div = document.createElement('div');
-    this.div.style.backgroundColor = backgroundColor;
+    this.div.style.backgroundColor = params.backgroundColor;
     this.div.style.padding = '0px 1px 0px 1px';
     this.div.style.minHeight='28px';
-    var lookupTree = callbackEmoticons.getLookupTree();
-    var font = fontObj.font;
+    var lookupTree = params.callbackEmoticons.getLookupTree();
+    var font = params.font;
     if (font == undefined)
     {
         font = 'Arial';
     }
-    var color = fontObj.color;
+    var color = params.color;
     if (color == undefined)
     {
         color = '#000000';
     }
-    var size = fontObj.size;
+    var size = params.size;
     if (!size)
     {
         size = 12;
@@ -28,11 +28,11 @@ function Message(str, callbackEmoticons, fontObj, userUuid, username, background
     var div = document.createElement("div");
     div.style.padding='0px';
     div.style.margin='0px';
-    var bold = fontObj.bold;
+    var bold = params.bold;
     if(bold){
     div.style.fontWeight = 'bold';
     }
-    var italic = fontObj.italic;
+    var italic = params.italic;
     if(italic)
     {
         div.style.fontStyle='italic';
@@ -40,28 +40,28 @@ function Message(str, callbackEmoticons, fontObj, userUuid, username, background
     div.style.color=color;
     div.style.fontFamily=font?font:'verdana, geneva, sans-serif';
     div.style.fontSize=String(size*fontScale)+'px';
-    if(userUuid){
+    if(params.userUuid){
     var img = document.createElement('img');
     img.style="width:26px; height:26px; max-height:100%; float:left; margin:1px;overflow:hidden;";
-    img.src='http://localhost/FreeChat2/profile_image/'+userUuid;
+    img.src='http://localhost/FreeChat2/profile_image/'+params.userUuid;
     this.div.appendChild(img);
     img.onerror = function () {
         img.src = window.thePageUrl+'images/user.png';
     };
     }
-    if (username != undefined)
+    if (params.username != undefined)
     {
-        this.div.appendChild(getDivUsername(username));
+        this.div.appendChild(getDivUsername(params.username));
     }
     var indexChar = 0;
     var indexChar2 = 0;
-    while (indexChar < str.length) {
-        var res = checkForEmoticon(indexChar, str);
+    while (indexChar < params.str.length) {
+        var res = checkForEmoticon(indexChar, params.str);
         if (res != null)
         {
             if (indexChar > indexChar2)
             {
-                createText(str, font, color, italic, bold, size, indexChar2, indexChar);
+                createText(params.str, font, color, italic, bold, size, indexChar2, indexChar);
                 
             }
             indexChar = res[1] + 1;
@@ -73,17 +73,17 @@ function Message(str, callbackEmoticons, fontObj, userUuid, username, background
         }
     }
     
-    createText(str, font, color, italic, bold, size, indexChar2, indexChar);
+    createText(params.str, font, color, italic, bold, size, indexChar2, indexChar);
     
     this.div.appendChild(div);
     this.unpend = function(){
-        if(pending){
+        if(params.pending){
             
         };
     };
     this.equals = function(jObject){
         var font = jObject.font;
-        return str==jObject.content&&isEquivalent(jObject.font, fontObj);
+        return params.str==jObject.content&&isEquivalent(jObject.font, fontObj);
     };
     function createText(strAll, font, color, italic, bold, size, indexFrom, indexTo)
     {
@@ -152,8 +152,8 @@ function Message(str, callbackEmoticons, fontObj, userUuid, username, background
         div.style.float = "top";
         div.style.fontSize = String(11*fontScale) + 'px';
         new HoverAndClick(div, function(){div.style.textDecoration = 'underline';}, function(){}, function(e){
-            menuMessages.show(e.pageX, e.pageY, function () {
-                }, {}, [{userUiud:userUuid},{}, {}]);
+            params.menuMessages.show(e.pageX, e.pageY, function () {
+                }, {}, [{userUiud:params.userUuid},{}, {}]);
         });
         return div;
     }

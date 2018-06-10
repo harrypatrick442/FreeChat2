@@ -672,7 +672,8 @@ function ImageUploader(crop, aspectRatio, jObjectExtra, callbacks, forName)
     }}, undefined);
     Window.style(self.div, divInner, divTab);
     makeUnselectable(this.div);
-    Windows.add(this, true, divTab, divInner, new WindowInformation(true, true, 250, 250, 600, 600, 0, 100, 0, Windows.maxYPx, true,false, true), new WindowCallbacks(
+    var windowInformation = new WindowInformation(true, true, 250, 250, 600, 600, 0, 100, 0, Windows.maxYPx, true,false, true);
+    var windowCallbacks = new WindowCallbacks(
             
             function()
     {
@@ -690,7 +691,14 @@ function ImageUploader(crop, aspectRatio, jObjectExtra, callbacks, forName)
             , function(zIndex){settings.set("zIndex", zIndex);}
             ,function(){
                 move(); resize();
-            }));
+            });
+            var params = {obj: this,
+        minimized: true,
+        divTab: self.divTab,
+        divInner: self.divInner,
+        windowInformation: windowInformation,
+        callbacks: windowCallbacks};
+    Windows.add( params);
     TaskBar.add(this);
 }
 ImageUploader.show = function (crop, aspectRatio, jObjectExtra, callbacks, forName)

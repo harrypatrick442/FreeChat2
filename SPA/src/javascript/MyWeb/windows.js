@@ -6,11 +6,16 @@ this.maxWidthPx = 1800;
 this.maxHeightPx = 1800;
 this.instances = [];
 this.currentBounds = {minYPx: 0, maxYPx: 1200, minXPercent: 0, maxXPercent: 100};
-this.add = function(obj, minimized, divTab, divInner, windowInformation, callbacks)
+this.add = function(params)
 {
     var self = this;
-    this.instances.push(obj);
-    document.body.appendChild(obj.div);
+    this.instances.push(params.obj);
+    document.body.appendChild(params.obj.div);
+    var obj = params.obj;
+    var divInner = params.divInner;
+    var divTab = params.divTab;
+    var windowInformation = params.windowInformation;
+    var callbacks = params.callbacks;
     obj.div.addEventListener("mousedown", function() {
         if (!obj.cancelBringToFront)
         {

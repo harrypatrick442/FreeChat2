@@ -1,11 +1,30 @@
-function GenericWindow(name, tooltipMessage, iconPath, minWidth, maxWidth, minHeight, maxHeight, defaultWidth, defaultHeight, defaultX, defaultY, minimized, minimizable, maximizable, minimizeOnClose, bringToFront)
+function GenericWindow(params)
 {
+    var name = params.name;
+    var tooltipMessage=params.tooltipMessage;
+    var iconPath = params.iconPath;
+    var minWidth = params.minWidth;
+    var maxWidth = params.maxWidth;
+    var minHeight = params.minHeight;
+    var maxHeight =params.maxHeight;
+    var defaultWidth = params.defaultWidth;
+    var defaultHeight = params.defaultHeight;
+    var defaultX = params.defaultX;
+    var defaultY = params.defaultY;
+    var minimized = params.minimized;
+    var minimizable= params.minimizable; 
+    var maximizable = params.maximizable;
+    var minimizeOnClose = params.minimizeOnClose;
+    var bringToFront = params.bringToFront;
+    
+   
+
     var self = this;
     var settings = new Settings(name, function () {
         this.set("position");
         this.set("size");
         this.set("zIndex");
-         });
+    });
     this.taskBarInformation = {tooltip: tooltipMessage, icon: (iconPath), style: {backgroundColor: 'transparent'}, hoverStyle: {backgroundColor: 'rgba(0,255,255, 0.5)'}, activeStyle: {backgroundColor: 'rgba(0, 128, 255, 0.5)'}, attentionStyle: {backgroundColor: 'rgba(255,80,80,0.5)'}};
     this.div = document.createElement('div');
     self.divInner = document.createElement('div');
@@ -30,9 +49,9 @@ function GenericWindow(name, tooltipMessage, iconPath, minWidth, maxWidth, minHe
     setText(divName, name);
     self.divMain.style.height = 'calc(100% - 20px)';
     self.divMain.style.width = '100%';
-    self.divMain.style.bottom='0px';
-    self.divMain.style.float='left';
-    self.divMain.style.position='relative';
+    self.divMain.style.bottom = '0px';
+    self.divMain.style.float = 'left';
+    self.divMain.style.position = 'relative';
     this.div.appendChild(self.divInner);
     self.divInner.appendChild(self.divTab);
     self.divTab.appendChild(divName);
@@ -75,13 +94,13 @@ function GenericWindow(name, tooltipMessage, iconPath, minWidth, maxWidth, minHe
     this.show = function ()
     {
         self.div.style.display = 'inline';
-        if(self.onshow)
+        if (self.onshow)
         {
             try
             {
-            self.onshow();
+                self.onshow();
             }
-            catch(ex)
+            catch (ex)
             {
                 console.log(ex);
             }
@@ -100,51 +119,64 @@ function GenericWindow(name, tooltipMessage, iconPath, minWidth, maxWidth, minHe
 
         }
     };
-    var callbackMinimize=minimizable?function(){
-                        self.task.minimize();}:function(){};
-    var callbackMaximize=maximizable?function(){
-                        self.task.maximize();
-                    }:function(){};
-    var callbackClose=minimizeOnClose?function(){
-                        self.task.minimize();
-    }:function(){close();};
+    var callbackMinimize = minimizable ? function () {
+        self.task.minimize();
+    } : function () {
+    };
+    var callbackMaximize = maximizable ? function () {
+        self.task.maximize();
+    } : function () {
+    };
+    var callbackClose = minimizeOnClose ? function () {
+        self.task.minimize();
+    } : function () {
+        close();
+    };
     Themes.register(themesObject, undefined);
     var themesObjectWindow = Window.style(self.div, self.divInner, self.divTab);
-    Windows.add(this, false, self.divTab, self.divInner, new WindowInformation(true, true, minWidth, minHeight, maxWidth, maxHeight, 0, 100, 0, Windows.maxYPx, true, true, true),
-            new WindowCallbacks(function () {
-                settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
-                settings.set("size", [self.div.offsetWidth, self.div.offsetHeight]);
-            }, function () {
-                settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
-            }
-            ,
-                   callbackMinimize,
-                    callbackMaximize,
-                    callbackClose, function (zIndex) {
+    var windowInformation = new WindowInformation(true, true, minWidth, minHeight, maxWidth, maxHeight, 0, 100, 0, Windows.maxYPx, true, true, true);
+    var callbacks = new WindowCallbacks(function () {
+        settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
+        settings.set("size", [self.div.offsetWidth, self.div.offsetHeight]);
+    }, function () {
+        settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
+    }
+    ,
+            callbackMinimize,
+            callbackMaximize,
+            callbackClose, function (zIndex) {
                 settings.set("zIndex", zIndex);
-            },function(){if(self.onresize)
-                {
-                    try
-                    {
-                        self.onresize();
-                }
-                catch(ex){
-                }
-                
-                }
-            }));
-            function close()
-            { 
+            }, function () {
+        if (self.onresize)
+        {
+            try
+            {
+                self.onresize();
+            }
+            catch (ex) {
+            }
+
+        }
+    });
+    var params = {obj: this,
+        minimized: false,
+        divTab: self.divTab,
+        divInner: self.divInner,
+        windowInformation: windowInformation,
+        callbacks: callbacks};
+    Windows.add(params);
+    function close()
+    {
         self.task.remove(self);
         Windows.remove(self);
         Themes.remove(themesObject);
         Themes.remove(themesObjectWindow);
-        if(self.onclose)
+        if (self.onclose)
         {
-      self.onclose();
+            self.onclose();
         }
-            }
+    }
     TaskBar.add(this);
-    if(bringToFront!=false)
+    if (bringToFront != false)
         Windows.bringToFront(self);
 }

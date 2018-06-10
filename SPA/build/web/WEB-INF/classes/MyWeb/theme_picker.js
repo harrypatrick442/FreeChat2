@@ -8,8 +8,8 @@ function ThemePicker()
         this.set("theme");
         //this is a reset function for this particualr instance of this particular class.
     });
-    var minWidth=200;
-    var minHeight=100;
+    var minWidth = 200;
+    var minHeight = 100;
     var currentStyle = settings.get("theme");
     if (currentStyle)
     {
@@ -31,7 +31,7 @@ function ThemePicker()
     this.div.style.height = '400px';
     this.div.style.top = '100px';
     this.div.style.left = '1150px';
-    divInner.style.position='absolute';
+    divInner.style.position = 'absolute';
     divInner.style.border = '1px solid #66a3ff';
     divInner.style.backgroundColor = '#0099ff';
     divInner.style.padding = '0px 3px 3px 3px';
@@ -46,18 +46,19 @@ function ThemePicker()
     var startSize = settings.get("size");
     if (startSize)
     {
-        if(startSize[0]<minWidth)
-            startSize[0]=minWidth;
-        if(startSize[1]<minHeight)
-            startSize[1]=minHeight;
+        if (startSize[0] < minWidth)
+            startSize[0] = minWidth;
+        if (startSize[1] < minHeight)
+            startSize[1] = minHeight;
         this.div.style.width = String(startSize[0]) + 'px';
         this.div.style.height = String(startSize[1]) + 'px';
-    }  var startZIndex = settings.get("zIndex");
-        if (startZIndex)
-        {
-            self.div.style.zIndex=String(startZIndex);
-        }
-    
+    }
+    var startZIndex = settings.get("zIndex");
+    if (startZIndex)
+    {
+        self.div.style.zIndex = String(startZIndex);
+    }
+
     var menuBar = new MenuBar({options: [/*{name: 'Add', options: [{name: 'Text room', callback: function () {
      CreateRoom.show(createRoom, true, Room.Type.dynamic);
      }}, {name: 'Video room', callback: function () {
@@ -156,7 +157,7 @@ function ThemePicker()
     }
     else
     {
-        if(showing==false)
+        if (showing == false)
         {
             this.hide();
         }
@@ -170,16 +171,29 @@ function ThemePicker()
 
         }}, undefined);
     Window.style(self.div, divInner, divTab);
-    Windows.add(this, false, divTab, divInner, new WindowInformation(true, true, 200, 100, 199, Windows.maxHeightPx, 0, 100, 0, Windows.maxYPx, true, false, true), 
-         new WindowCallbacks(function(){
-                settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
-                settings.set("size", [200, self.div.offsetHeight]);
-            }, function(){
-        if(self.div.offsetLeft&&self.div.offsetTop)
+
+    var windowInformation = new WindowInformation(true, true, 200, 100, 199, Windows.maxHeightPx, 0, 100, 0, Windows.maxYPx, true, false, true);
+    var callbacks = new WindowCallbacks(function () {
         settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
-         },
-         function(){
-        self.task.minimize();}, undefined, function(){
-        self.task.minimize();}, function(zIndex){settings.set("zIndex", zIndex);}));
+        settings.set("size", [200, self.div.offsetHeight]);
+    }, function () {
+        if (self.div.offsetLeft && self.div.offsetTop)
+            settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
+    },
+    function(){
+        self.task.minimize();},
+    undefined,
+    function(){
+        self.task.minimize();},
+            function (zIndex) {
+                settings.set("zIndex", zIndex);
+            });
+    var params = {obj: this,
+        minimized: false,
+        divTab: divTab,
+        divInner: divInner,
+        windowInformation: windowInformation,
+        callbacks: callbacks};
+    Windows.add(params);
     TaskBar.add(this);
 }
