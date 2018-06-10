@@ -53,8 +53,8 @@ public class ImageProcessing {
         List<String> preloadPaths = new ArrayList<String>();
         preloadPaths.add("images/" + (pageType.contains("vid") ? "video_downloader/" : ""));
         for (String preloadPath : preloadPaths) {
-            File directory = new File(webInfPath + "/"+ preloadPath);
-        boolean first = true;
+            File directory = new File(webInfPath + "/" + preloadPath);
+            boolean first = true;
             for (File file : directory.listFiles()) {
                 if (first) {
                     first = false;
@@ -154,21 +154,20 @@ public class ImageProcessing {
 
     public static String save(BufferedImage bufferedImage) throws IOException {
         String folder = getTempFolder() + File.separator;
-        return save(bufferedImage, folder);
+        return save(bufferedImage, new String[]{folder});
     }
 
-    public static String save(BufferedImage bufferedImage, String folder) throws IOException {
-        File fileFolder = new File(folder);
-        if (!fileFolder.exists()) {
-            fileFolder.mkdir();
-        }
-        File downloads = new File(folder);
-        if (!downloads.exists()) {
-            downloads.mkdir();
-        }
+    public static String save(BufferedImage bufferedImage, String[] folders) throws IOException {
         String relativePath = generateRandomFileName(".png");
-        File file = new File(folder + relativePath);
-        ImageIO.write(bufferedImage, "png", file);
+        for (String folder : folders) {
+            System.out.println("saving to location" + folder);
+            File fileFolder = new File(folder);
+            if (!fileFolder.exists()) {
+                fileFolder.mkdir();
+            }
+            File file = new File(folder + relativePath);
+            ImageIO.write(bufferedImage, "png", file);
+        }
         return relativePath;
     }
 

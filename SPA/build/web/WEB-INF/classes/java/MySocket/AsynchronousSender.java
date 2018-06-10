@@ -13,7 +13,7 @@ import org.json.JSONObject;
  *
  * @author EngineeringStudent
  */
-public class AsynchronousSender {
+public class AsynchronousSender implements ISend{
 
     private final String name;
     private final IAsynchronousSender iAsynchronousSender;

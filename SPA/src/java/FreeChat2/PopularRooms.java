@@ -7,7 +7,7 @@ package FreeChat2;
 
 import Database.IRoomUuidToUsers;
 import Database.UUID;
-import MySocket.IGetAsynchronousSender;
+import MySocket.IGetAsynchronousSenders;
 import MyWeb.StopWatch;
 import Profiles.IDatabase;
 import java.util.ArrayList;
@@ -18,18 +18,18 @@ public class PopularRooms {
     private ArrayList<Room> sorted;
     private StopWatch stopWatch = new StopWatch();
 
-    public ArrayList<Room> get(IDatabase iDatabase, IGetAsynchronousSender iGetAsynchronousSender) throws Exception {
+    public ArrayList<Room> get(IDatabase iDatabase, IGetAsynchronousSenders iGetAsynchronousSenders) throws Exception {
         if (sorted == null || sorted.size() < 4 || stopWatch.get_ms() < 600000) {
             stopWatch.Reset();
             IRoomUuidToUsers iRoomUuidToUsersUuid = iDatabase.getRoomUuidToUsers();
             sorted = new ArrayList<Room>();
             for(UUID uuidRoom:iRoomUuidToUsersUuid.getNRoomsWithMostUsers(20)){
-                sorted.add(new Room(uuidRoom, iGetAsynchronousSender));
+                sorted.add(new Room(uuidRoom, iGetAsynchronousSenders));
             }
             if(sorted.size()<20)
             {
-                for(UUID uuid : iDatabase.getRoomUuidToInfo().getNRooms(20-sorted.size()))
-                    sorted.add(new Room(uuid, iGetAsynchronousSender));
+                for(UUID uuid : iDatabase.getRoomUuidToInfo().getNPublicRooms(20-sorted.size()))
+                    sorted.add(new Room(uuid, iGetAsynchronousSenders));
             }
         }
         return sorted;

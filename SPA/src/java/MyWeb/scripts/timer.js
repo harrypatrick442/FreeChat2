@@ -33,7 +33,6 @@ function Timer(funct, delayMs, times, useWorkerIfAvailable, postponeStart)
             console.log(ex);
         }
     }
-    ;
     if (Timer.useWorker && (useWorkerIfAvailable == undefined || useWorkerIfAvailable))
     {
 

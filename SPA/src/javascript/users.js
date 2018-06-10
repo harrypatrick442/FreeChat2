@@ -216,7 +216,7 @@ function Users(independant, cssName, userInformation, callbackEntered, callbackL
         divName.style.whiteSpace = 'nowrap';
         divName.style.width = 'calc(100% - 32px)';
         verticallyCenter(divName);
-        divPicture.style.marginLeft = '1px';
+        divPicture.style.marginRight = '1px';
         divPicture.style.height = '30px';
         divPicture.style.width = '30px';
         divPicture.style.float = 'left';
@@ -224,12 +224,12 @@ function Users(independant, cssName, userInformation, callbackEntered, callbackL
         setText(divName, r.name);
         var profilePicture = new ProfilePicture(r.name);
         divPicture.appendChild(profilePicture.div);
-        if (r.picture)
+        if (r.relativePathImage)
         {
-            ProfilePicture.update(r.name, "ServletImages?path=" + r.picture + "&t=" + new Date().getTime());
+            ProfilePicture.update(r.name, 'images/profile/' + r.relativePathImage);
         }
-        this.div.appendChild(divName);
         this.div.appendChild(divPicture);
+        this.div.appendChild(divName);
         new Hover(this.div, function () {
             self.div.style.backgroundColor = '#fdfdfe';
         }, function () {

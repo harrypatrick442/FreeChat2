@@ -6,7 +6,7 @@
 package FreeChat2;
 
 import Database.UUID;
-import MySocket.IGetAsynchronousSender;
+import MySocket.IGetAsynchronousSenders;
 import MyWeb.Configuration;
 import Profiles.AuthenticationHelper;
 import Profiles.IDatabase;
@@ -40,28 +40,32 @@ public class Rooms {
             }
         }
     }*/
-    public static List<Room> getOpenOnEnter(final IDatabase iDatabase, final IGetAsynchronousSender iGetAsynchronousSender) throws Exception
+    public static List<Room> getOpenOnEnter(final IDatabase iDatabase, final IGetAsynchronousSenders iGetAsynchronousSender) throws Exception
     {
         ArrayList<Room> popular = getPopular(iDatabase, iGetAsynchronousSender);
         for(int i=4; i<popular.size(); i++)
             popular.remove(i);
         return popular;
     }
-    private static ArrayList<Room> getPopular(IDatabase iDatabase, IGetAsynchronousSender iGetAsynchronousSender) throws Exception
+    private static ArrayList<Room> getPopular(IDatabase iDatabase, IGetAsynchronousSenders iGetAsynchronousSenders) throws Exception
     {
         System.out.println("getting popular");
-        return PopularRooms.getInstance().get(iDatabase, iGetAsynchronousSender);
+        return PopularRooms.getInstance().get(iDatabase, iGetAsynchronousSenders);
     }
-    public static Room get(UUID id, IGetAsynchronousSender iGetAsynchronousSender)
+    public static Room get(UUID id, IGetAsynchronousSenders iGetAsynchronousSenders)
     {
-        return new Room(id, iGetAsynchronousSender); //mapIdToRoom.get(id);
+        return new Room(id, iGetAsynchronousSenders); //mapIdToRoom.get(id);
     }
-    public static Room createNew(String name, RoomType roomType, Boolean passwordProtected, String password, IDatabase iDatabase, IGetAsynchronousSender iGetAsynchronousSender) throws RoomCreationException, Exception
+    public static Room createNew(String name, RoomType roomType, Boolean passwordProtected, String password, IDatabase iDatabase, IGetAsynchronousSenders iGetAsynchronousSenders) throws RoomCreationException, Exception
     {
+        System.out.println("in it");
         isValidName(name, iDatabase);
-        Room room =new Room(iDatabase, iGetAsynchronousSender);
+        System.out.println("was valid name");
+        Room room =new Room(iDatabase, iGetAsynchronousSenders);
+        System.out.println("got room");
         if(passwordProtected)
         {
+        System.out.println("was ");
             Result result = AuthenticationHelper.setPassword(room, password, iDatabase, new Configuration());
             if(result.getSuccess())
             {
@@ -79,10 +83,10 @@ public class Rooms {
         return room;
     }
 
-    public static JSONObject getPopularJSONObject(IDatabase iDatabase, IGetAsynchronousSender iGetAsynchronousSender) throws JSONException, Exception {
+    public static JSONObject getPopularJSONObject(IDatabase iDatabase, IGetAsynchronousSenders iGetAsynchronousSenders) throws JSONException, Exception {
         JSONObject jObject = new JSONObject();
         JSONArray jArray = new JSONArray();
-        Iterator<Room> iterator = getPopular(iDatabase, iGetAsynchronousSender).iterator();
+        Iterator<Room> iterator = getPopular(iDatabase, iGetAsynchronousSenders).iterator();
         while (iterator.hasNext()) {
             jArray.put(iterator.next().getJSONObject(iDatabase));
         }

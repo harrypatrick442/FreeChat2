@@ -28,20 +28,18 @@ import org.json.JSONObject;
  */
 public class Pictures {
 
-    private static Tuple<String, String> imagesProfileFolder = null;
-    private static Tuple<String, String> getImagesProfileFolder() throws UnsupportedEncodingException
+    private static String[] imagesProfileFolder = null;
+    private static String[] getImagesProfileFolder() throws UnsupportedEncodingException
     {
         if(imagesProfileFolder==null)
         {
             String a = URLDecoder.decode(JavascriptSetup.class.getProtectionDomain().getCodeSource().getLocation().getPath(), "UTF-8");
             a=a.substring(0, a.indexOf("/build/web/WEB-INF"));
-            imagesProfileFolder = new Tuple<String, String>(a+"/build/web/images/profile/", a+"/web/images/profile/");
-            System.out.println(imagesProfileFolder.x);
+            imagesProfileFolder = new String[]{a+"/build/web/images/profile/", a+"/web/images/profile/"};
         }
         return imagesProfileFolder;
     }
     public static Result Save(JSONObject jObject) throws JSONException {
-        System.out.println("save");
         boolean crop = jObject.getBoolean("crop");
         String data = jObject.getString("data");
         Base64.Decoder decoder = Base64.getDecoder();
@@ -59,10 +57,8 @@ public class Pictures {
                                     return new Result(false, "profile picture cropping failed!");
                                 }
                             }
-                            //bufferedImage = ImageProcessing.compress((bufferedImage));
-                            Tuple<String, String> folders=getImagesProfileFolder();
-                            String relativePath = ImageProcessing.save(bufferedImage, folders.x);
-                            ImageProcessing.save(bufferedImage, folders.y);
+                            String[] folders=getImagesProfileFolder();
+                            String relativePath = ImageProcessing.save(bufferedImage, folders);
                             return new Result(relativePath, true);
                         }
                     }

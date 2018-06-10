@@ -1,4 +1,4 @@
-function Message(str, callbackEmoticons, fontObj, unqiue_id, user, backgroundColor, pending)
+function Message(str, callbackEmoticons, fontObj, userUuid, username, backgroundColor, pending, menuMessages)
 {
     var fontScale = isMobile?Font.mobileScale: 1;
     if (str == undefined)
@@ -8,6 +8,7 @@ function Message(str, callbackEmoticons, fontObj, unqiue_id, user, backgroundCol
     this.div = document.createElement('div');
     this.div.style.backgroundColor = backgroundColor;
     this.div.style.padding = '0px 1px 0px 1px';
+    this.div.style.minHeight='28px';
     var lookupTree = callbackEmoticons.getLookupTree();
     var font = fontObj.font;
     if (font == undefined)
@@ -39,10 +40,18 @@ function Message(str, callbackEmoticons, fontObj, unqiue_id, user, backgroundCol
     div.style.color=color;
     div.style.fontFamily=font?font:'verdana, geneva, sans-serif';
     div.style.fontSize=String(size*fontScale)+'px';
-
-    if (user != undefined)
+    if(userUuid){
+    var img = document.createElement('img');
+    img.style="width:26px; height:26px; max-height:100%; float:left; margin:1px;overflow:hidden;";
+    img.src='http://localhost/FreeChat2/profile_image/'+userUuid;
+    this.div.appendChild(img);
+    img.onerror = function () {
+        img.src = window.thePageUrl+'images/user.png';
+    };
+    }
+    if (username != undefined)
     {
-        this.div.appendChild(getDivUsername(user));
+        this.div.appendChild(getDivUsername(username));
     }
     var indexChar = 0;
     var indexChar2 = 0;
@@ -142,8 +151,9 @@ function Message(str, callbackEmoticons, fontObj, unqiue_id, user, backgroundCol
         div.style.fontWeight = "bold";
         div.style.float = "top";
         div.style.fontSize = String(11*fontScale) + 'px';
-        new HoverAndClick(div, function(){div.style.textDecoration = 'underline';}, function(){}, function(){
-            
+        new HoverAndClick(div, function(){div.style.textDecoration = 'underline';}, function(){}, function(e){
+            menuMessages.show(e.pageX, e.pageY, function () {
+                }, {}, [{userUiud:userUuid},{}, {}]);
         });
         return div;
     }
@@ -151,4 +161,3 @@ function Message(str, callbackEmoticons, fontObj, unqiue_id, user, backgroundCol
         
     }
 }
-

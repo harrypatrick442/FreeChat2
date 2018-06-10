@@ -11,15 +11,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import Database.Table;
 import Database.UUID;
-import Database.IUuidToEmail;
 import Database.IUuidToImages;
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -73,10 +70,11 @@ public class TableUuidToImages extends Table implements IUuidToImages {
             + " END;",
             "DROP PROCEDURE IF EXISTS `uuid_to_images_get_profile`; ",
             "CREATE PROCEDURE `uuid_to_images_get_profile`("
-            + "IN userIdIn VARCHAR(32)"
+            + "IN userIdIn VARCHAR(32),"
+                + "IN n INT(10) UNSIGNED"
             + ")"
             + "BEGIN "
-            + "select * from uuid_to_images WHERE userId=UNHEX(userIdIn) AND isProfile=1;"
+            + "select relativePath from uuid_to_images WHERE userId=UNHEX(userIdIn) AND isProfile=1 LIMIT n;"
             + " END;",
             "DROP PROCEDURE IF EXISTS `uuid_to_images_add`; ",
             "CREATE PROCEDURE `uuid_to_images_add` ("
@@ -84,8 +82,32 @@ public class TableUuidToImages extends Table implements IUuidToImages {
             + "IN relativePathIn VARCHAR(255)"
             + ")"
             + "BEGIN "
-            + "INSERT INTO uuid_to_images(userId, relativePath) VALUES(UNHEX(userIdIn),relativePathIn);"
+            + "SET @count = (SELECT COUNT(*) FROM uuid_to_images WHERE userId = UNHEX(userIdIn));"
+            + "INSERT INTO uuid_to_images (userId, relativePath, isProfile) VALUES( UNHEX(userIdIn),relativePathIn, IF(@count<1, TRUE, FALSE));"
+            + "SELECT @count<1;"
             + " END;",
+            "DROP PROCEDURE IF EXISTS `uuid_to_images_make_profile`; ",
+            "CREATE PROCEDURE `uuid_to_images_make_profile` ("
+            + "IN userIdIn VARCHAR(32),"
+            + "IN relativePathIn VARCHAR(255)"
+            + ")"
+            + "BEGIN "
+            + "SET @unhexedUserId = UNHEX(userIdIn);"
+            + "UPDATE uuid_to_images SET isProfile = TRUE WHERE userId = @unhexedUserId AND relativePath = relativePathIn;"
+            + "END;",
+            "DROP PROCEDURE IF EXISTS `uuid_to_images_make_not_profile`; ",
+            "CREATE PROCEDURE `uuid_to_images_make_not_profile` ("
+            + "IN userIdIn VARCHAR(32),"
+            + "IN relativePathIn VARCHAR(255)"
+            + ")"
+            + "BEGIN "
+            + "SET @unhexedUserId = UNHEX(userIdIn);"
+            + "SET @count = (SELECT COUNT(*) FROM uuid_to_images WHERE userId = @unhexedUserId AND isProfile = TRUE);"
+            + "IF(@count>1) THEN "
+            + "UPDATE uuid_to_images SET isProfile = FALSE WHERE userId = @unhexedUserId AND relativePath = relativePathIn;"
+            + " END IF; "
+            + "SELECT @count>1;"
+            + "END;",
             "DROP PROCEDURE IF EXISTS `uuid_to_images_json_add`; ",
             "CREATE PROCEDURE `uuid_to_images_json_add` ("
             + "IN userIdIn VARCHAR(32),"
@@ -246,13 +268,87 @@ public class TableUuidToImages extends Table implements IUuidToImages {
             st = conn.prepareCall(str);
             st.setString(1, u.toString());
             st.setString(2, relativePath);
-            st.executeQuery();
-            List<Image> list = get(u);
-            if (list == null) {
-                list = new ArrayList<Image>();
+            ResultSet rS = st.executeQuery();
+            if (rS.next()) {
+                List<Image> list = get(u);
+                if (list == null) {
+                    list = new ArrayList<Image>();
+                }
+                list.add(new Image(relativePath, rS.getBoolean(1)));
+                updateJson(u, list);
             }
-            list.add(new Image(relativePath));
-            updateJson(u, list);
+        } catch (SQLException se) {
+            se.printStackTrace();
+            throw se;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+            } catch (SQLException se) {
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+        }
+    }
+
+    private void makeProfile(UUID u, String relativePath) throws Exception {
+        Connection conn = null;
+        CallableStatement st = null;
+        try {
+            conn = getConnection();
+            String str = "CALL `uuid_to_images_make_profile`(?,?);";
+            st = conn.prepareCall(str);
+            st.setString(1, u.toString());
+            st.setString(2, relativePath);
+            st.executeQuery();
+        } catch (SQLException se) {
+            se.printStackTrace();
+            throw se;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+            } catch (SQLException se) {
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+        }
+    }
+    private boolean makeNotProfile(UUID u, String relativePath) throws Exception {
+        Connection conn = null;
+        CallableStatement st = null;
+        try {
+            conn = getConnection();
+            String str = "CALL `uuid_to_images_make_not_profile`(?,?);";
+            st = conn.prepareCall(str);
+            st.setString(1, u.toString());
+            st.setString(2, relativePath);
+            ResultSet rS = st.executeQuery();
+            
+            if(rS.next()){
+                System.out.println("getting boolean");
+                System.out.println(rS.getBoolean(1));
+            return rS.getBoolean(1);
+            }
+            return false;
         } catch (SQLException se) {
             se.printStackTrace();
             throw se;
@@ -278,10 +374,56 @@ public class TableUuidToImages extends Table implements IUuidToImages {
 
     @Override
     public void setProfile(UUID u, String relativePath, boolean isProfile) throws Exception {
-        modifyJson(u, relativePath, isProfile ? ModifyOperation.makeProfile : ModifyOperation.makeNotProfile);
+        if(isProfile){
+            makeProfile(u, relativePath);
+            modifyJson(u, relativePath, ModifyOperation.makeProfile);
+        }
+        else{
+            if(makeNotProfile(u, relativePath))modifyJson(u, relativePath, ModifyOperation.makeNotProfile);
+        }
+    }
+
+    @Override
+    public List<String> getProfile(UUID u, int n) throws Exception {        
+ Connection conn = null;
+        CallableStatement st = null;
+        List<String> list = new ArrayList<String>();
+        try {
+            conn = getConnection();
+            String str = "CALL `uuid_to_images_get_profile`(?,?);";
+            st = conn.prepareCall(str);
+            st.setString(1, u.toString());
+            st.setInt(2, n);
+            ResultSet rS = st.executeQuery();
+            while(rS.next()){
+                list.add(rS.getString(1));
+            }
+            return list;
+        } catch (SQLException se) {
+            se.printStackTrace();
+            throw se;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+            } catch (SQLException se) {
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+        }
     }
 
     private enum ModifyOperation {
+
         left, right, delete, makeProfile, makeNotProfile
     };
 
@@ -304,7 +446,7 @@ public class TableUuidToImages extends Table implements IUuidToImages {
         while (iterator.hasNext()) {
             i = iterator.next();
             if (i.getRelativePath().equals(relativePath)) {
-                if (operation.equals(ModifyOperation.delete)||operation.equals(ModifyOperation.left) || operation.equals(ModifyOperation.right)) {
+                if (operation.equals(ModifyOperation.delete) || operation.equals(ModifyOperation.left) || operation.equals(ModifyOperation.right)) {
                     iterator.remove();
                 }
                 found = true;
@@ -324,13 +466,13 @@ public class TableUuidToImages extends Table implements IUuidToImages {
                         if (index > 0) {
                             index--;
                         }
-                            list.add(index, i);
+                        list.add(index, i);
                     } else {
                         if (operation.equals(ModifyOperation.right)) {
                             if (index < list.size() - 1) {
                                 index++;
                             }
-                                list.add(index, i);
+                            list.add(index, i);
                         }
 
                     }
@@ -387,8 +529,10 @@ public class TableUuidToImages extends Table implements IUuidToImages {
             }
         }
 
-        public Image(String relativePath) {
+        public Image(String relativePath, boolean isProfile) {
             this.relativePath = relativePath;
+            this.isProfile = isProfile;
+            
         }
 
         public Image(JSONObject jObject) throws JSONException {

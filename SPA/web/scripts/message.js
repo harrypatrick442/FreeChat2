@@ -1,4 +1,4 @@
-function Message(str, callbackEmoticons, color, font, bold, italic, size, user, backgroundColor)
+function Message(str, callbackEmoticons, color, font, bold, italic, size, user, menuMessage, backgroundColor)
 {
     if (str == undefined)
     {

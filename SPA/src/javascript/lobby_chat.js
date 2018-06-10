@@ -73,6 +73,7 @@ function LobbyChat(callbackFinishedLoading, otherCallbacks)
     function gotPm(jObject)
     {
         Lobby.openRoom(jObject);
+        clearNotification(websocket.send, jObject.roomUuid);
     }
     Lobby.getVideoPm = function (userId)
     {
@@ -165,9 +166,7 @@ function LobbyChat(callbackFinishedLoading, otherCallbacks)
             rooms.enableOpen();
             for (var i = 0; i < openOnEnter.length; i++)
             {
-                console.log("room example: ");
-                console.log(openOnEnter[i]);
-                Lobby.openRoom(openOnEnter[i]);
+                Lobby.openRoom(openOnEnter[i], true);
             }
             timerEnableAlerts = new Timer(function () {
                 Tab.enableFlash(true);
@@ -194,9 +193,8 @@ function LobbyChat(callbackFinishedLoading, otherCallbacks)
     {
         delete mapIdToRoom[roomId];
     }
-    Lobby.openRoom = function (roomInformation)
+    Lobby.openRoom = function (roomInformation, leaveNotifications)
     {
-		console.log(roomInformation);
         if (mapIdToRoom[roomInformation.roomUuid])
         {
             var room = mapIdToRoom[roomInformation.roomUuid];
@@ -207,6 +205,7 @@ function LobbyChat(callbackFinishedLoading, otherCallbacks)
             if ((!isMobile) || (roomInformation.type != Room.Type.videoDynamic && roomInformation.type != Room.Type.videoStatic && roomInformation.type != Room.Type.videoPm))
                 mapIdToRoom[roomInformation.roomUuid] = new Room(userInformation, roomInformation, callbackRoomClosed, "room", Configuration.URL_ENDPOINT_ROOM, {unminimize: font.unminimize, getFont: font.getFont}, {unminimize: emoticons.unminimize, getLookupTree: emoticons.getLookupTree}, {unminimize: soundEffects.unminimize}, {show: ImageUploader.show, interpret: ImageUploader.interpret}, {show: showImageUploaderProfilePicture});
         }
+        if(notifications&&(!leaveNotifications))notifications.clearNotification(roomInformation.roomUuid);
     };
     Lobby.openWall = function (wallInfo)
     {

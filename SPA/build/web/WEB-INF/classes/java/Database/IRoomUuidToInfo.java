@@ -21,5 +21,5 @@ public interface IRoomUuidToInfo {
     public Boolean nameExists(String name) throws Exception;
     public RoomInfo get(UUID uuid) throws Exception;
     public UUID getUnusedUuid() throws Exception;
-    public List<UUID> getNRooms(int nRooms) throws Exception;
+    public List<UUID> getNPublicRooms(int nRooms) throws Exception;
 }

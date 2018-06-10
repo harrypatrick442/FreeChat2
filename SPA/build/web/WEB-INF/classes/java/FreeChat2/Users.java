@@ -8,7 +8,8 @@ package FreeChat2;
 import Database.ILobbyToUsers;
 import Database.UUID;
 import MySocket.AsynchronousSender;
-import MySocket.IGetAsynchronousSender;
+import MySocket.AsynchronousSendersSet;
+import MySocket.IGetAsynchronousSenders;
 import static MyWeb.Configuration.AuthenticationType.username;
 import MyWeb.Tuple;
 import Profiles.IDatabase;
@@ -24,12 +25,8 @@ public class Users {
 
 
     public static User validate(UUID session, IDatabase iDatabase) throws Exception{
-        System.out.println("session is: ");        
-        System.out.println(session);
-
-        System.out.println("from session is: ");
-        System.out.println( iDatabase.getUserUuidToSession().get(session));
-        return new User(iDatabase.getUserUuidToSession().get(session));
+        UUID userUuid = iDatabase.getUserUuidToSession().get(session);
+        return userUuid!=null?new User(userUuid):null;
     }
     public static ArrayList<Tuple<User, String>> getAll(IDatabase iDatabase) throws Exception{
         return iDatabase.getLobbyToUsers().get();
@@ -41,10 +38,10 @@ public class Users {
         }
         return jArray;
     }
-    public static void sendMessageToAllOnline(JSONObject jObject, IDatabase iDatabase, IGetAsynchronousSender iGetAsynchronousSender) throws Exception{
+    public static void sendMessageToAllOnline(JSONObject jObject, IDatabase iDatabase, IGetAsynchronousSenders iGetAsynchronousSenders) throws Exception{
         ILobbyToUsers iLobbyToUsers = iDatabase.getLobbyToUsers();
         for(Tuple<User, String> p : iLobbyToUsers.get()){
-           AsynchronousSender as = iGetAsynchronousSender.getAsynchronousSender(p.x.id, p.y);
+           AsynchronousSendersSet as = iGetAsynchronousSenders.getAsynchronousSenders(p.x.id, p.y);
            if(as!=null)
             as.send(jObject);
         }

@@ -76,16 +76,17 @@ public class TableProfiles extends Table implements IProfiles {
             + sharedFrom + fullFrom
             + " WHERE u.userId=UNHEX(userIdIn)"
             + " GROUP BY u.userId;"
-            + " END;"};/*{
-         "DROP PROCEDURE IF EXISTS `get_profile_from_uuid`; ",
-         "CREATE PROCEDURE `get_profile_from_uuid`("
-         + " IN userIdIn VARCHAR(32)"
-         + " )"
-         + " BEGIN "
-         + " SELECT Status FROM uuid_to_Status WHERE userId=UNHEX(userIdIn)"
-         + " UNION ALL"
-         + " SELECT about FROM uuid_to_about WHERE userId = UNHEX(userIdIn);"
-         + " END;"};*/
+            + " END;",
+            "DROP PROCEDURE IF EXISTS `profiles_get_user_entry`; ",
+            "CREATE PROCEDURE `profiles_get_user_entry`("
+            + " IN userUuidIn VARCHAR(32)"
+            + " )"
+            + " BEGIN "
+                + "SET @unhexedUserUuid=UNHEX(userUuidIn);"
+                + "SELECT CONCAT('{userId: \"',userUuidIn, '\",name:\"',u.username,'\", relativePathImage:',(SELECT IFNULL((SELECT CONCAT('\"',relativePath,'\"') FROM uuid_to_images WHERE userId = u.userId AND isProfile = TRUE LIMIT 1), 'undefined')),'}')"
+            + " FROM uuid_to_username u WHERE"
+                + " u.userId=@unhexedUserUuid;"
+            + " END;"};
 
         try {
             conn = getConnection();
@@ -164,6 +165,44 @@ public class TableProfiles extends Table implements IProfiles {
             st = conn.prepareCall(str);
             st.setString(1, u.toString());
             st.executeUpdate();
+        } catch (SQLException se) {
+            se.printStackTrace();
+            throw se;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+            } catch (SQLException se) {
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+        }
+    }
+
+    public JSONObject getUserEntry(UUID u) throws Exception {
+        Connection conn = null;
+        CallableStatement st = null;
+        try {
+            conn = getConnection();
+            String str = "{CALL `profiles_get_user_entry`(?)}";
+            st = conn.prepareCall(str);
+            st.setString(1, u.toString());
+            ResultSet rS = st.executeQuery();
+            if(rS.next())
+            {
+                System.out.println("user is: : "+rS.getString(1));
+                return new JSONObject(rS.getString(1));
+            }
+            return null;
         } catch (SQLException se) {
             se.printStackTrace();
             throw se;

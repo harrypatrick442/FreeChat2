@@ -16,7 +16,7 @@ public enum RoomType {
         return name;
     }
     public static RoomType fromString(String str){
-            if(str.equals("Pm"))
+            if(str.equals("pm"))
                 return RoomType.PM;
             if(str.equals("video_pm"))
                 return RoomType.VideoPM;

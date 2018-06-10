@@ -1,5 +1,3 @@
-function foreach(array, callback){
-    for(var i=0; i<array.length; i++){
-        callback(array[i]);
-    }
+function foreach(list, callback){
+    for(var i=0; i<list.length; i++){callback(list[i]);}
 }

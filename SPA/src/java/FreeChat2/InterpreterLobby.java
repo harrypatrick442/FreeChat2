@@ -12,6 +12,9 @@ import MyWeb.GuarbageWatch;
 import MyWeb.StopWatch;
 import MySocket.AsynchronousSender;
 import MySocket.AsynchronousSenders;
+import MySocket.AsynchronousSendersSet;
+import MySocket.IGetAsynchronousSenders;
+import MySocket.ISend;
 import MyWeb.Database.Database;
 import MyWeb.IGetIp;
 import MyWeb.Sessions.Session;
@@ -31,15 +34,16 @@ import org.json.JSONObject;
  */
 public class InterpreterLobby extends Interpreter implements Serializable, IInterpreterAuthentication {
 
-    public AsynchronousSender asynchronousSender;
     private String ip;
     private User user;
     private StopWatch stopWatchProfilePicture = new StopWatch();
-
+    private ISend iSend = AsynchronousSendersSet.Empty;
+    private AsynchronousSender asynchronousSender;
     public InterpreterLobby(AsynchronousSender asynchronousSender, IGetIp iGetIp) {
         GuarbageWatch.add(this);
-        this.asynchronousSender = asynchronousSender;
         this.ip = iGetIp.getIp();
+        this.asynchronousSender = asynchronousSender;
+        iSend = asynchronousSender;
         stopWatchProfilePicture.set_ms(30000);
     }
 
@@ -57,20 +61,21 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
                     if (type.equals("get_rooms")) {
                         getRooms();
                     } else {
-                        if (type.equals("pm")) {
-                            pm(jObject, session);
+                        if (type.equals("clear_notification")) {
+                            clearNotification(jObject, session);
                         } else {
-                            if (type.equals("get_notifications")) { System.out.println("get_notifications");
-                                getNotifications(session);
+                            if (type.equals("pm")) {
+                                pm(jObject, session);
                             } else {
-                                if (type.equals("video_pm")) {
-                                    videoPm(jObject);
+                                if (type.equals("get_notifications")) {
+                                    System.out.println("get_notifications");
+                                    getNotifications(session);
                                 } else {
-                                    if (type.equals("create_room")) {
-                                        createRoom(jObject, session);
+                                    if (type.equals("video_pm")) {
+                                        videoPm(jObject);
                                     } else {
-                                        if (type.equals("profile_picture")) {
-                                            profilePicture(jObject, session);
+                                        if (type.equals("create_room")) {
+                                            createRoom(jObject, session);
                                         }
                                     }
                                 }
@@ -88,10 +93,10 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
 
     private void connect(JSONObject jObject, Session session) throws Exception {
         try {
-            User user = authenticate(session);
+            //User user = authenticate(session);
             JSONObject jObjectReply = new JSONObject();
             jObjectReply.put("type", "connect");
-            jObjectReply.put("user_id", user.id);
+            //jObjectReply.put("user_id", user.id);
             asynchronousSender.send(jObjectReply);
         } catch (Exception ex) {
             throw ex;
@@ -99,13 +104,20 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
     }
 
     private void getRooms() throws Exception {
-        asynchronousSender.send(Rooms.getPopularJSONObject(Database.getInstance(), AsynchronousSenders.getInstance()));
+       asynchronousSender.send(Rooms.getPopularJSONObject(Database.getInstance(), AsynchronousSenders.getInstance()));
     }
 
     private void getNotifications(Session session) throws Exception {
         authenticate(session);
         if (user != null) {
             NotificationsHelper.sendNotifications(user, Database.getInstance(), asynchronousSender);
+        }
+    }
+
+    private void clearNotification(JSONObject jObject, Session session) throws Exception {
+        authenticate(session);
+        if (user != null) {
+            NotificationsHelper.clearNotification(user, new UUID(jObject.getString("roomUuid")), Database.getInstance());
         }
     }
 
@@ -117,7 +129,7 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
             if (toAll) {
                 Users.sendMessageToAllOnline(jObjectReply, Database.getInstance(), AsynchronousSenders.getInstance());
             } else {
-                asynchronousSender.send(jObjectReply);
+                iSend.send(jObjectReply);
             }
         } catch (JSONException ex) {
             throw ex;
@@ -137,14 +149,7 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
             }
             Room room = PmsHelper.getOrCreate(otherUserId, user.id, Database.getInstance(), AsynchronousSenders.getInstance());
             if (room != null) {
-                JSONObject jObjectReply = new JSONObject();
-                jObjectReply.put("roomUuid", room.id);
-                jObjectReply.put("type", "pm");
-                jObjectReply.put("name", room.getInfo(Database.getInstance()).name);
-                    //AsynchronousSender asynchronousSenderOtherUser =asynchronousSenderOtherUser =asynchronousSenderOtherUser = AsynchronousSenders.getInstance().getAsynchronousSender(otherUserId, Database.getInstance().getLobbyToUsers().getEndpoint(otherUserId));
-                //if(asynchronousSenderOtherUser!=null){
-                //    asynchronousSenderOtherUser.send(jObjectReply);
-                // }
+                JSONObject jObjectReply = room.getInfo(Database.getInstance()).getJSONObject();
                 jObjectReply.put("show", true);
                 asynchronousSender.send(jObjectReply);
             }
@@ -163,75 +168,11 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
             throw ex;
         }
     }
-
-    private void profilePicture(JSONObject jObject, Session session) throws Exception {
-        User user = authenticate(session);
-        if (user != null) {
-            String relativePath = null;
-            Base64.Decoder decoder = Base64.getDecoder();
-            JSONObject jObjectReplySender = new JSONObject();
-            boolean successful = false;
-            String reason = "A generic error occured!";
-            jObjectReplySender.put("type", "profile_picture_reply");
-            if (stopWatchProfilePicture.get_ms() > 4000) {
-                stopWatchProfilePicture.Reset();
-                String encodedData = jObject.getString("data");
-                if (encodedData != null && !encodedData.equals("")) {
-                    try {
-                        BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(decoder.decode(encodedData)));
-                        if (bufferedImage != null) {
-                            while (true) {
-                                if (jObject.getBoolean("crop")) {
-                                    bufferedImage = ImageProcessing.crop(bufferedImage, jObject.getInt("x"), jObject.getInt("y"), jObject.getInt("w"), jObject.getInt("h"));
-                                    if (bufferedImage == null) {
-                                        break;
-                                    } else {
-                                        reason = "profile picture cropping failed!";
-                                    }
-                                }
-                                //bufferedImage = ImageProcessing.compress((bufferedImage));
-                                relativePath = ImageProcessing.save(bufferedImage);
-                                jObjectReplySender.put("path", relativePath);
-                                ImageProcessing.Logging.log(ip, relativePath);
-                                successful = true;
-                                break;
-                            }
-                        } else {
-
-                        }
-                    } catch (IOException ex) {
-                    } catch (IllegalArgumentException ex) {
-                    }
-                } else {
-                    reason = "encoded data recieved by server was empty!";
-                }
-            } else {
-                reason = "You can only upload one profile picture every 30 seconds!";
-            }
-            jObjectReplySender.put("successful", successful);
-            if (successful) {
-
-                JSONObject jObjectReply = new JSONObject();
-                jObjectReply.put("type", "profile_picture");
-                jObjectReply.put("path", relativePath);
-                jObjectReply.put("name", user.getName(Database.getInstance()));
-                user.setPictureRelativePath(relativePath, Database.getInstance());
-                Users.sendMessageToAllOnline(jObjectReply, Database.getInstance(), AsynchronousSenders.getInstance());
-            } else {
-                jObjectReplySender.put("reason", reason);
-            }
-            asynchronousSender.send(jObjectReplySender);
-            //if(jObject.getString("webcam_type").equals("request"))
-            //{
-            //    VideoPms.openForOtherUser(u, r , jObject);
-            //}
-        }
-    }
-
+    
     private User authenticate(Session session) throws Exception {
         user = Users.validate(session.id, Database.getInstance());
         if (user != null) {
-
+            
         }
         return user;
     }
@@ -241,24 +182,33 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
             JSONObject jObjectReply = new JSONObject();
             jObjectReply.put("type", "create_room");
             String reason = null;
-            User user = authenticate(session);
+            authenticate(session);
             boolean successful = false;
+            System.out.println("before user");
             if (user != null) {
+                System.out.println("after user");
                 String name = jObject.getString("name");
                 boolean hasPassword = jObject.getBoolean("has_password");
                 try {
-                    Rooms.createNew(name, RoomType.Text, hasPassword, hasPassword ? jObject.getString("password") : null, Database.getInstance(), AsynchronousSenders.getInstance());
+                    System.out.println("a");
+                    IGetAsynchronousSenders i = AsynchronousSenders.getInstance();
+                    System.out.println(i);
+                    Rooms.createNew(name, RoomType.Text, hasPassword, hasPassword ? jObject.getString("password") : null, Database.getInstance(), i);
+                    System.out.println("b");
                     successful = true;
+                System.out.println("sneding");
                     Users.sendMessageToAllOnline(Rooms.getPopularJSONObject(Database.getInstance(), AsynchronousSenders.getInstance()), Database.getInstance(), AsynchronousSenders.getInstance());
                 } catch (RoomCreationException ex) {
                     reason = ex.toString();
                 }
+                catch(Exception e){e.printStackTrace();}
             } else {
                 reason = "You must be signed in to create a room!";
             }
             jObjectReply.put("successful", successful);
             jObjectReply.put("reason", reason);
-            asynchronousSender.send(jObjectReply);
+            iSend.send(jObjectReply);
+                System.out.println("sent 2");
         } catch (JSONException ex) {
             throw ex;
         }
@@ -278,9 +228,8 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
     @Override
     public void preSendAuthenticationReply(String username, Boolean successful, Profiles.User user) throws Exception {
         if (successful) {
-            AsynchronousSenders.getInstance().add(asynchronousSender, user.getUuid());
-            System.out.println("name is: ");
-            System.out.println(asynchronousSender.getName());
+            System.out.println("authentication user is: "+user.getUuid());
+            iSend = AsynchronousSenders.getInstance().add(asynchronousSender, user.getUuid());
             Database.getInstance().getLobbyToUsers().add(user.getUuid(), asynchronousSender.getName());
         }
     }

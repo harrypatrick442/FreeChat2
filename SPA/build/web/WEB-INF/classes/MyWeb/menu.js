@@ -28,7 +28,10 @@ function Menu(menuInformation, parentMenu)
     {
         callback = callbackIn;
         callbackInformation = callbackInformationIn;
+        new Task(function(){
         Menu.current = [self];
+        console.log('self is: ');
+        console.log(self); 
         if (parentMenu)
         {
             self.div.style.zIndex = String(1 + parseInt(parentMenu.div.style.zIndex));
@@ -46,6 +49,7 @@ function Menu(menuInformation, parentMenu)
         self.div.style.left = String(x) + 'px';
         self.div.style.top = String(y) + 'px';
         self.div.style.display = 'block';
+    }).run();
     };
     this.hideChildren = function ()
     {
@@ -156,17 +160,16 @@ document.documentElement.addEventListener("mousedown", function (e) {
     if (!e)
         var e = window.event;
     if (Menu.current) {
-        var i=0;
-        while(true)
+        while(Menu.current.length>0)
         {
-            var p = getAbsolute(Menu.current[i].div);
-            if ((p.left < e.pageX) && (Menu.current[i].div.offsetWidth + p.left >= e.pageX) && (p.top < e.pageY) && (p.top + Menu.current[i].div.offsetHeight >= e.pageY)) {
+            var p = getAbsolute(Menu.current[0].div);
+            if ((p.left < e.pageX) && (Menu.current[0].div.offsetWidth + p.left >= e.pageX) && (p.top < e.pageY) && (p.top + Menu.current[0].div.offsetHeight >= e.pageY)) {
                 break;
             }
             else
             {
-              Menu.current[i].hide();
-              Menu.current.splice(i, 1);
+              Menu.current[0].hide();
+              Menu.current.splice(0, 1);
             }
         }
     }

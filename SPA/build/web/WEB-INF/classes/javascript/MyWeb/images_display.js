@@ -61,6 +61,8 @@ function ImagesDisplay(path, pictures, callbackUpload, callbackOperations)
         for (var i = 0; i < pictures.length; i++)
         {
             var picture = pictures[i];
+            console.log('picture');
+            console.log(picture);
             var imageDisplay = new ImageDisplay(picture.relativePath, picture.isProfile);
             divImageDisplayHousingMeasurer.appendChild(imageDisplay.div);
             imageDisplays.push(imageDisplay);
@@ -124,6 +126,27 @@ function ImagesDisplay(path, pictures, callbackUpload, callbackOperations)
         divImageDisplayHousingMeasurer.removeChild(imageDisplay.div);
         updateButtons();
     }
+    function canUnprofile(imageDisplay){
+        var nProfile = 0;
+        foreach(imageDisplays, function(imageDisplay){
+            if(imageDisplay.isProfile())
+            {
+                nProfile++;
+            }
+        });
+        return nProfile>1;
+    }
+    function canDelete(i){
+        var nOtherProfile = 0;
+        foreach(imageDisplays, function(imageDisplay){
+            if(i!=imageDisplay)
+            if(imageDisplay.isProfile())
+            {
+                nOtherProfile++;
+            }
+        });
+        return nOtherProfile>0;
+    }
     this.addImages(pictures);
     function mouseDown(x, y)
     {
@@ -156,6 +179,16 @@ function ImagesDisplay(path, pictures, callbackUpload, callbackOperations)
     function mouseUp() {
         divImageDisplayHousing.style.cursor = Cursors.hand;
     }
+    var optionPaneError = new OptionPane(this.div);
+    function showError(message){
+        
+                    optionPaneError.show([['Ok', function () {
+                            }]], message, function () {
+                    });
+                    optionPaneError.div.style.left = 'calc(50% - 100px)';
+                    optionPaneError.div.style.width = '200px';
+                    optionPaneError.div.style.marginLeft = '0px';
+    };
     this.resized = function()
     {
         var m = (self.div.offsetWidth > divImageDisplayHousingMeasurer.offsetWidth) ? 0 : self.div.offsetWidth - divImageDisplayHousingMeasurer.offsetWidth;
@@ -220,13 +253,20 @@ function ImagesDisplay(path, pictures, callbackUpload, callbackOperations)
             });
             var buttonProfile;
                     buttonProfile= createControlButton(isProfile?'images/set_not_profile.png':'images/set_profile.png', isProfile?'images/set_not_profile_hover.png':'images/set_profile_hover.png', function() {
-                isProfile?callbackOperations({type: 'set_not_profile', relativePath: relativePath}):callbackOperations({type: 'set_profile', relativePath: relativePath});
-                isProfile=!isProfile;
-                buttonProfile.setSrcs(isProfile?'images/set_not_profile.png':'images/set_profile.png', isProfile?'images/set_not_profile_hover.png':'images/set_profile_hover.png');
+                        console.log(canUnprofile(self));
+                        if((!isProfile)||canUnprofile(self))
+                        {
+                            isProfile?callbackOperations({type: 'set_not_profile', relativePath: relativePath}):callbackOperations({type: 'set_profile', relativePath: relativePath});
+                            isProfile=!isProfile;
+                            buttonProfile.setSrcs(isProfile?'images/set_not_profile.png':'images/set_profile.png', isProfile?'images/set_not_profile_hover.png':'images/set_profile_hover.png');
+                        }
+                        else{
+                            showError("You can't unprofile your only profile picture!");
+                        }
             });
             var buttonDelete = createControlButton('images/delete.png', 'images/delete_hover.png', function() {
-                callbackOperations({type: 'delete', relativePath: relativePath});
-                removeImage(self);
+                if(canDelete(self)){callbackOperations({type: 'delete', relativePath: relativePath});
+                removeImage(self);}else showError("You can't delete your only profile picture!");
             });
             this.showRight = function()
             {
@@ -245,6 +285,9 @@ function ImagesDisplay(path, pictures, callbackUpload, callbackOperations)
             {
                 showRight = false;
                 buttonRight.div.style.display = 'none';
+            };
+            this.isProfile=function(){
+                return isProfile;
             };
         }
 

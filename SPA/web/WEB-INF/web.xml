@@ -30,6 +30,19 @@
         <url-pattern>/index</url-pattern>
     </servlet-mapping>
     <servlet>
+        <servlet-name>ServletProfileImages</servlet-name>
+        <servlet-class>MyWeb.ServletProfileImages</servlet-class>
+        <multipart-config>
+            <max-file-size>1000000</max-file-size>
+            <max-request-size>1000000</max-request-size>
+            <file-size-threshold>0</file-size-threshold>
+        </multipart-config>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ServletProfileImages</servlet-name>
+        <url-pattern>/profile_image/*</url-pattern>
+    </servlet-mapping>
+    <servlet>
         <servlet-name>ServletMySocket</servlet-name>
         <servlet-class>MySocket.ServletMySocket</servlet-class>
         <!-- 52MB max -->

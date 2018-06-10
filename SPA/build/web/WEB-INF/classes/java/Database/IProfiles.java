@@ -14,7 +14,7 @@ import org.json.JSONObject;
 public interface IProfiles {
 
     public JSONObject get(String userId) throws Exception;
-
+    public JSONObject getUserEntry(UUID userUuid) throws Exception;
     public JSONObject get(UUID uuid, JSONObject jObject) throws Exception;
 
     public void delete(UUID u) throws Exception;

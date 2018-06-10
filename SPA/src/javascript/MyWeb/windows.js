@@ -1,24 +1,20 @@
-function Window()
-{
 
-}
-function Windows()
+var Windows = new (function(){
+    var self = this;
+this.maxYPx = 1200;
+this.maxWidthPx = 1800;
+this.maxHeightPx = 1800;
+this.instances = [];
+this.currentBounds = {minYPx: 0, maxYPx: 1200, minXPercent: 0, maxXPercent: 100};
+this.add = function(obj, minimized, divTab, divInner, windowInformation, callbacks)
 {
-
-}
-Windows.maxYPx = 1200;
-Windows.maxWidthPx = 1800;
-Windows.maxHeightPx = 1800;
-Windows.instances = [];
-Windows.currentBounds = {minYPx: 0, maxYPx: 1200, minXPercent: 0, maxXPercent: 100};
-Windows.add = function(obj, minimized, divTab, divInner, windowInformation, callbacks)
-{
-    Windows.instances.push(obj);
+    var self = this;
+    this.instances.push(obj);
     document.body.appendChild(obj.div);
     obj.div.addEventListener("mousedown", function() {
         if (!obj.cancelBringToFront)
         {
-            Windows.bringToFront(obj);
+            self.bringToFront(obj);
         }
         obj.cancelBringToFront = false;
     });
@@ -52,7 +48,7 @@ Windows.add = function(obj, minimized, divTab, divInner, windowInformation, call
     {
         if (windowInformation.resizable)
         {
-            obj.resizable = new Resizable(obj.div, divInner, windowInformation.minWidthPx, windowInformation.minHeightPx, windowInformation.maxWidthPx, windowInformation.maxHeightPx, Windows.currentBounds,
+            obj.resizable = new Resizable(obj.div, divInner, windowInformation.minWidthPx, windowInformation.minHeightPx, windowInformation.maxWidthPx, windowInformation.maxHeightPx, self.currentBounds,
                     callbacks.resized,
                     callbacks.resizedInstantaneous);
         }
@@ -70,7 +66,13 @@ Windows.add = function(obj, minimized, divTab, divInner, windowInformation, call
                 {
                     console.log(ex);
                 }
-            });
+            }
+                    ,function(e){
+                        console.log("started");
+                    if(windowInformation.maximized)
+                        console.log(e);
+                        Window.unmaximize(obj, {left:e.screenX});
+                    });
 
 
 
@@ -114,11 +116,11 @@ Windows.add = function(obj, minimized, divTab, divInner, windowInformation, call
     }
 
 };
-Windows.isWindow = function(element)
+this.isWindow = function(element)
 {
-    return Windows.instances.indexOf(element) >= 0;
+    return self.instances.indexOf(element) >= 0;
 };
-Windows.getParentWindow = function(element)
+this.getParentWindow = function(element)
 {
     while (true)
     {
@@ -128,7 +130,7 @@ Windows.getParentWindow = function(element)
         }
         else
         {
-            if (Windows.isWindow(element))
+            if (self.isWindow(element))
             {
                 return element;
             }
@@ -136,9 +138,9 @@ Windows.getParentWindow = function(element)
         element = element.parentElement;
     }
 };
-Windows.remove = function(obj)
+this.remove = function(obj)
 {
-    Windows.instances.splice(Windows.instances.indexOf(obj), 1);
+    self.instances.splice(self.instances.indexOf(obj), 1);
     document.body.removeChild(obj.div);
     if (obj.buttonClose)
     {
@@ -153,29 +155,28 @@ Windows.remove = function(obj)
         obj.buttonMaximize.close();
     }
 };
-Windows.hide = function(obj)
+this.hide = function(obj)
 {
-    obj.hide();
-};
-Windows.show = function(obj)
+    obj.hide();};
+this.show = function(obj)
 {
     obj.show();
 };
-Windows.cancelBringToFront = function(obj)
+this.cancelBringToFront = function(obj)
 {
     obj.cancelBringToFront = true;
 };
-Windows.bringToFront = function(obj)
+this.bringToFront = function(obj)
 {
-    var spliced = Windows.instances.splice(Windows.instances.indexOf(obj), 1)[0];
+    var spliced = self.instances.splice(self.instances.indexOf(obj), 1)[0];
     if (spliced)
     {
-        Windows.instances.push(spliced);
+        self.instances.push(spliced);
     }
     var zIndex = 100;
-    for (var i = 0; i < Windows.instances.length; i++)
+    for (var i = 0; i < self.instances.length; i++)
     {
-        var obj = Windows.instances[i];
+        var obj = self.instances[i];
         obj.div.style.zIndex = String(zIndex);
         if (obj.windowMethods.callbacks.callbackZIndexChanged)
         {
@@ -184,12 +185,12 @@ Windows.bringToFront = function(obj)
         zIndex++;
     }
 };
-Windows.getActive = function()
+this.getActive = function()
 {
-    var i = Windows.instances.length - 1;
+    var i = self.instances.length - 1;
     while (i > 0)
     {
-        var active = Windows.instances[i];
+        var active = self.instances[i];
         if (active.div.style.display != 'none')
         {
             return active;
@@ -198,8 +199,13 @@ Windows.getActive = function()
     }
     return null;
 };
-document.body.style.overflowY = 'auto';
-Window.stopEventPropogation = function(e)
+})();
+
+
+var Window = new (function(){
+    document.body.style.overflowY = 'auto';
+    var self = this;
+this.stopEventPropogation = function(e)
 {
     if (!e)
         e = window.event;
@@ -211,19 +217,19 @@ Window.stopEventPropogation = function(e)
         e.stopPropagation();
     }
 };
-Window.getStartPosition = function()
+this.getStartPosition = function()
 {
     var diag;
     while (true)
     {
         diag = 100 * Math.random() | 0;
-        if (!Window.previousDiag)
+        if (!self.previousDiag)
         {
             break;
         }
         else
         {
-            if (Math.abs(Window.previousDiag - diag) > 19)
+            if (Math.abs(self.previousDiag - diag) > 19)
             {
                 break;
             }
@@ -231,62 +237,47 @@ Window.getStartPosition = function()
     }
     var top = 0;
     var left = 260;
-    Window.previousDiag = diag;
+    self.previousDiag = diag;
     return [left + diag, top + diag];
 };
-Window.maximize = function(obj, fillElseReduce)
+this.maximize = function(obj, fillElseReduce)
 {
 
-    function getSizes()
-    {
-        var p = Resizable.padding * 2;
-        return {width: obj.div.offsetWidth - p, height: obj.div.offsetHeight - p, top: obj.div.offsetTop, left: obj.div.offsetLeft};
-    }
     var windowInformation = obj.windowInformation;
     if (fillElseReduce != undefined)
     {
         if (fillElseReduce)
         {
-            maximize();
+            maximize(obj);
         }
         else
         {
-            unmaximize();
+            unmaximize(obj);
         }
     }
     else
     {
-        if (!windowInformation.maximized || (windowInformation.maximized && !equalValues(getSizes(), windowInformation.maximizedSizes)))
+        if (!windowInformation.maximized || (windowInformation.maximized && !equalValues(getSizes(obj), windowInformation.maximizedSizes)))
         {
-            maximize();
+            maximize(obj);
         }
         else
         {
-            unmaximize();
+            unmaximize(obj);
         }
     }
-    function setWindowSizePosition(width, height, top, left)
-    {
-        obj.div.style.height = String(height) + 'px';
-        obj.div.style.width = String(width) + 'px';
-        obj.div.style.top = String(top) + 'px';
-        obj.div.style.left = String(left) + 'px';
-    }
-    function maximize()
-    {
-        windowInformation.previousSizes = getSizes();
+};
+this.unmaximize=function(obj, mouseDragPosition){
+    unmaximize(obj, mouseDragPosition);
+};
+this.resize=function(obj){
+    if(obj.windowInformation.maximized){
         var p = Resizable.padding * 2;
-        setWindowSizePosition(document.documentElement.clientWidth, document.documentElement.clientHeight - (p + Windows.taskBar.div.offsetHeight), -Resizable.padding, -Resizable.padding);
-        windowInformation.maximizedSizes = getSizes();
-        windowInformation.maximized = true;
-    }
-    function unmaximize()
-    {
-        setWindowSizePosition(windowInformation.previousSizes.width, windowInformation.previousSizes.height, windowInformation.previousSizes.top, windowInformation.previousSizes.left);
-        windowInformation.maximized = false;
+        setWindowSizePosition(obj, document.documentElement.clientWidth, document.documentElement.clientHeight - (p + Windows.taskBar.div.offsetHeight), -Resizable.padding, -Resizable.padding);
     }
 };
-Window.style = function(div, divInner, divTab)
+
+this.style = function(div, divInner, divTab)
 {
     var frameThemeObject;
     var frameBorderThemeObject;
@@ -299,7 +290,7 @@ Window.style = function(div, divInner, divTab)
     {
         div.style.position = 'fixed';
         div.style.width = '100%';
-        div.style.height = 'calc(100% - ' + String(Window.divDragHeightTaskBarPx) + 'px)';
+        div.style.height = 'calc(100% - ' + String(self.divDragHeightTaskBarPx) + 'px)';
         div.style.left = '0px';
         div.style.top = '0px';
         div.style.margin = '0';
@@ -316,9 +307,9 @@ Window.style = function(div, divInner, divTab)
     };
     Themes.register(themesObject, undefined);
 };
-Window.CloseButton = function(callback)
+this.CloseButton = function(callback)
 {
-    var button = new Window.Button(callback, 'images/close_white.png', 'images/close_red.png');
+    var button = new self.Button(callback, 'images/close_white.png', 'images/close_red.png');
     this.button = button.button;
     var themesObject = {components: [
             {name: 'closeImage', elements: [button.img]}
@@ -333,9 +324,9 @@ Window.CloseButton = function(callback)
         Themes.remove(themesObject);
     };
 };
-Window.MinimizeButton = function(callback)
+this.MinimizeButton = function(callback)
 {
-    var button = new Window.Button(callback, 'images/minimize_white.png', 'images/minimize_red.png');
+    var button = new self.Button(callback, 'images/minimize_white.png', 'images/minimize_red.png');
     this.button = button.button;
     var themesObject = {components: [
             {name: 'minimizeImage', elements: [button.img]}
@@ -350,9 +341,9 @@ Window.MinimizeButton = function(callback)
         Themes.remove(themesObject);
     };
 };
-Window.MaximizeButton = function(callback)
+this.MaximizeButton = function(callback)
 {
-    var button = new Window.Button(callback, 'images/maximize_white.png', 'images/maximize_red.png');
+    var button = new self.Button(callback, 'images/maximize_white.png', 'images/maximize_red.png');
     this.button = button.button;
     var themesObject = {components: [
             {name: 'maximizeImage', elements: [button.img]}
@@ -367,7 +358,7 @@ Window.MaximizeButton = function(callback)
         Themes.remove(themesObject);
     };
 };
-Window.Button = function(callback, imageSource, imageSourceHover)
+this.Button = function(callback, imageSource, imageSourceHover)
 {
     var self = this;
     this.button = document.createElement('button');
@@ -392,12 +383,81 @@ Window.Button = function(callback, imageSource, imageSourceHover)
 
 
     });
-    this.button.onclick = function()
+    this.button.addEventListener("mousedown",function()
+    {
+        console.log('canceling');
+        if(window.Drag)
+            Drag.cancel = true;
+    });
+    this.button.addEventListener("click",function()
     {
         callback();
-    };
+    });
 
 };
+
+
+    function getSizes(obj)
+    {
+        var p = Resizable.padding * 2;
+        return {width: obj.div.offsetWidth - p, height: obj.div.offsetHeight - p, top: obj.div.offsetTop, left: obj.div.offsetLeft};
+    }
+    function maximize(obj)
+    {
+        var windowInformation = obj.windowInformation;
+        windowInformation.previousSizes = getSizes(obj); 
+        var p = Resizable.padding * 2;
+        setWindowSizePosition(obj, document.documentElement.clientWidth, document.documentElement.clientHeight - (p + Windows.taskBar.div.offsetHeight), -Resizable.padding, -Resizable.padding);
+        windowInformation.maximizedSizes = getSizes(obj);
+        windowInformation.maximized = true;
+    }
+    function unmaximize(obj, mouseDragPosition)
+    {
+        var windowInformation = obj.windowInformation;
+        if(windowInformation.previousSizes)
+        {
+            if(!mouseDragPosition)
+            setWindowSizePosition(obj, windowInformation.previousSizes.width, windowInformation.previousSizes.height, windowInformation.previousSizes.top, windowInformation.previousSizes.left);
+        else{
+            var s = mouseDragPosition.left;
+            var b = mouseDragPosition.left/document.documentElement.clientWidth;
+            var leftOffset = (b*windowInformation.previousSizes.width);
+            var l = mouseDragPosition.left-leftOffset;
+            console.log(l);
+            setWindowSizePosition(obj, windowInformation.previousSizes.width, windowInformation.previousSizes.height, undefined, l);}   
+        }
+        windowInformation.maximized = false;
+    }
+    function setWindowSizePosition(obj, width, height, top, left)
+    {
+        obj.div.style.height = String(height) + 'px';
+        obj.div.style.width = String(width) + 'px';
+        if(top)
+            obj.div.style.top = String(top) + 'px';
+        if(left)
+        obj.div.style.left = String(left) + 'px';
+    }
+window.addEventListener("resize", function() {
+    for (var i = 0; i < Windows.instances.length; i++)
+    {
+        var obj = Windows.instances[i];
+            self.resize(obj, true);
+    }
+}, false);
+this.divDragHeightTaskBarPx = document.documentElement.clientHeight / 12;
+        
+        })();
+        
+function WindowCallbacks(resized, dragged, minimize, maximize, close, callbackZIndexChanged, resizedInstantaneous)
+{
+    this.resized = resized;
+    this.dragged = dragged;
+    this.minimize = minimize;
+    this.maximize = maximize;
+    this.close = close;
+    this.callbackZIndexChanged = callbackZIndexChanged;
+    this.resizedInstantaneous = resizedInstantaneous;
+}
 function WindowInformation(resizable, dragable, minWidthPx, minHeightPx, maxWidthPx, maxHeightPx, minXPercent, maxXPercent, minYPx, maxYPx, minimizable, maximizable, minimizeOnClose)
 {
     if (!minWidthPx)
@@ -449,26 +509,3 @@ function WindowInformation(resizable, dragable, minWidthPx, minHeightPx, maxWidt
     this.resizable = resizable;
     this.dragable = dragable;
 }
-function WindowCallbacks(resized, dragged, minimize, maximize, close, callbackZIndexChanged, resizedInstantaneous)
-{
-    this.resized = resized;
-    this.dragged = dragged;
-    this.minimize = minimize;
-    this.maximize = maximize;
-    this.close = close;
-    this.callbackZIndexChanged = callbackZIndexChanged;
-    this.resizedInstantaneous = resizedInstantaneous;
-}
-window.addEventListener("resize", function() {
-    for (var i = 0; i < Windows.instances.length; i++)
-    {
-        var obj = Windows.instances[i];
-        if (obj.windowInformation.maximized)
-        {
-            obj.windowInformation.maximized = false;
-            Window.maximize(obj, true);
-        }
-    }
-}, false);
-Window.divDragHeightTaskBarPx = document.documentElement.clientHeight / 12;
-        

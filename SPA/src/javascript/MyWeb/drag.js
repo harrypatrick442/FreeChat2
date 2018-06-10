@@ -1,4 +1,4 @@
-function Drag(element, handle, minX, maxX, minY, maxY, callback) {
+function Drag(element, handle, minX, maxX, minY, maxY, callback, callbackStarted) {
     var minXPercent;
     var maxXPercent;
     var self = this;
@@ -29,20 +29,22 @@ function Drag(element, handle, minX, maxX, minY, maxY, callback) {
     var efficientMovingCycle = new EfficientMovingCycle(handle);
     
     efficientMovingCycle.onmousedown = function (e) {
-        onDown(e.pageX, e.pageY);
+        onDown(e.pageX, e.pageY, e);
     };
     efficientMovingCycle.ontouchstart = function (e) {
-        onDown(e.touches[0].pageX, e.touches[0].pageY);
+        onDown(e.touches[0].pageX, e.touches[0].pageY, e);
     };
     //handle.addEventListener("touchstart", function(e){
     //    onDown(e.touches[0].pageX, e.touches[0].pageY);
     //});
-    function onDown(x, y)
+    function onDown(x, y, e)
     {
         if (element.style.display === "none")
         {
             return;
         }
+        if(!Drag.cancel)
+            if(callbackStarted)callbackStarted(e);
         start = [element.offsetLeft - x, element.offsetTop - y];
         maxXPercent = maxX - ((100 * element.offsetWidth) / document.documentElement.clientWidth);
         minXPercent = minX;
@@ -65,6 +67,8 @@ function Drag(element, handle, minX, maxX, minY, maxY, callback) {
     };
     function onMove(x, y)
     {
+        console.log()
+        if(!Drag.cancel)
         if (state == 1) {
             self.drag((start[0] + x), (start[1] + y));
             timer.reset();
@@ -94,9 +98,13 @@ function Drag(element, handle, minX, maxX, minY, maxY, callback) {
     };
     
       efficientMovingCycle.onmouseup=function(){  
+          
+          console.log('cleared');
+        Drag.cancel=false;
           state = 0;
     };
-    efficientMovingCycle.ontouchend = function (e) {
+    efficientMovingCycle.ontouchend = function (e) {         
+        Drag.cancel=false;
         state=0;
     };
 }

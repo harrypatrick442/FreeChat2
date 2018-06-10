@@ -9,7 +9,8 @@ import Database.IPmUuidsToRoomUuid;
 import Database.IUuidToUsername;
 import Database.UUID;
 import MySocket.AsynchronousSender;
-import MySocket.IGetAsynchronousSender;
+import MySocket.AsynchronousSendersSet;
+import MySocket.IGetAsynchronousSenders;
 import MyWeb.Configuration;
 import MyWeb.Database.Database;
 import Profiles.AuthenticationHelper;
@@ -24,8 +25,8 @@ import org.json.JSONObject;
  */
 public class PmsHelper {
 
-    public static Room getRoom(UUID user1Uuid, UUID user2Uuid, IDatabase iDatabase, IGetAsynchronousSender iGetAsynchronousSender) throws Exception {
-        return new Room(iDatabase.getPmUuidsToRoomUuid().getRoomUuid(user1Uuid, user2Uuid), iGetAsynchronousSender);
+    public static Room getRoom(UUID user1Uuid, UUID user2Uuid, IDatabase iDatabase, IGetAsynchronousSenders iGetAsynchronousSenders) throws Exception {
+        return new Room(iDatabase.getPmUuidsToRoomUuid().getRoomUuid(user1Uuid, user2Uuid), iGetAsynchronousSenders);
     }
 
     /*public static void removeId(String id) {
@@ -55,36 +56,34 @@ public class PmsHelper {
          otherUser.asynchronousSender.send(jObjectReply);
          }
          */    }
-    public static void notifyOtherUser(User user, IDatabase iDatabase, IGetAsynchronousSender iGetAsynchronousSender, Room room) throws Exception{
+    public static void notifyOtherUser(User user, IDatabase iDatabase, IGetAsynchronousSenders iGetAsynchronousSenders, Room room) throws Exception{
         UUID otherUserId = iDatabase.getPmUuidsToRoomUuid()
                 .getOtherUser(user.id, room.id);
         System.out.println(otherUserId);
         if(otherUserId==null)
             return;
         iDatabase.getUuidToNotifications().add(otherUserId, room.id, user.id);
-        AsynchronousSender asynchronousSender = iGetAsynchronousSender.getAsynchronousSender(otherUserId, iDatabase.getLobbyToUsers().getEndpoint(otherUserId));
-        if(asynchronousSender!=null)
+        AsynchronousSendersSet asynchronousSenders = iGetAsynchronousSenders.getAsynchronousSenders(otherUserId, iDatabase.getLobbyToUsers().getEndpoint(otherUserId));
+        if(asynchronousSenders!=null)
         { 
-            JSONObject jObject = new JSONObject();
+            JSONObject jObject = room.getInfo(iDatabase).getJSONObject();
             jObject.put("type", "notify");
             jObject.put("fromUuid", user.id);
-            jObject.put("roomUuid", room.id);
-            jObject.put("roomName", room.getInfo(iDatabase).name);
-            asynchronousSender.send(jObject);
+            asynchronousSenders.send(jObject);
         }
     }
-    public static Room getOrCreate(UUID otherUserId, UUID userId, IDatabase iDatabase, IGetAsynchronousSender iGetAsynchronousSender) throws Exception {
+    public static Room getOrCreate(UUID otherUserId, UUID userId, IDatabase iDatabase, IGetAsynchronousSenders iGetAsynchronousSenders) throws Exception {
         IPmUuidsToRoomUuid iPmUuidsToRoomUuid = iDatabase.getPmUuidsToRoomUuid();
         UUID roomUuid = iPmUuidsToRoomUuid.getRoomUuid(otherUserId, userId);
         if (roomUuid != null) {
-            return new Room(roomUuid, iGetAsynchronousSender);
+            return new Room(roomUuid, iGetAsynchronousSenders);
         }
         IUuidToUsername iUuidToUsername = iDatabase.getUuidToUsername();
         String otherUsername = iUuidToUsername.getUsernameFromUuid(otherUserId);
         if (otherUsername == null) {
             return null;
         }
-        Room room =new Room(iDatabase, iGetAsynchronousSender);
+        Room room =new Room(iDatabase, iGetAsynchronousSenders);
         iDatabase.getRoomUuidToInfo().add(room.id, Configuration.PM_PREFIX + otherUsername, RoomType.PM.toString(), false);
         iPmUuidsToRoomUuid.add(room.id, otherUserId, userId);
         return room;

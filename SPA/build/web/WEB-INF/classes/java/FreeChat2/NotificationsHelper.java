@@ -10,7 +10,7 @@ import Database.IUuidToUsername;
 import Database.Notification;
 import Database.UUID;
 import MySocket.AsynchronousSender;
-import MySocket.IGetAsynchronousSender;
+import MySocket.IGetAsynchronousSenders;
 import MyWeb.Configuration;
 import MyWeb.Database.Database;
 import Profiles.AuthenticationHelper;
@@ -26,14 +26,24 @@ import org.json.JSONObject;
  */
 public class NotificationsHelper {
 
-    public static void sendNotifications(User user, IDatabase iDatabase, AsynchronousSender asynchronousSender) throws Exception{
+    public static void clearNotification(User user, UUID roomUuid, IDatabase iDatabase) throws Exception {
+        if (roomUuid != null) {
+            iDatabase.getUuidToNotifications().clear(user.id, roomUuid);
+        }
+    }
+
+    public static void sendNotifications(User user, IDatabase iDatabase, AsynchronousSender asynchronousSender) throws Exception {
         JSONObject jObject = new JSONObject();
         jObject.put("type", "notifications");
         JSONArray jArray = new JSONArray();
         jObject.put("notifications", jArray);
-        for(Notification notification : iDatabase.getUuidToNotifications().get(user.id)){
+        for (Notification notification : iDatabase.getUuidToNotifications().get(user.id)) {
             jArray.put(notification.getJSONObject());
-        } 
+        }
         asynchronousSender.send(jObject);
+    }
+
+    static void clearNotification(User user, UUID uuid) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

@@ -94,7 +94,7 @@ public class TableRoomUuidToUsers extends Table implements IRoomUuidToUsers {
             + "IN nRooms INT(10) UNSIGNED "
             + ")"
             + "BEGIN "
-            + "SELECT HEX(roomUuid) FROM room_uuid_to_users GROUP BY roomUuid ORDER BY COUNT(*)DESC LIMIT nRooms;"
+            + "SELECT HEX(r.roomUuid) FROM room_uuid_to_users r INNER JOIN room_uuid_to_info i ON r.roomUuid = i.roomUuid WHERE i.type!=\"pm\" GROUP BY r.roomUuid ORDER BY COUNT(*)DESC LIMIT nRooms;"
             + " END;"};
         try {
             conn = getConnection();

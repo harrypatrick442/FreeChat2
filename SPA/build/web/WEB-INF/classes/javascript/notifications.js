@@ -1,4 +1,4 @@
-function Notifications(mapIdToRoom, send)
+ function Notifications(mapIdToRoom, send)
 {
     var self = this;
     var selfNotifications = self;
@@ -114,21 +114,35 @@ function Notifications(mapIdToRoom, send)
             var roomInfo = arrayNotificationEntries[i].info;
             if (alreadyPresent.indexOf(roomInfo.roomUuid) < 0)
             {
-                divMain.removeChild(mapIdToNotificationEntry[roomInfo.roomUuid].div);
-                arrayNotificationEntries.splice(i, 1);
-                delete mapIdToNotificationEntry[roomInfo.roomUuid];
+                removeNotification(roomInfo.roomUuid);
             }
             i++;
         }
     };
+    function removeNotification(roomUuid) {
+        var notificationEntry = mapIdToNotificationEntry[roomUuid];
+        notificationEntry.dispose();
+        divMain.removeChild(notificationEntry.div);
+        arrayNotificationEntries.splice(arrayNotificationEntries.indexOf(notificationEntry), 1);
+        delete mapIdToNotificationEntry[roomUuid];
+    }
+    this.clearNotification = function (roomUuid) {
+        var notificationEntry = mapIdToNotificationEntry[roomUuid];
+        if (!notificationEntry)
+            return;
+        removeNotification(roomUuid);
+        clearNotification(send, roomUuid);
+    };
     function NotificationEntry(r)
     {
+        console.log('notififcation');
+        console.log(r);
         var self = this;
         this.info = r;
         this.div = document.createElement('div');
         var divName = document.createElement('div');
         var divImg = document.createElement('div');
-        var img = document.createElement('img');
+        var compositeImage = new CompositeImage(divImg, concateUsersImages(r.users));
         this.div.style.position = 'relative';
         this.div.style.height = '30px';
         this.div.style.width = '100%';
@@ -155,14 +169,11 @@ function Notifications(mapIdToRoom, send)
         divImg.style.float = 'left';
         divImg.style.height = '28px';
         divImg.style.width = '28px';
-        img.style.width = '100%';
         verticallyCenter(divName);
         verticallyCenter(divImg);
-        verticallyCenter(img);
         setText(divName, r.roomName);
         this.div.appendChild(divName);
         this.div.appendChild(divImg);
-        divImg.appendChild(img);
         new Hover(this.div, function () {
             self.div.style.backgroundColor = '#fdfdfe';
         }, function () {
@@ -170,7 +181,6 @@ function Notifications(mapIdToRoom, send)
         this.div.onmousedown = function ()
         {
             Windows.cancelBringToFront(selfNotifications);
-            console.log(r);
             var room = mapIdToRoom[r.roomUuid];
             if (room)
             {
@@ -178,9 +188,24 @@ function Notifications(mapIdToRoom, send)
             }
             else
             {
-                Lobby.openRoom(r);
+                console.log('room type in pm is: ');console.log(r.roomType);console.log(r);
+                var usernames = [];
+                foreach(r.users,function(user){usernames.push(user.username);});
+                Lobby.openRoom({roomUuid:r.roomUuid, name:r.roomName, type:r.type, usernames:usernames, show:true});
             }
         };
+        this.dispose = function(){
+            compositeImage.dispose();
+        };
+        function concateUsersImages(users){
+            var list =[];
+            foreach(users, function(user){
+                if(user.relativePathImage){
+                    list.push(user.relativePathImage);
+                }
+            });
+            return list;
+        }
     }
     function verticallyCenter(element)
     {

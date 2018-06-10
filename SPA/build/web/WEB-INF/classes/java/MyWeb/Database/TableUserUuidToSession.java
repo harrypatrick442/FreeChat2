@@ -36,7 +36,7 @@ public class TableUserUuidToSession extends Table implements IUserUuidToSession 
             + "`userUuid` BINARY(16) NOT NULL,"            
             + "`sessionUuid` BINARY(16) NOT NULL,"        
             + "`createdTimestamp` BIGINT(20) NOT NULL,"           
-            + "PRIMARY KEY (`userUuid`),"
+            + "PRIMARY KEY (`userUuid`, `sessionUuid`),"
             + "INDEX `indexUserUuid` (`userUuid`),"
             + "INDEX `indexSessionUuid` (`sessionUuid`),"            
             + "INDEX `indexCreatedTimestamp` (`createdTimestamp`)"
@@ -55,7 +55,7 @@ public class TableUserUuidToSession extends Table implements IUserUuidToSession 
             + "IN createdTimestamp BIGINT(20)"
             + ")"
             + "BEGIN "
-            + "INSERT INTO user_uuid_to_session(userUuid, sessionUuid, createdTimestamp) VALUES(UNHEX(userUuid), UNHEX(sessionUuid), createdTimestamp) ON DUPLICATE KEY UPDATE sessionUuid=UNHEX(sessionUuid), createdTimestamp = createdTimestamp;"
+            + "INSERT INTO user_uuid_to_session(userUuid, sessionUuid, createdTimestamp) VALUES(UNHEX(userUuid), UNHEX(sessionUuid), createdTimestamp) ON DUPLICATE KEY UPDATE createdTimestamp = createdTimestamp;"
             +" END;",
             "DROP PROCEDURE IF EXISTS `user_uuid_to_session_delete`; ",
             "CREATE PROCEDURE `user_uuid_to_session_delete` ("

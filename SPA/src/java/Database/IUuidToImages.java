@@ -21,4 +21,5 @@ public void delete(UUID u, String relativePath) throws Exception;
 public void shiftLeft(UUID u, String relativePath) throws Exception;
 public void shiftRight(UUID u, String relativePath) throws Exception;
 public void setProfile(UUID u, String relativePath, boolean isProfile) throws Exception;
+public List<String> getProfile(UUID u, int n) throws Exception;
 }

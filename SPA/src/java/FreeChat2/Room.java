@@ -9,7 +9,8 @@ import Database.AuthenticationInfo;
 import Database.UUID;
 import MyWeb.GuarbageWatch;
 import MySocket.AsynchronousSender;
-import MySocket.IGetAsynchronousSender;
+import MySocket.AsynchronousSendersSet;
+import MySocket.IGetAsynchronousSenders;
 import MyWeb.Tuple;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -24,18 +25,20 @@ import org.mindrot.jbcrypt.BCrypt;
 public class Room implements Serializable {
 
     public UUID id;
-    private IGetAsynchronousSender iGetAsynchronousSender;
+    private IGetAsynchronousSenders iGetAsynchronousSenders;
 
-    public Room(IDatabase iDatabase, IGetAsynchronousSender iGetAsynchronousSender) throws Exception {
-        GuarbageWatch.add(this);
-        this.id = iDatabase.getRoomUuidToInfo().getUnusedUuid();
-        this.iGetAsynchronousSender = iGetAsynchronousSender;
+    public Room(IDatabase iDatabase, IGetAsynchronousSenders iGetAsynchronousSender) throws Exception {
+        //GuarbageWatch.add(this);
+        System.out.println("rm a");
+        this.id = iDatabase.getRoomUuidToInfo().getUnusedUuid(); 
+        System.out.println("rm ab");
+        this.iGetAsynchronousSenders = iGetAsynchronousSender;
     }
 
-    public Room(UUID id, IGetAsynchronousSender iGetAsynchronousSender) {
-        GuarbageWatch.add(this);
+    public Room(UUID id, IGetAsynchronousSenders iGetAsynchronousSender) {
+        //GuarbageWatch.add(this);
         this.id = id;
-        this.iGetAsynchronousSender = iGetAsynchronousSender;
+        this.iGetAsynchronousSenders = iGetAsynchronousSender;
     }
 
     public RoomInfo getInfo(IDatabase iDatabase) throws Exception {
@@ -67,7 +70,7 @@ public class Room implements Serializable {
                 System.out.println(user);
                 System.out.println(pair.x.equals(user));
                 if(!pair.x.equals(user)){
-                    AsynchronousSender as = iGetAsynchronousSender.getAsynchronousSender(pair.x.id, pair.y);
+                    AsynchronousSendersSet as = iGetAsynchronousSenders.getAsynchronousSenders(pair.x.id, pair.y);
                     if (as != null) {
                         as.send(jObject);
                     }
@@ -136,6 +139,8 @@ public class Room implements Serializable {
         jObject.put("roomUuid", id);
         jObject.put("has_password", roomInfo.passwordProtected);
         jObject.put("type", roomInfo.roomType.toString());
+        if(roomInfo.pmUsernamesJSON!=null)
+            jObject.put("pmUsernames", roomInfo.pmUsernamesJSON);
         return jObject;
     }
 
@@ -144,15 +149,15 @@ public class Room implements Serializable {
             JSONObject jObject = new JSONObject();
             jObject.put("type", "users");
             JSONArray jArrayUsers = new JSONArray();
-            List<AsynchronousSender> asynchronousSenders = new ArrayList<AsynchronousSender>();
+            List<AsynchronousSendersSet> asynchronousSenderss = new ArrayList<AsynchronousSendersSet>();
             Iterator<Tuple<User, String>> iterator = iDatabase.getRoomUuidToUsers().get(id).iterator();
             while (iterator.hasNext()) {
                 Tuple<User, String> pair = iterator.next();
-                AsynchronousSender asynchronousSender = iGetAsynchronousSender.getAsynchronousSender(pair.x.id, pair.y);
-                if (asynchronousSender == null) {
+                AsynchronousSendersSet asynchronousSenders = iGetAsynchronousSenders.getAsynchronousSenders(pair.x.id, pair.y);
+                if (asynchronousSenders == null) {
                     new NullPointerException("An asynchronousSender was returned as null").printStackTrace(System.out);
                 } else {
-                    asynchronousSenders.add(asynchronousSender);
+                    asynchronousSenderss.add(asynchronousSenders);
                 }
                 JSONObject jObjectUser = pair.x.getJSONObject(iDatabase);
                 if (jObjectUser != null) {

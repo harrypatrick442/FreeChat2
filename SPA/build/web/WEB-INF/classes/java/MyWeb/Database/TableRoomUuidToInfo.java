@@ -37,56 +37,61 @@ public class TableRoomUuidToInfo extends Table implements IRoomUuidToInfo {
 
         String[] strs = {"CREATE TABLE IF NOT EXISTS `room_uuid_to_info`"
             + "("
-            + "`roomUuid` BINARY(16) NOT NULL,"            
-            + "`createdTimestamp` BIGINT(20) NOT NULL,"            
-            + "`name` VARCHAR("+Configuration.ROOM_NAME_LENGTH_MAX+"),"
-            + "`hasPassword` TINYINT(1) NOT NULL,"           
-            + "`type` VARCHAR(20) NOT NULL,"           
+            + "`roomUuid` BINARY(16) NOT NULL,"
+            + "`createdTimestamp` BIGINT(20) NOT NULL,"
+            + "`name` VARCHAR(" + Configuration.ROOM_NAME_LENGTH_MAX + "),"
+            + "`hasPassword` TINYINT(1) NOT NULL,"
+            + "`type` VARCHAR(20) NOT NULL,"
             + "PRIMARY KEY (`roomUuid`),"
             + "INDEX `indexHasPassword` (`hasPassword`),"
-            + "INDEX `indexName` (`name`),"            
+            + "INDEX `indexName` (`name`),"
             + "INDEX `indexType` (`type`)"
             + ")",
             "DROP PROCEDURE IF EXISTS `room_uuid_to_info_add`; ",
             "CREATE PROCEDURE `room_uuid_to_info_add`("
             + "IN roomUuid VARCHAR(32),"
-            + "IN name VARCHAR("+Configuration.ROOM_NAME_LENGTH_MAX+"),"
+            + "IN name VARCHAR(" + Configuration.ROOM_NAME_LENGTH_MAX + "),"
             + "IN hasPassword TINYINT(1),"
-            + "IN type VARCHAR(20),"
+            + "IN typeIn VARCHAR(20),"
             + "IN createdTimestamp BIGINT(20)"
             + ")"
             + "BEGIN "
-            + "INSERT INTO room_uuid_to_info(roomUuid, name, hasPassword, type, createdTimestamp) VALUES(UNHEX(roomUuid), name, hasPassword, type, createdTimestamp);"
-            +" END;",
+            + "INSERT INTO room_uuid_to_info(roomUuid, name, hasPassword, type, createdTimestamp) VALUES(UNHEX(roomUuid), name, hasPassword, typeIn, createdTimestamp);"
+            + " END;",
             "DROP PROCEDURE IF EXISTS `room_uuid_to_info_get`; ",
             "CREATE PROCEDURE `room_uuid_to_info_get`("
             + "IN roomUuidIn VARCHAR(32)"
             + ")"
             + "BEGIN "
-            + "SELECT name, hasPassword, type FROM room_uuid_to_info WHERE roomUuid = UNHEX(roomUuidIn);"
-            +" END;",
+            + "SET @pmUsernames=NULL;"
+            + "SELECT name, hasPassword,type INTO @name, @hasPassword, @type FROM room_uuid_to_info WHERE roomUuid = UNHEX(roomUuidIn);"
+            + "IF(@type='pm')THEN"
+                + " SET @pmUsernames = (SELECT CONCAT('[', GROUP_CONCAT(CONCAT('\\\"',u.username,'\\\"')),']') FROM pm_uuids_to_room_uuid p INNER JOIN uuid_to_username u ON p.userUuid2 = u.userId OR p.userUuid1= u.userId WHERE p.roomUuid = UNHEX(roomUuidIn) GROUP BY p.roomUuid);"
+            + " END IF;"//CONCAT('[', GROUP_CONCAT(CONCAT('\"',u.username,'\"')),']') usernames 
+            + "SELECT @name, @hasPassword, @type, @pmUsernames;"
+            + " END;",
+            "DROP PROCEDURE IF EXISTS `room_uuid_to_info_count`; ",
+            "CREATE PROCEDURE `room_uuid_to_info_count`("
+            + "IN roomUuidIn VARCHAR(32)"
+            + ")"
+            + "BEGIN "
+            + "SELECT COUNT(*) FROM room_uuid_to_info WHERE roomUuid = UNHEX(roomUuidIn);"
+            + " END;",
             "DROP PROCEDURE IF EXISTS `room_uuid_to_info_set_name`; ",
             "CREATE PROCEDURE `room_uuid_to_info_set_name` ("
             + "IN roomUuid VARCHAR(32),"
-            + "IN name VARCHAR("+Configuration.ROOM_NAME_LENGTH_MAX+")"
+            + "IN name VARCHAR(" + Configuration.ROOM_NAME_LENGTH_MAX + ")"
             + ")"
             + "BEGIN "
             + "UPDATE room_uuid_to_info SET name = name WHERE roomUuid=UNHEX(roomUuid);"
             + " END;",
-            "DROP PROCEDURE IF EXISTS `room_uuid_to_info_name_exists`; ",
-            "CREATE PROCEDURE `room_uuid_to_info_name_exists` ("
-            + "IN name VARCHAR("+Configuration.ROOM_NAME_LENGTH_MAX+")"
-            + ")"
-            + "BEGIN "
-            + "SELECT COUNT(*) FROM room_uuid_to_info WHERE roomUuid=UNHEX(roomUuid);"
-            +" END;",
-            "DROP PROCEDURE IF EXISTS `room_uuid_to_info_get_n`; ",
-            "CREATE PROCEDURE `room_uuid_to_info_get_n` ("
+            "DROP PROCEDURE IF EXISTS `room_uuid_to_info_get_n_public`; ",
+            "CREATE PROCEDURE `room_uuid_to_info_get_n_public` ("
             + "IN nRooms INT(10) UNSIGNED "
             + ")"
             + "BEGIN "
-            + "SELECT HEX(roomUuid) FROM room_uuid_to_info LIMIT nRooms;"
-            +" END;"};
+            + "SELECT HEX(roomUuid) FROM room_uuid_to_info WHERE type != \"pm\" LIMIT nRooms ;"
+            + " END;"};
         try {
             conn = getConnection();
             st = conn.createStatement();
@@ -113,8 +118,9 @@ public class TableRoomUuidToInfo extends Table implements IRoomUuidToInfo {
             }
         }
     }
-    public RoomInfo get(UUID uuid) throws Exception{
-     Connection conn = null;
+
+    public RoomInfo get(UUID uuid) throws Exception {
+        Connection conn = null;
         CallableStatement st = null;
         try {
             System.out.println(uuid);
@@ -124,12 +130,10 @@ public class TableRoomUuidToInfo extends Table implements IRoomUuidToInfo {
             st.setString(1, uuid.toString());
             ResultSet rS = st.executeQuery();
             if (rS.next()) {
-                String name = rS.getString(1);
-                Boolean hasPassword = rS.getBoolean(2);
                 RoomType roomType = RoomType.fromString(rS.getString(3));
-                return new RoomInfo(name, hasPassword, roomType);
+                System.out.println(roomType);
+                return new RoomInfo(uuid, rS.getString(1), rS.getBoolean(2), roomType, rS.getString(4));
             }
-            System.out.println("returning null");
             return null;
         } catch (SQLException se) {
             se.printStackTrace();
@@ -153,7 +157,8 @@ public class TableRoomUuidToInfo extends Table implements IRoomUuidToInfo {
             }
         }
     }
-    public void setName(UUID uuid, String name) throws Exception{
+
+    public void setName(UUID uuid, String name) throws Exception {
         Connection conn = null;
         CallableStatement st = null;
         try {
@@ -185,13 +190,14 @@ public class TableRoomUuidToInfo extends Table implements IRoomUuidToInfo {
             }
         }
     }
-    public List<UUID> getNRooms(int nRooms) throws Exception{
-     Connection conn = null;
+
+    public List<UUID> getNPublicRooms(int nRooms) throws Exception {
+        Connection conn = null;
         CallableStatement st = null;
         try {
             List<UUID> list = new ArrayList<UUID>();
             conn = getConnection();
-            String str = "CALL `room_uuid_to_info_get_n`(?);";
+            String str = "CALL `room_uuid_to_info_get_n_public`(?);";
             st = conn.prepareCall(str);
             st.setInt(1, nRooms);
             ResultSet rS = st.executeQuery();
@@ -275,8 +281,8 @@ public class TableRoomUuidToInfo extends Table implements IRoomUuidToInfo {
             st.setString(1, name);
             ResultSet rS = st.executeQuery();
             if (rS.next()) {
-               int count = rS.getInt(1);
-               return count>0;
+                int count = rS.getInt(1);
+                return count > 0;
             }
         } catch (SQLException se) {
             se.printStackTrace();
@@ -303,20 +309,22 @@ public class TableRoomUuidToInfo extends Table implements IRoomUuidToInfo {
     }
 
     @Override
-    public UUID getUnusedUuid() throws Exception{
+    public UUID getUnusedUuid() throws Exception {
         Connection conn = null;
         CallableStatement st = null;
         try {
-            while(true)
-            {
+            conn = getConnection();
+            while (true) {
                 UUID uuid = new UUID();
-                conn = getConnection();
-                String str = "CALL `room_uuid_to_info_get`(?);";
+                System.out.println(uuid);
+                String str = "CALL `room_uuid_to_info_count`(?);";
                 st = conn.prepareCall(str);
                 st.setString(1, uuid.toString());
                 ResultSet rS = st.executeQuery();
-                if (!rS.next()) {
-                    return uuid;
+                if (rS.next()) {
+                    
+					if(rS.getInt(1)<=0)
+						return uuid;
                 }
             }
         } catch (SQLException se) {
@@ -342,6 +350,3 @@ public class TableRoomUuidToInfo extends Table implements IRoomUuidToInfo {
         }
     }
 }
-
-
-

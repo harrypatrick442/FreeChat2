@@ -1,4 +1,4 @@
-function Drag(element, handle, minX, maxX, minY, maxY, callback) {
+function Drag(element, handle, minX, maxX, minY, maxY, callback, callbackBegan) {
     var minXPercent;
     var maxXPercent;
     var self = this;
@@ -39,6 +39,8 @@ function Drag(element, handle, minX, maxX, minY, maxY, callback) {
     //});
     function onDown(x, y)
     {
+        if(callbackDown)
+            callbackDown();
         if (element.style.display === "none")
         {
             return;

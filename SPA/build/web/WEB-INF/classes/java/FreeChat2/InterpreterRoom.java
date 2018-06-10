@@ -11,6 +11,8 @@ import MyWeb.GuarbageWatch;
 import MyWeb.StopWatch;
 import MySocket.AsynchronousSender;
 import MySocket.AsynchronousSenders;
+import MySocket.AsynchronousSendersSet;
+import MySocket.ISend;
 import MyWeb.Database.Database;
 import MyWeb.IGetIp;
 import MyWeb.ImageProcessing;
@@ -33,6 +35,7 @@ import org.json.JSONObject;
 public class InterpreterRoom extends Interpreter implements Serializable {
 
     private AsynchronousSender asynchronousSender;
+    private ISend iSend = AsynchronousSendersSet.Empty;
     private StopWatch stopWatchLastTyping = new StopWatch();
     private StopWatch stopWatchLastMessage = new StopWatch();
     private String lastMessage = null;
@@ -44,6 +47,7 @@ public class InterpreterRoom extends Interpreter implements Serializable {
     public InterpreterRoom(AsynchronousSender asynchronousSender, IGetIp iGetIp) {
         GuarbageWatch.add(this);
         this.asynchronousSender = asynchronousSender;
+        iSend = asynchronousSender;
         this.ip = iGetIp.getIp();
     }
 
@@ -91,7 +95,8 @@ public class InterpreterRoom extends Interpreter implements Serializable {
             {
                 System.out.println("user was not null and adding asynchronous sender");
                 System.out.println(asynchronousSender);
-                AsynchronousSenders.getInstance().add(asynchronousSender, user.id);
+                System.out.println(user.id);
+                iSend = AsynchronousSenders.getInstance().add(asynchronousSender, user.id);
             }
         }
     }

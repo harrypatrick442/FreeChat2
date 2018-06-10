@@ -220,6 +220,27 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     divName.style.paddingLeft = '5px';
     divName.style.fontFamily = 'Arial';
     verticallyCenter(divName);
+    
+    var menuOptions = [{name: 'PM', callback: function (r) {
+                Lobby.getPm(r.userId);
+            }}, {name: 'Ignore', callback: function (r) {
+                if (Ignore.isIgnored(r.userId))
+                {
+                    Ignore.unignore(r.userId);
+                } else
+                {
+                    Ignore.ignore(r.userId);
+                }
+            }}];
+    if (Configuration.videoEnabled)
+    {
+        menuOptions.push({name: 'Video PM', callback: function (r) {
+                Video.getWebcamPermission(function () {
+                    Lobby.getVideoPm(r.userId);
+                });
+            }});
+    }
+    var menuMessage = new Menu({options: menuOptions});
     var video;
     var optionPane;
     var videos;
