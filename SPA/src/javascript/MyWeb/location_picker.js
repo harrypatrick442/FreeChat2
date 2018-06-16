@@ -23,9 +23,7 @@ function LocationPicker(messenger) {
     genericWindow.onshow = function() {
         //resizeMap();
     };
-    genericWindow.onresize = function() {
-        resizeMap();
-    };
+    genericWindow.addEventListener('close', terminal.close);
     //var buttonFinished = document.createElement('button');
     var autocompleteInput = document.createElement('input');
     var divMap = document.createElement('div');
@@ -242,9 +240,7 @@ function LocationPicker(messenger) {
             Windows.bringToFront(genericWindow);
         }
     };
-    genericWindow.onclose = function() {
-        terminal.close();
-    };
+    genericWindow.addEventListener('close', terminal.close);
     function reset() {
         setState(false);
         marker.reset();

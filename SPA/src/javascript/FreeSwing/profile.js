@@ -139,6 +139,7 @@ function Profile(userId, messenger, editor, mySocketProfiles, callbacks)
         var message = e.message;
         interpret(message);
     }
+    this.show =genericWindow.show;
     function interpret(message)
     {
         switch (message.type)
