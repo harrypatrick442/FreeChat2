@@ -1,2 +1,0 @@
-MySocket.MySocketClientSpawner
-MySocket.IProcessMessages

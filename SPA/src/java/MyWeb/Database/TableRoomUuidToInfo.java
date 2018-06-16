@@ -77,6 +77,12 @@ public class TableRoomUuidToInfo extends Table implements IRoomUuidToInfo {
             + "BEGIN "
             + "SELECT COUNT(*) FROM room_uuid_to_info WHERE roomUuid = UNHEX(roomUuidIn);"
             + " END;",
+            "CREATE PROCEDURE `room_uuid_to_info_name_exists`("
+            + "IN nameIn VARCHAR(32)"
+            + ")"
+            + "BEGIN "
+            + "SELECT COUNT(*) FROM room_uuid_to_info WHERE name = nameIn;"
+            + " END;",
             "DROP PROCEDURE IF EXISTS `room_uuid_to_info_set_name`; ",
             "CREATE PROCEDURE `room_uuid_to_info_set_name` ("
             + "IN roomUuid VARCHAR(32),"
