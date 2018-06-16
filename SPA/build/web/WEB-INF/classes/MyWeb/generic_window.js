@@ -158,6 +158,29 @@ function GenericWindow(params)
 
         }
     });
+    var timerFlash;
+    var flashing = false;
+    this.flash = function ()
+    {
+        var flashing = false;
+        timerFlash = new Timer(function () {
+            if (flashing) {
+                styleFromObject(self.divInner, Themes.theme.components.frame);
+                flashing = false;
+            } else {
+                styleFromObject(self.divInner, Themes.theme.components.frameFlashing);
+                flashing = true;
+            }
+        }, 50, 6);
+    };
+    
+    this.bringToFront = function(){
+        Windows.bringToFront(self);
+    };
+    this.setName = function(name){
+        console.log(name);
+        setText(divName, name);
+    };
     var params = {obj: this,
         minimized: false,
         divTab: self.divTab,
