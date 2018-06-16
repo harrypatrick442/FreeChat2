@@ -1967,7 +1967,7 @@ function EfficientMovingCycle(element)
     } 
 }
 
-function Drag(element, handle, minX, maxX, minY, maxY, callback) {
+function Drag(element, handle, minX, maxX, minY, maxY, callback, callbackStarted) {
     var minXPercent;
     var maxXPercent;
     var self = this;
@@ -1998,20 +1998,22 @@ function Drag(element, handle, minX, maxX, minY, maxY, callback) {
     var efficientMovingCycle = new EfficientMovingCycle(handle);
     
     efficientMovingCycle.onmousedown = function (e) {
-        onDown(e.pageX, e.pageY);
+        onDown(e.pageX, e.pageY, e);
     };
     efficientMovingCycle.ontouchstart = function (e) {
-        onDown(e.touches[0].pageX, e.touches[0].pageY);
+        onDown(e.touches[0].pageX, e.touches[0].pageY, e);
     };
     //handle.addEventListener("touchstart", function(e){
     //    onDown(e.touches[0].pageX, e.touches[0].pageY);
     //});
-    function onDown(x, y)
+    function onDown(x, y, e)
     {
         if (element.style.display === "none")
         {
             return;
         }
+        if(!Drag.cancel)
+            if(callbackStarted)callbackStarted(e);
         start = [element.offsetLeft - x, element.offsetTop - y];
         maxXPercent = maxX - ((100 * element.offsetWidth) / document.documentElement.clientWidth);
         minXPercent = minX;
@@ -2034,6 +2036,8 @@ function Drag(element, handle, minX, maxX, minY, maxY, callback) {
     };
     function onMove(x, y)
     {
+        console.log()
+        if(!Drag.cancel)
         if (state == 1) {
             self.drag((start[0] + x), (start[1] + y));
             timer.reset();
@@ -2063,9 +2067,13 @@ function Drag(element, handle, minX, maxX, minY, maxY, callback) {
     };
     
       efficientMovingCycle.onmouseup=function(){  
+          
+          console.log('cleared');
+        Drag.cancel=false;
           state = 0;
     };
-    efficientMovingCycle.ontouchend = function (e) {
+    efficientMovingCycle.ontouchend = function (e) {         
+        Drag.cancel=false;
         state=0;
     };
 }
@@ -2244,27 +2252,28 @@ Themes.register = function (obj)//obj contains a map that maps a component name 
     Themes.arrayObjects.push(obj);
     Themes.restyleObject(obj, Themes.theme);
 };
-function Window()
-{
 
-}
-function Windows()
+var Windows = new (function(){
+    var self = this;
+this.maxYPx = 1200;
+this.maxWidthPx = 1800;
+this.maxHeightPx = 1800;
+this.instances = [];
+this.currentBounds = {minYPx: 0, maxYPx: 1200, minXPercent: 0, maxXPercent: 100};
+this.add = function(params)
 {
-
-}
-Windows.maxYPx = 1200;
-Windows.maxWidthPx = 1800;
-Windows.maxHeightPx = 1800;
-Windows.instances = [];
-Windows.currentBounds = {minYPx: 0, maxYPx: 1200, minXPercent: 0, maxXPercent: 100};
-Windows.add = function(obj, minimized, divTab, divInner, windowInformation, callbacks)
-{
-    Windows.instances.push(obj);
-    document.body.appendChild(obj.div);
+    var self = this;
+    this.instances.push(params.obj);
+    document.body.appendChild(params.obj.div);
+    var obj = params.obj;
+    var divInner = params.divInner;
+    var divTab = params.divTab;
+    var windowInformation = params.windowInformation;
+    var callbacks = params.callbacks;
     obj.div.addEventListener("mousedown", function() {
         if (!obj.cancelBringToFront)
         {
-            Windows.bringToFront(obj);
+            self.bringToFront(obj);
         }
         obj.cancelBringToFront = false;
     });
@@ -2298,7 +2307,7 @@ Windows.add = function(obj, minimized, divTab, divInner, windowInformation, call
     {
         if (windowInformation.resizable)
         {
-            obj.resizable = new Resizable(obj.div, divInner, windowInformation.minWidthPx, windowInformation.minHeightPx, windowInformation.maxWidthPx, windowInformation.maxHeightPx, Windows.currentBounds,
+            obj.resizable = new Resizable(obj.div, divInner, windowInformation.minWidthPx, windowInformation.minHeightPx, windowInformation.maxWidthPx, windowInformation.maxHeightPx, self.currentBounds,
                     callbacks.resized,
                     callbacks.resizedInstantaneous);
         }
@@ -2316,7 +2325,13 @@ Windows.add = function(obj, minimized, divTab, divInner, windowInformation, call
                 {
                     console.log(ex);
                 }
-            });
+            }
+                    ,function(e){
+                        console.log("started");
+                    if(windowInformation.maximized)
+                        console.log(e);
+                        Window.unmaximize(obj, {left:e.screenX});
+                    });
 
 
 
@@ -2360,11 +2375,11 @@ Windows.add = function(obj, minimized, divTab, divInner, windowInformation, call
     }
 
 };
-Windows.isWindow = function(element)
+this.isWindow = function(element)
 {
-    return Windows.instances.indexOf(element) >= 0;
+    return self.instances.indexOf(element) >= 0;
 };
-Windows.getParentWindow = function(element)
+this.getParentWindow = function(element)
 {
     while (true)
     {
@@ -2374,7 +2389,7 @@ Windows.getParentWindow = function(element)
         }
         else
         {
-            if (Windows.isWindow(element))
+            if (self.isWindow(element))
             {
                 return element;
             }
@@ -2382,9 +2397,9 @@ Windows.getParentWindow = function(element)
         element = element.parentElement;
     }
 };
-Windows.remove = function(obj)
+this.remove = function(obj)
 {
-    Windows.instances.splice(Windows.instances.indexOf(obj), 1);
+    self.instances.splice(self.instances.indexOf(obj), 1);
     document.body.removeChild(obj.div);
     if (obj.buttonClose)
     {
@@ -2399,29 +2414,28 @@ Windows.remove = function(obj)
         obj.buttonMaximize.close();
     }
 };
-Windows.hide = function(obj)
+this.hide = function(obj)
 {
-    obj.hide();
-};
-Windows.show = function(obj)
+    obj.hide();};
+this.show = function(obj)
 {
     obj.show();
 };
-Windows.cancelBringToFront = function(obj)
+this.cancelBringToFront = function(obj)
 {
     obj.cancelBringToFront = true;
 };
-Windows.bringToFront = function(obj)
+this.bringToFront = function(obj)
 {
-    var spliced = Windows.instances.splice(Windows.instances.indexOf(obj), 1)[0];
+    var spliced = self.instances.splice(self.instances.indexOf(obj), 1)[0];
     if (spliced)
     {
-        Windows.instances.push(spliced);
+        self.instances.push(spliced);
     }
     var zIndex = 100;
-    for (var i = 0; i < Windows.instances.length; i++)
+    for (var i = 0; i < self.instances.length; i++)
     {
-        var obj = Windows.instances[i];
+        var obj = self.instances[i];
         obj.div.style.zIndex = String(zIndex);
         if (obj.windowMethods.callbacks.callbackZIndexChanged)
         {
@@ -2430,12 +2444,12 @@ Windows.bringToFront = function(obj)
         zIndex++;
     }
 };
-Windows.getActive = function()
+this.getActive = function()
 {
-    var i = Windows.instances.length - 1;
+    var i = self.instances.length - 1;
     while (i > 0)
     {
-        var active = Windows.instances[i];
+        var active = self.instances[i];
         if (active.div.style.display != 'none')
         {
             return active;
@@ -2444,8 +2458,13 @@ Windows.getActive = function()
     }
     return null;
 };
-document.body.style.overflowY = 'auto';
-Window.stopEventPropogation = function(e)
+})();
+
+
+var Window = new (function(){
+    document.body.style.overflowY = 'auto';
+    var self = this;
+this.stopEventPropogation = function(e)
 {
     if (!e)
         e = window.event;
@@ -2457,19 +2476,19 @@ Window.stopEventPropogation = function(e)
         e.stopPropagation();
     }
 };
-Window.getStartPosition = function()
+this.getStartPosition = function()
 {
     var diag;
     while (true)
     {
         diag = 100 * Math.random() | 0;
-        if (!Window.previousDiag)
+        if (!self.previousDiag)
         {
             break;
         }
         else
         {
-            if (Math.abs(Window.previousDiag - diag) > 19)
+            if (Math.abs(self.previousDiag - diag) > 19)
             {
                 break;
             }
@@ -2477,62 +2496,47 @@ Window.getStartPosition = function()
     }
     var top = 0;
     var left = 260;
-    Window.previousDiag = diag;
+    self.previousDiag = diag;
     return [left + diag, top + diag];
 };
-Window.maximize = function(obj, fillElseReduce)
+this.maximize = function(obj, fillElseReduce)
 {
 
-    function getSizes()
-    {
-        var p = Resizable.padding * 2;
-        return {width: obj.div.offsetWidth - p, height: obj.div.offsetHeight - p, top: obj.div.offsetTop, left: obj.div.offsetLeft};
-    }
     var windowInformation = obj.windowInformation;
     if (fillElseReduce != undefined)
     {
         if (fillElseReduce)
         {
-            maximize();
+            maximize(obj);
         }
         else
         {
-            unmaximize();
+            unmaximize(obj);
         }
     }
     else
     {
-        if (!windowInformation.maximized || (windowInformation.maximized && !equalValues(getSizes(), windowInformation.maximizedSizes)))
+        if (!windowInformation.maximized || (windowInformation.maximized && !equalValues(getSizes(obj), windowInformation.maximizedSizes)))
         {
-            maximize();
+            maximize(obj);
         }
         else
         {
-            unmaximize();
+            unmaximize(obj);
         }
     }
-    function setWindowSizePosition(width, height, top, left)
-    {
-        obj.div.style.height = String(height) + 'px';
-        obj.div.style.width = String(width) + 'px';
-        obj.div.style.top = String(top) + 'px';
-        obj.div.style.left = String(left) + 'px';
-    }
-    function maximize()
-    {
-        windowInformation.previousSizes = getSizes();
+};
+this.unmaximize=function(obj, mouseDragPosition){
+    unmaximize(obj, mouseDragPosition);
+};
+this.resize=function(obj){
+    if(obj.windowInformation.maximized){
         var p = Resizable.padding * 2;
-        setWindowSizePosition(document.documentElement.clientWidth, document.documentElement.clientHeight - (p + Windows.taskBar.div.offsetHeight), -Resizable.padding, -Resizable.padding);
-        windowInformation.maximizedSizes = getSizes();
-        windowInformation.maximized = true;
-    }
-    function unmaximize()
-    {
-        setWindowSizePosition(windowInformation.previousSizes.width, windowInformation.previousSizes.height, windowInformation.previousSizes.top, windowInformation.previousSizes.left);
-        windowInformation.maximized = false;
+        setWindowSizePosition(obj, document.documentElement.clientWidth, document.documentElement.clientHeight - (p + Windows.taskBar.div.offsetHeight), -Resizable.padding, -Resizable.padding);
     }
 };
-Window.style = function(div, divInner, divTab)
+
+this.style = function(div, divInner, divTab)
 {
     var frameThemeObject;
     var frameBorderThemeObject;
@@ -2545,7 +2549,7 @@ Window.style = function(div, divInner, divTab)
     {
         div.style.position = 'fixed';
         div.style.width = '100%';
-        div.style.height = 'calc(100% - ' + String(Window.divDragHeightTaskBarPx) + 'px)';
+        div.style.height = 'calc(100% - ' + String(self.divDragHeightTaskBarPx) + 'px)';
         div.style.left = '0px';
         div.style.top = '0px';
         div.style.margin = '0';
@@ -2562,9 +2566,9 @@ Window.style = function(div, divInner, divTab)
     };
     Themes.register(themesObject, undefined);
 };
-Window.CloseButton = function(callback)
+this.CloseButton = function(callback)
 {
-    var button = new Window.Button(callback, 'images/close_white.png', 'images/close_red.png');
+    var button = new self.Button(callback, 'images/close_white.png', 'images/close_red.png');
     this.button = button.button;
     var themesObject = {components: [
             {name: 'closeImage', elements: [button.img]}
@@ -2579,9 +2583,9 @@ Window.CloseButton = function(callback)
         Themes.remove(themesObject);
     };
 };
-Window.MinimizeButton = function(callback)
+this.MinimizeButton = function(callback)
 {
-    var button = new Window.Button(callback, 'images/minimize_white.png', 'images/minimize_red.png');
+    var button = new self.Button(callback, 'images/minimize_white.png', 'images/minimize_red.png');
     this.button = button.button;
     var themesObject = {components: [
             {name: 'minimizeImage', elements: [button.img]}
@@ -2596,9 +2600,9 @@ Window.MinimizeButton = function(callback)
         Themes.remove(themesObject);
     };
 };
-Window.MaximizeButton = function(callback)
+this.MaximizeButton = function(callback)
 {
-    var button = new Window.Button(callback, 'images/maximize_white.png', 'images/maximize_red.png');
+    var button = new self.Button(callback, 'images/maximize_white.png', 'images/maximize_red.png');
     this.button = button.button;
     var themesObject = {components: [
             {name: 'maximizeImage', elements: [button.img]}
@@ -2613,7 +2617,7 @@ Window.MaximizeButton = function(callback)
         Themes.remove(themesObject);
     };
 };
-Window.Button = function(callback, imageSource, imageSourceHover)
+this.Button = function(callback, imageSource, imageSourceHover)
 {
     var self = this;
     this.button = document.createElement('button');
@@ -2638,12 +2642,81 @@ Window.Button = function(callback, imageSource, imageSourceHover)
 
 
     });
-    this.button.onclick = function()
+    this.button.addEventListener("mousedown",function()
+    {
+        console.log('canceling');
+        if(window.Drag)
+            Drag.cancel = true;
+    });
+    this.button.addEventListener("click",function()
     {
         callback();
-    };
+    });
 
 };
+
+
+    function getSizes(obj)
+    {
+        var p = Resizable.padding * 2;
+        return {width: obj.div.offsetWidth - p, height: obj.div.offsetHeight - p, top: obj.div.offsetTop, left: obj.div.offsetLeft};
+    }
+    function maximize(obj)
+    {
+        var windowInformation = obj.windowInformation;
+        windowInformation.previousSizes = getSizes(obj); 
+        var p = Resizable.padding * 2;
+        setWindowSizePosition(obj, document.documentElement.clientWidth, document.documentElement.clientHeight - (p + Windows.taskBar.div.offsetHeight), -Resizable.padding, -Resizable.padding);
+        windowInformation.maximizedSizes = getSizes(obj);
+        windowInformation.maximized = true;
+    }
+    function unmaximize(obj, mouseDragPosition)
+    {
+        var windowInformation = obj.windowInformation;
+        if(windowInformation.previousSizes)
+        {
+            if(!mouseDragPosition)
+            setWindowSizePosition(obj, windowInformation.previousSizes.width, windowInformation.previousSizes.height, windowInformation.previousSizes.top, windowInformation.previousSizes.left);
+        else{
+            var s = mouseDragPosition.left;
+            var b = mouseDragPosition.left/document.documentElement.clientWidth;
+            var leftOffset = (b*windowInformation.previousSizes.width);
+            var l = mouseDragPosition.left-leftOffset;
+            console.log(l);
+            setWindowSizePosition(obj, windowInformation.previousSizes.width, windowInformation.previousSizes.height, undefined, l);}   
+        }
+        windowInformation.maximized = false;
+    }
+    function setWindowSizePosition(obj, width, height, top, left)
+    {
+        obj.div.style.height = String(height) + 'px';
+        obj.div.style.width = String(width) + 'px';
+        if(top)
+            obj.div.style.top = String(top) + 'px';
+        if(left)
+        obj.div.style.left = String(left) + 'px';
+    }
+window.addEventListener("resize", function() {
+    for (var i = 0; i < Windows.instances.length; i++)
+    {
+        var obj = Windows.instances[i];
+            self.resize(obj, true);
+    }
+}, false);
+this.divDragHeightTaskBarPx = document.documentElement.clientHeight / 12;
+        
+        })();
+        
+function WindowCallbacks(resized, dragged, minimize, maximize, close, callbackZIndexChanged, resizedInstantaneous)
+{
+    this.resized = resized;
+    this.dragged = dragged;
+    this.minimize = minimize;
+    this.maximize = maximize;
+    this.close = close;
+    this.callbackZIndexChanged = callbackZIndexChanged;
+    this.resizedInstantaneous = resizedInstantaneous;
+}
 function WindowInformation(resizable, dragable, minWidthPx, minHeightPx, maxWidthPx, maxHeightPx, minXPercent, maxXPercent, minYPx, maxYPx, minimizable, maximizable, minimizeOnClose)
 {
     if (!minWidthPx)
@@ -2695,29 +2768,6 @@ function WindowInformation(resizable, dragable, minWidthPx, minHeightPx, maxWidt
     this.resizable = resizable;
     this.dragable = dragable;
 }
-function WindowCallbacks(resized, dragged, minimize, maximize, close, callbackZIndexChanged, resizedInstantaneous)
-{
-    this.resized = resized;
-    this.dragged = dragged;
-    this.minimize = minimize;
-    this.maximize = maximize;
-    this.close = close;
-    this.callbackZIndexChanged = callbackZIndexChanged;
-    this.resizedInstantaneous = resizedInstantaneous;
-}
-window.addEventListener("resize", function() {
-    for (var i = 0; i < Windows.instances.length; i++)
-    {
-        var obj = Windows.instances[i];
-        if (obj.windowInformation.maximized)
-        {
-            obj.windowInformation.maximized = false;
-            Window.maximize(obj, true);
-        }
-    }
-}, false);
-Window.divDragHeightTaskBarPx = document.documentElement.clientHeight / 12;
-        
 
 function Tooltip(text)
 {
@@ -3303,16 +3353,24 @@ function Colors(cssName, callback)
         
     }}, undefined);
     Window.style(self.div, divInner, divTab);
-    Windows.add(this, true, divTab, divInner, new WindowInformation(false, true, undefined, undefined, undefined, undefined, 0, 100, 0, Windows.maxYPx, false, false, true)
-            , new WindowCallbacks(
+    
+    var windowInformation = new WindowInformation(false, true, undefined, undefined, undefined, undefined, 0, 100, 0, Windows.maxYPx, false, false, true);
+    
+    var callbacks = new WindowCallbacks(
                     undefined,
             undefined,
             undefined,
             undefined,
             function(){
         self.task.minimize();}
-            
-                    ), function(zIndex){settings.set("zIndex", zIndex);});
+            , function(zIndex){settings.set("zIndex", zIndex);});
+    var params = {obj: this,
+        minimized: true,
+        divTab: divTab,
+        divInner: divInner,
+        windowInformation: windowInformation,
+        callbacks: callbacks};
+    Windows.add(params);
             if(!isMobile)
     divInner.style.position='relative';
     TaskBar.add(this);
@@ -3692,11 +3750,18 @@ function Font()
         
     }}, undefined);
     Window.style(self.div, divInner, divTab);
-    Windows.add(this, true, divTab, divInner, new WindowInformation(false, true,undefined, undefined, undefined, undefined, 0, 100, 0, Windows.maxYPx, true,false, true),
-    new WindowCallbacks(undefined, undefined,
+    var windowInformation =  new WindowInformation(false, true,undefined, undefined, undefined, undefined, 0, 100, 0, Windows.maxYPx, true,false, true);
+    var callbacks=new WindowCallbacks(undefined, undefined,
     function(){
         self.task.minimize(self);}, undefined, function(){
-        self.task.minimize(self);}, function(zIndex){settings.set("zIndex", zIndex);}));
+        self.task.minimize(self);}, function(zIndex){settings.set("zIndex", zIndex);});
+    var params = {obj: this,
+        minimized: true,
+        divTab: divTab,
+        divInner: divInner,
+        windowInformation: windowInformation,
+        callbacks: callbacks};
+    Windows.add( params);
     if(!isMobile)
     divInner.style.position='relative';
     TaskBar.add(this);
@@ -4053,8 +4118,8 @@ function Emoticons(xmlString)
         
     }}, undefined);
     Window.style(self.div, divInner, divTab);
-    Windows.add(this, true, divTab, divInner, new WindowInformation(true, true,180, 100, 1200, 1200, 0, 100, 0, Windows.maxYPx, true,false, true), 
-         new WindowCallbacks(function(){
+    var windowInformation =  new WindowInformation(true, true,180, 100, 1200, 1200, 0, 100, 0, Windows.maxYPx, true,false, true);
+    var callbacks=     new WindowCallbacks(function(){
                 settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
                 settings.set("size", [self.div.offsetWidth, self.div.offsetHeight]);
             }, function(){
@@ -4066,7 +4131,15 @@ function Emoticons(xmlString)
         self.task.minimize();},
          undefined,
          function(){
-        self.task.minimize();}, function(zIndex){settings.set("zIndex", zIndex);}));
+        self.task.minimize();}, function(zIndex){settings.set("zIndex", zIndex);});
+    
+    var params = {obj: this,
+        minimized: true,
+        divTab: divTab,
+        divInner: divInner,
+        windowInformation: windowInformation,
+        callbacks: callbacks};
+    Windows.add( params);
     TaskBar.add(this);
 }
 function VolumeSlider(callback) {
@@ -4396,7 +4469,10 @@ function Menu(menuInformation, parentMenu)
     {
         callback = callbackIn;
         callbackInformation = callbackInformationIn;
+        new Task(function(){
         Menu.current = [self];
+        console.log('self is: ');
+        console.log(self); 
         if (parentMenu)
         {
             self.div.style.zIndex = String(1 + parseInt(parentMenu.div.style.zIndex));
@@ -4414,6 +4490,7 @@ function Menu(menuInformation, parentMenu)
         self.div.style.left = String(x) + 'px';
         self.div.style.top = String(y) + 'px';
         self.div.style.display = 'block';
+    }).run();
     };
     this.hideChildren = function ()
     {
@@ -4524,17 +4601,16 @@ document.documentElement.addEventListener("mousedown", function (e) {
     if (!e)
         var e = window.event;
     if (Menu.current) {
-        var i=0;
-        while(true)
+        while(Menu.current.length>0)
         {
-            var p = getAbsolute(Menu.current[i].div);
-            if ((p.left < e.pageX) && (Menu.current[i].div.offsetWidth + p.left >= e.pageX) && (p.top < e.pageY) && (p.top + Menu.current[i].div.offsetHeight >= e.pageY)) {
+            var p = getAbsolute(Menu.current[0].div);
+            if ((p.left < e.pageX) && (Menu.current[0].div.offsetWidth + p.left >= e.pageX) && (p.top < e.pageY) && (p.top + Menu.current[0].div.offsetHeight >= e.pageY)) {
                 break;
             }
             else
             {
-              Menu.current[i].hide();
-              Menu.current.splice(i, 1);
+              Menu.current[0].hide();
+              Menu.current.splice(0, 1);
             }
         }
     }
@@ -4971,8 +5047,9 @@ function SoundEffects(userInformation)
 
         }}, undefined);
     Window.style(self.div, divInner, divTab);
-    Windows.add(this, false, divTab, divInner, new WindowInformation(true, true, 200, 100, 199, Windows.maxHeightPx, 0, 100, 0, Windows.maxYPx, true, false, true), 
-         new WindowCallbacks(function(){
+    
+    var windowInformation = new WindowInformation(true, true, 200, 100, 199, Windows.maxHeightPx, 0, 100, 0, Windows.maxYPx, true, false, true);
+var windowCallbacks=         new WindowCallbacks(function(){
                 settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
                 settings.set("size", [200, self.div.offsetHeight]);
             }, function(){
@@ -4981,8 +5058,14 @@ function SoundEffects(userInformation)
          },
          function(){
         self.task.minimize();}, undefined, function(){
-        self.task.minimize();}, function(zIndex){settings.set("zIndex", zIndex);}));
-    TaskBar.add(this);
+        self.task.minimize();}, function(zIndex){settings.set("zIndex", zIndex);});
+    var  params = {obj: this,
+        minimized: false,
+        divTab: divTab,
+        divInner: divInner,
+        windowInformation: windowInformation,
+        callbacks: windowCallbacks};
+    Windows.add( params);TaskBar.add(this);
 }
 SoundEffects.entered = function ()
 {
@@ -5264,8 +5347,8 @@ function ThemePicker()
         this.set("theme");
         //this is a reset function for this particualr instance of this particular class.
     });
-    var minWidth=200;
-    var minHeight=100;
+    var minWidth = 200;
+    var minHeight = 100;
     var currentStyle = settings.get("theme");
     if (currentStyle)
     {
@@ -5287,7 +5370,7 @@ function ThemePicker()
     this.div.style.height = '400px';
     this.div.style.top = '100px';
     this.div.style.left = '1150px';
-    divInner.style.position='absolute';
+    divInner.style.position = 'absolute';
     divInner.style.border = '1px solid #66a3ff';
     divInner.style.backgroundColor = '#0099ff';
     divInner.style.padding = '0px 3px 3px 3px';
@@ -5302,18 +5385,19 @@ function ThemePicker()
     var startSize = settings.get("size");
     if (startSize)
     {
-        if(startSize[0]<minWidth)
-            startSize[0]=minWidth;
-        if(startSize[1]<minHeight)
-            startSize[1]=minHeight;
+        if (startSize[0] < minWidth)
+            startSize[0] = minWidth;
+        if (startSize[1] < minHeight)
+            startSize[1] = minHeight;
         this.div.style.width = String(startSize[0]) + 'px';
         this.div.style.height = String(startSize[1]) + 'px';
-    }  var startZIndex = settings.get("zIndex");
-        if (startZIndex)
-        {
-            self.div.style.zIndex=String(startZIndex);
-        }
-    
+    }
+    var startZIndex = settings.get("zIndex");
+    if (startZIndex)
+    {
+        self.div.style.zIndex = String(startZIndex);
+    }
+
     var menuBar = new MenuBar({options: [/*{name: 'Add', options: [{name: 'Text room', callback: function () {
      CreateRoom.show(createRoom, true, Room.Type.dynamic);
      }}, {name: 'Video room', callback: function () {
@@ -5412,7 +5496,7 @@ function ThemePicker()
     }
     else
     {
-        if(showing==false)
+        if (showing == false)
         {
             this.hide();
         }
@@ -5426,17 +5510,30 @@ function ThemePicker()
 
         }}, undefined);
     Window.style(self.div, divInner, divTab);
-    Windows.add(this, false, divTab, divInner, new WindowInformation(true, true, 200, 100, 199, Windows.maxHeightPx, 0, 100, 0, Windows.maxYPx, true, false, true), 
-         new WindowCallbacks(function(){
-                settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
-                settings.set("size", [200, self.div.offsetHeight]);
-            }, function(){
-        if(self.div.offsetLeft&&self.div.offsetTop)
+
+    var windowInformation = new WindowInformation(true, true, 200, 100, 199, Windows.maxHeightPx, 0, 100, 0, Windows.maxYPx, true, false, true);
+    var callbacks = new WindowCallbacks(function () {
         settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
-         },
-         function(){
-        self.task.minimize();}, undefined, function(){
-        self.task.minimize();}, function(zIndex){settings.set("zIndex", zIndex);}));
+        settings.set("size", [200, self.div.offsetHeight]);
+    }, function () {
+        if (self.div.offsetLeft && self.div.offsetTop)
+            settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
+    },
+    function(){
+        self.task.minimize();},
+    undefined,
+    function(){
+        self.task.minimize();},
+            function (zIndex) {
+                settings.set("zIndex", zIndex);
+            });
+    var params = {obj: this,
+        minimized: false,
+        divTab: divTab,
+        divInner: divInner,
+        windowInformation: windowInformation,
+        callbacks: callbacks};
+    Windows.add(params);
     TaskBar.add(this);
 }
 function OptionPane(parent)
@@ -5750,8 +5847,9 @@ buttonSend.onclick=function()
 
             }}, undefined);
     Window.style(self.div, divInner, divTab);
-    Windows.add(this, true, divTab, divInner, new WindowInformation(true, true,200, 150, 400, 400, 0, 100, 0, Windows.maxYPx, true,false, true), 
-         new WindowCallbacks(function(){
+    
+    var windowInformation = new WindowInformation(true, true,200, 150, 400, 400, 0, 100, 0, Windows.maxYPx, true,false, true);
+        var callbacks= new WindowCallbacks(function(){
                     settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
                     settings.set("size", [200, self.div.offsetHeight]);
             }, function(){
@@ -5762,7 +5860,14 @@ buttonSend.onclick=function()
         self.task.minimize();}, undefined,
     function(){
         self.task.minimize();},
-    function(zIndex){settings.set("zIndex", zIndex);}));
+    function(zIndex){settings.set("zIndex", zIndex);});
+    var params = {obj: this,
+        minimized: true,
+        divTab: divTab,
+        divInner: divInner,
+        windowInformation: windowInformation,
+        callbacks: callbacks};
+    Windows.add( params);
         TaskBar.add(this);
     makeUnselectable(this.div);
 }
@@ -6020,8 +6125,8 @@ function Radio(xmlString)
         
     }}, undefined);
     Window.style(self.div, divInner, divTab);
-    Windows.add(this, false, divTab, divInner, new WindowInformation(false, true, 390, 80, 390, 80, 0, 100, 0, Windows.maxYPx, true, false, true), 
-         new WindowCallbacks(function(){
+    var windowInformation =new WindowInformation(false, true, 390, 80, 390, 80, 0, 100, 0, Windows.maxYPx, true, false, true);
+         var windowCallbacks = new WindowCallbacks(function(){
                 settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
                 settings.set("size", [390, self.div.offsetHeight]);
             }, function(){
@@ -6030,7 +6135,14 @@ function Radio(xmlString)
          },
          function(){
         self.task.minimize();}, undefined, function(){
-        self.task.minimize();}, function(zIndex){settings.set("zIndex", zIndex);}));
+        self.task.minimize();}, function(zIndex){settings.set("zIndex", zIndex);});
+    var  params = {obj: this,
+        minimized: false,
+        divTab: divTab,
+        divInner: divInner,
+        windowInformation: windowInformation,
+        callbacks: windowCallbacks};
+    Windows.add( params);
     TaskBar.add(this);
     var volume =settings.get("volume");
     if(volume)
@@ -7554,20 +7666,25 @@ function Users(independant, cssName, userInformation, callbackEntered, callbackL
 
             }}, undefined);
         Window.style(self.div, divInner, divTab);
-        Windows.add(this, false, divTab, divInner, new WindowInformation(true, true, 200, 100, 199, Windows.maxHeightPx, 0, 100, 0, Windows.maxYPx, true, false, true),
-                new WindowCallbacks(function () {
-                    settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
-                    settings.set("size", [200, self.div.offsetHeight]);
-                }, function () {
-                    if (self.div.offsetLeft && self.div.offsetTop)
-                        settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
-                },
-                        function () {
-                            self.task.minimize();
-                        }, undefined, function () {
-                    self.task.minimize();
-                }, function(zIndex){settings.set("zIndex", zIndex);}));
-        TaskBar.add(this);
+        
+    var windowInformation = new WindowInformation(true, true, 200, 100, 199, Windows.maxHeightPx, 0, 100, 0, Windows.maxYPx, true, false, true);
+var windowCallbacks=         new WindowCallbacks(function(){
+                settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
+                settings.set("size", [200, self.div.offsetHeight]);
+            }, function(){
+        if(self.div.offsetLeft&&self.div.offsetTop)
+        settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
+         },
+         function(){
+        self.task.minimize();}, undefined, function(){
+        self.task.minimize();}, function(zIndex){settings.set("zIndex", zIndex);});
+    var  params = {obj: this,
+        minimized: false,
+        divTab: divTab,
+        divInner: divInner,
+        windowInformation: windowInformation,
+        callbacks: windowCallbacks};
+    Windows.add( params);TaskBar.add(this);
     } else
     {
 
@@ -7623,29 +7740,29 @@ function isEquivalent(a, b) {
     // are considered equivalent
     return true;
 }
-function Message(str, callbackEmoticons, fontObj, userUuid, username, backgroundColor, pending)
+function Message(params)
 {
     var fontScale = isMobile?Font.mobileScale: 1;
-    if (str == undefined)
+    if (params.str == undefined)
     {
         return;
     }
     this.div = document.createElement('div');
-    this.div.style.backgroundColor = backgroundColor;
+    this.div.style.backgroundColor = params.backgroundColor;
     this.div.style.padding = '0px 1px 0px 1px';
     this.div.style.minHeight='28px';
-    var lookupTree = callbackEmoticons.getLookupTree();
-    var font = fontObj.font;
+    var lookupTree = params.callbackEmoticons.getLookupTree();
+    var font = params.font;
     if (font == undefined)
     {
         font = 'Arial';
     }
-    var color = fontObj.color;
+    var color = params.color;
     if (color == undefined)
     {
         color = '#000000';
     }
-    var size = fontObj.size;
+    var size = params.size;
     if (!size)
     {
         size = 12;
@@ -7653,11 +7770,11 @@ function Message(str, callbackEmoticons, fontObj, userUuid, username, background
     var div = document.createElement("div");
     div.style.padding='0px';
     div.style.margin='0px';
-    var bold = fontObj.bold;
+    var bold = params.bold;
     if(bold){
     div.style.fontWeight = 'bold';
     }
-    var italic = fontObj.italic;
+    var italic = params.italic;
     if(italic)
     {
         div.style.fontStyle='italic';
@@ -7665,28 +7782,28 @@ function Message(str, callbackEmoticons, fontObj, userUuid, username, background
     div.style.color=color;
     div.style.fontFamily=font?font:'verdana, geneva, sans-serif';
     div.style.fontSize=String(size*fontScale)+'px';
-    if(userUuid){
+    if(params.userUuid){
     var img = document.createElement('img');
     img.style="width:26px; height:26px; max-height:100%; float:left; margin:1px;overflow:hidden;";
-    img.src='http://localhost/FreeChat2/profile_image/'+userUuid;
+    img.src='http://localhost/FreeChat2/profile_image/'+params.userUuid;
     this.div.appendChild(img);
     img.onerror = function () {
         img.src = window.thePageUrl+'images/user.png';
     };
     }
-    if (username != undefined)
+    if (params.username != undefined)
     {
-        this.div.appendChild(getDivUsername(username));
+        this.div.appendChild(getDivUsername(params.username));
     }
     var indexChar = 0;
     var indexChar2 = 0;
-    while (indexChar < str.length) {
-        var res = checkForEmoticon(indexChar, str);
+    while (indexChar < params.str.length) {
+        var res = checkForEmoticon(indexChar, params.str);
         if (res != null)
         {
             if (indexChar > indexChar2)
             {
-                createText(str, font, color, italic, bold, size, indexChar2, indexChar);
+                createText(params.str, font, color, italic, bold, size, indexChar2, indexChar);
                 
             }
             indexChar = res[1] + 1;
@@ -7698,17 +7815,17 @@ function Message(str, callbackEmoticons, fontObj, userUuid, username, background
         }
     }
     
-    createText(str, font, color, italic, bold, size, indexChar2, indexChar);
+    createText(params.str, font, color, italic, bold, size, indexChar2, indexChar);
     
     this.div.appendChild(div);
     this.unpend = function(){
-        if(pending){
+        if(params.pending){
             
         };
     };
     this.equals = function(jObject){
         var font = jObject.font;
-        return str==jObject.content&&isEquivalent(jObject.font, fontObj);
+        return params.str==jObject.content&&isEquivalent(jObject.font, fontObj);
     };
     function createText(strAll, font, color, italic, bold, size, indexFrom, indexTo)
     {
@@ -7776,8 +7893,9 @@ function Message(str, callbackEmoticons, fontObj, userUuid, username, background
         div.style.fontWeight = "bold";
         div.style.float = "top";
         div.style.fontSize = String(11*fontScale) + 'px';
-        new HoverAndClick(div, function(){div.style.textDecoration = 'underline';}, function(){}, function(){
-            
+        new HoverAndClick(div, function(){div.style.textDecoration = 'underline';}, function(){}, function(e){
+            params.menuMessages.show(e.pageX, e.pageY, function () {
+                }, {}, [{userUiud:params.userUuid},{}, {}]);
         });
         return div;
     }
@@ -7785,8 +7903,6 @@ function Message(str, callbackEmoticons, fontObj, userUuid, username, background
         
     }
 }
-
-
 function ImageMessage(name, path, backgroundColor)
 {
     this.div = document.createElement('div');
@@ -8170,6 +8286,23 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     divName.style.paddingLeft = '5px';
     divName.style.fontFamily = 'Arial';
     verticallyCenter(divName);
+    var menuOptions = [{name: 'PM', callback: function (r) {
+                Lobby.getPm(r.userId);
+            }}, {name: 'Ignore', callback: function (r) {
+                if (!Ignore.isIgnored(r.userId))
+                {
+                    Ignore.ignore(r.userId);
+                }
+            }}];
+    if (Configuration.videoEnabled)
+    {
+        menuOptions.push({name: 'Video PM', callback: function (r) {
+                Video.getWebcamPermission(function () {
+                    Lobby.getVideoPm(r.userId);
+                });
+            }});
+    }
+    var menuMessages = new Menu({options: menuOptions});
     var video;
     var optionPane;
     var videos;
@@ -8224,12 +8357,12 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         //    divFeed.appendChild(videos.div);
         // }
         console.log('roomInformation : ');
-        
+
         console.log(roomInformation);
         var name = roomInformation.name;
-        if(roomInformation.type == Room.Type.pm){
-            if(roomInformation.usernames.length>1)
-            name = "PM with: "+(roomInformation.usernames[0]==userInformation.name?roomInformation.usernames[1]:roomInformation.usernames[0]);
+        if (roomInformation.type == Room.Type.pm) {
+            if (roomInformation.usernames.length > 1)
+                name = "PM with: " + (roomInformation.usernames[0] == userInformation.name ? roomInformation.usernames[1] : roomInformation.usernames[0]);
         }
         setText(divName, name);
     }
@@ -8715,7 +8848,15 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
             addMessage.color1 = true;
             addMessage.backgroundColor = '#e6e6ff';
         }
-        var div = new Message(jObject.content, callbacksEmoticons, jObject.font, jObject.userId, jObject.name, addMessage.backgroundColor).div;
+        
+        var  div = new Message({str:jObject.content,
+            callbackEmoticons:callbacksEmoticons,
+            fontObj:jObject.font,
+            userUuid:jObject.userId,
+            username:jObject.name,
+            backgroundColor:addMessage.backgroundColor,
+            pending:false,
+            menuMessages:menuMessages}).div;
         if (div)
         {
             divFeed.appendChild(div);
@@ -8735,7 +8876,14 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
             addMessage.color1 = true;
             addMessage.backgroundColor = '#e6e6ff';
         }
-        var message = new Message(str, callbacksEmoticons, font, userInformation.userId, userInformation.name, addMessage.backgroundColor, true);
+        
+        var message = new Message({str:str,
+            callbackEmoticons:callbacksEmoticons,
+            fontObj:font, userUuid:userInformation.userId,
+            username:userInformation.name,
+            backgroundColor:addMessage.backgroundColor,
+            pending:true,
+            menuMessages:menuMessages});
         if (message.div)
         {
             divFeed.appendChild(message.div);
@@ -8746,7 +8894,13 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     }
     function addAdminMessage(str)
     {
-        var div = new Message(str, callbacksEmoticons, {color: "#4e0000", font: "Arial", bold: true, italic: false, size: 10}, undefined, "Admin", addMyMessage.backgroundColor).div;
+        var div = new Message({str:str,
+            callbackEmoticons:callbacksEmoticons,
+            fontObj:{color: "#4e0000", font: "Arial", bold: true, italic: false, size: 10},
+            username:"Admin",
+            backgroundColor:addMessage.backgroundColor,
+            pending:false,
+            menuMessages:menuMessages});
         if (div)
         {
             divFeed.appendChild(div);
@@ -9051,8 +9205,8 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     Themes.register(themesObject, undefined);
     initializeWebsocket();
     themesObjectWindow = Window.style(self.div, divInner, divTab);
-    Windows.add(this, false, divTab, divInner, new WindowInformation(true, true, minWidth, minHeight, Windows.maxWidthPx, Windows.maxHeightPx, 0, 100, 0, Windows.maxYPx, true, true, true),
-            new WindowCallbacks(function () {
+    var windowInformation =new WindowInformation(true, true, minWidth, minHeight, Windows.maxWidthPx, Windows.maxHeightPx, 0, 100, 0, Windows.maxYPx, true, true, true);
+          var windowCallbacks =  new WindowCallbacks(function () {
                 if (videos)
                 {
                     videos.resize();
@@ -9081,7 +9235,14 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
                         close();
                     }, function (zIndex) {
                 settings.set("zIndex", zIndex);
-            }));
+            });
+            var  params = {obj: this,
+        minimized: false,
+        divTab: divTab,
+        divInner: divInner,
+        windowInformation: windowInformation,
+        callbacks: windowCallbacks};
+    Windows.add( params);
     TaskBar.add(this);
     if (roomInformation.type == Room.Type.pm && roomInformation.username != userInformation.name)
     {
@@ -9389,8 +9550,8 @@ function Rooms(mapIdToRoom, callbacks, userInformation)
         
     }});
     Window.style(self.div, divInner, divTab);
-    Windows.add(this, false, divTab, divInner, new WindowInformation(true, true, 200, 100, 199, Windows.maxHeightPx, 0, 100, 0, Windows.maxYPx, true, false, true), 
-         new WindowCallbacks(function(){
+    var windowInformation = new WindowInformation(true, true, 200, 100, 199, Windows.maxHeightPx, 0, 100, 0, Windows.maxYPx, true, false, true);
+var windowCallbacks=         new WindowCallbacks(function(){
                 settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
                 settings.set("size", [200, self.div.offsetHeight]);
             }, function(){
@@ -9399,7 +9560,14 @@ function Rooms(mapIdToRoom, callbacks, userInformation)
          },
          function(){
         self.task.minimize();}, undefined, function(){
-        self.task.minimize();}, function(zIndex){settings.set("zIndex", zIndex);}));
+        self.task.minimize();}, function(zIndex){settings.set("zIndex", zIndex);});
+    var  params = {obj: this,
+        minimized: false,
+        divTab: divTab,
+        divInner: divInner,
+        windowInformation: windowInformation,
+        callbacks: windowCallbacks};
+    Windows.add( params);
     TaskBar.add(this);
 }
 function CreateWall()
@@ -11245,8 +11413,8 @@ function WebcamSettings(userInformation)
     tdMain.appendChild(divMain);
     divMain.appendChild(divPublicName);
     divMain.appendChild(sliderSwitchPublic.div);
-    Windows.add(this, false, divTab, divInner, new WindowInformation(true, true, 200, 50, 250, 50, 0, 100, 0, Windows.maxYPx, true, false, true), 
-         new WindowCallbacks(function(){ 
+    var windowInformation = new WindowInformation(true, true, 200, 50, 250, 50, 0, 100, 0, Windows.maxYPx, true, false, true);
+    var windowCallbacks=         new WindowCallbacks(function(){ 
             }, function(){
         if(self.div.offsetLeft&&self.div.offsetTop)
         settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
@@ -11254,7 +11422,16 @@ function WebcamSettings(userInformation)
             function(){
         self.task.minimize();}, undefined,
             function(){
-        self.task.minimize();}, function(zIndex){settings.set("zIndex", zIndex);}));
+        self.task.minimize();}, function(zIndex){settings.set("zIndex", zIndex);});
+    var  params = {obj: this,
+        minimized: false,
+        divTab: divTab,
+        divInner: divInner,
+        windowInformation: windowInformation,
+        callbacks: windowCallbacks};
+    Windows.add( params);
+    
+    
     var timerFlash;
     this.flash = function ()
     {
@@ -11987,7 +12164,8 @@ function ImageUploader(crop, aspectRatio, jObjectExtra, callbacks, forName)
     }}, undefined);
     Window.style(self.div, divInner, divTab);
     makeUnselectable(this.div);
-    Windows.add(this, true, divTab, divInner, new WindowInformation(true, true, 250, 250, 600, 600, 0, 100, 0, Windows.maxYPx, true,false, true), new WindowCallbacks(
+    var windowInformation = new WindowInformation(true, true, 250, 250, 600, 600, 0, 100, 0, Windows.maxYPx, true,false, true);
+    var windowCallbacks = new WindowCallbacks(
             
             function()
     {
@@ -12005,7 +12183,14 @@ function ImageUploader(crop, aspectRatio, jObjectExtra, callbacks, forName)
             , function(zIndex){settings.set("zIndex", zIndex);}
             ,function(){
                 move(); resize();
-            }));
+            });
+            var params = {obj: this,
+        minimized: true,
+        divTab: self.divTab,
+        divInner: self.divInner,
+        windowInformation: windowInformation,
+        callbacks: windowCallbacks};
+    Windows.add( params);
     TaskBar.add(this);
 }
 ImageUploader.show = function (crop, aspectRatio, jObjectExtra, callbacks, forName)
@@ -12328,8 +12513,8 @@ CompositeImage.actives = [];
 
         }});
     Window.style(self.div, divInner, divTab);
-    Windows.add(this, false, divTab, divInner, new WindowInformation(true, true, 200, 100, 199, Windows.maxHeightPx, 0, 100, 0, Windows.maxYPx, true, false, true),
-            new WindowCallbacks(function () {
+    var windowInformation =new WindowInformation(true, true, 200, 100, 199, Windows.maxHeightPx, 0, 100, 0, Windows.maxYPx, true, false, true);
+            var windowCallbacks = new WindowCallbacks(function () {
                 settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
                 settings.set("size", [200, self.div.offsetHeight]);
             }, function () {
@@ -12342,7 +12527,13 @@ CompositeImage.actives = [];
                 self.task.minimize();
             }, function (zIndex) {
                 settings.set("zIndex", zIndex);
-            }));
+            });var  params = {obj: this,
+        minimized: false,
+        divTab: divTab,
+        divInner: divInner,
+        windowInformation: windowInformation,
+        callbacks: windowCallbacks};
+    Windows.add( params);
     TaskBar.add(this);
     getNotifications();
     function getNotifications() {
@@ -12664,14 +12855,33 @@ function Messenger()
         mapTerminalIdToInterpreter[self.id] = interpreter;
     }
 }
-function GenericWindow(name, tooltipMessage, iconPath, minWidth, maxWidth, minHeight, maxHeight, defaultWidth, defaultHeight, defaultX, defaultY, minimized, minimizable, maximizable, minimizeOnClose, bringToFront)
+function GenericWindow(params)
 {
+    var name = params.name;
+    var tooltipMessage=params.tooltipMessage;
+    var iconPath = params.iconPath;
+    var minWidth = params.minWidth;
+    var maxWidth = params.maxWidth;
+    var minHeight = params.minHeight;
+    var maxHeight =params.maxHeight;
+    var defaultWidth = params.defaultWidth;
+    var defaultHeight = params.defaultHeight;
+    var defaultX = params.defaultX;
+    var defaultY = params.defaultY;
+    var minimized = params.minimized;
+    var minimizable= params.minimizable; 
+    var maximizable = params.maximizable;
+    var minimizeOnClose = params.minimizeOnClose;
+    var bringToFront = params.bringToFront;
+    
+   
+
     var self = this;
     var settings = new Settings(name, function () {
         this.set("position");
         this.set("size");
         this.set("zIndex");
-         });
+    });
     this.taskBarInformation = {tooltip: tooltipMessage, icon: (iconPath), style: {backgroundColor: 'transparent'}, hoverStyle: {backgroundColor: 'rgba(0,255,255, 0.5)'}, activeStyle: {backgroundColor: 'rgba(0, 128, 255, 0.5)'}, attentionStyle: {backgroundColor: 'rgba(255,80,80,0.5)'}};
     this.div = document.createElement('div');
     self.divInner = document.createElement('div');
@@ -12696,9 +12906,9 @@ function GenericWindow(name, tooltipMessage, iconPath, minWidth, maxWidth, minHe
     setText(divName, name);
     self.divMain.style.height = 'calc(100% - 20px)';
     self.divMain.style.width = '100%';
-    self.divMain.style.bottom='0px';
-    self.divMain.style.float='left';
-    self.divMain.style.position='relative';
+    self.divMain.style.bottom = '0px';
+    self.divMain.style.float = 'left';
+    self.divMain.style.position = 'relative';
     this.div.appendChild(self.divInner);
     self.divInner.appendChild(self.divTab);
     self.divTab.appendChild(divName);
@@ -12741,13 +12951,13 @@ function GenericWindow(name, tooltipMessage, iconPath, minWidth, maxWidth, minHe
     this.show = function ()
     {
         self.div.style.display = 'inline';
-        if(self.onshow)
+        if (self.onshow)
         {
             try
             {
-            self.onshow();
+                self.onshow();
             }
-            catch(ex)
+            catch (ex)
             {
                 console.log(ex);
             }
@@ -12766,52 +12976,65 @@ function GenericWindow(name, tooltipMessage, iconPath, minWidth, maxWidth, minHe
 
         }
     };
-    var callbackMinimize=minimizable?function(){
-                        self.task.minimize();}:function(){};
-    var callbackMaximize=maximizable?function(){
-                        self.task.maximize();
-                    }:function(){};
-    var callbackClose=minimizeOnClose?function(){
-                        self.task.minimize();
-    }:function(){close();};
+    var callbackMinimize = minimizable ? function () {
+        self.task.minimize();
+    } : function () {
+    };
+    var callbackMaximize = maximizable ? function () {
+        self.task.maximize();
+    } : function () {
+    };
+    var callbackClose = minimizeOnClose ? function () {
+        self.task.minimize();
+    } : function () {
+        close();
+    };
     Themes.register(themesObject, undefined);
     var themesObjectWindow = Window.style(self.div, self.divInner, self.divTab);
-    Windows.add(this, false, self.divTab, self.divInner, new WindowInformation(true, true, minWidth, minHeight, maxWidth, maxHeight, 0, 100, 0, Windows.maxYPx, true, true, true),
-            new WindowCallbacks(function () {
-                settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
-                settings.set("size", [self.div.offsetWidth, self.div.offsetHeight]);
-            }, function () {
-                settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
-            }
-            ,
-                   callbackMinimize,
-                    callbackMaximize,
-                    callbackClose, function (zIndex) {
+    var windowInformation = new WindowInformation(true, true, minWidth, minHeight, maxWidth, maxHeight, 0, 100, 0, Windows.maxYPx, true, true, true);
+    var callbacks = new WindowCallbacks(function () {
+        settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
+        settings.set("size", [self.div.offsetWidth, self.div.offsetHeight]);
+    }, function () {
+        settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
+    }
+    ,
+            callbackMinimize,
+            callbackMaximize,
+            callbackClose, function (zIndex) {
                 settings.set("zIndex", zIndex);
-            },function(){if(self.onresize)
-                {
-                    try
-                    {
-                        self.onresize();
-                }
-                catch(ex){
-                }
-                
-                }
-            }));
-            function close()
-            { 
+            }, function () {
+        if (self.onresize)
+        {
+            try
+            {
+                self.onresize();
+            }
+            catch (ex) {
+            }
+
+        }
+    });
+    var params = {obj: this,
+        minimized: false,
+        divTab: self.divTab,
+        divInner: self.divInner,
+        windowInformation: windowInformation,
+        callbacks: callbacks};
+    Windows.add(params);
+    function close()
+    {
         self.task.remove(self);
         Windows.remove(self);
         Themes.remove(themesObject);
         Themes.remove(themesObjectWindow);
-        if(self.onclose)
+        if (self.onclose)
         {
-      self.onclose();
+            self.onclose();
         }
-            }
+    }
     TaskBar.add(this);
-    if(bringToFront!=false)
+    if (bringToFront != false)
         Windows.bringToFront(self);
 }
 var GoogleMaps =new (function () {
@@ -13007,7 +13230,22 @@ function LocationPicker(messenger) {
     var map;
     var selectedGeolocation;
     var autocomplete;
-    var genericWindow = new GenericWindow(/*name*/'Location picker', /*tooltipMessage*/'Used to pick location', /*iconPath*/'images/location_picker_icon.png', /*minWidth*/150, /*maxWidth*/1000, /*minHeight*/200, /*maxHeight*/1000, /*defaultWidth*/500, /*defaultHeight*/500, /*defaultX*/200, /*defaultY*/200, /*minimized*/false, /*minimizable*/true, /*maximizable*/true, /*minimizeOnClose*/true);
+    var genericWindow = new GenericWindow(
+            {name:'Location picker',
+        tooltipMessage:'Used to pick location', 
+        iconPath:'images/location_picker_icon.png', 
+        minWidth:150,
+        maxWidth:1000,
+        minHeight:200, maxHeight : 1000,
+        defaultWidth:500,
+        defaultHeight:500,
+        defaultX:200,
+        defaultY:200,
+        minimized:false,
+        minimizable:true,
+        maximizable:true,
+        minimizeOnClose:true}
+            );
     genericWindow.onshow = function() {
         //resizeMap();
     };
@@ -14495,7 +14733,22 @@ function ProfilesDisplay(mySocketProfiles, messenger, callbacks)
     var terminal = messenger.getTerminal(interpret);
     var settings = new Settings('#ProfilesDisplay');
     var rectangle = new Rectangle(new Dimension([100], Dimension.Type.Percent), new Dimension([], Dimension.Type.Auto));
-    var genericWindow = new GenericWindow(/*name*/'Profile search', /*tooltipMessage*/'Used to pick location', /*iconPath*/'images/profiles_logo.png', /*minWidth*/150, /*maxWidth*/1000, /*minHeight*/200, /*maxHeight*/1000, /*defaultWidth*/500, /*defaultHeight*/500, /*defaultX*/200, /*defaultY*/200, /*minimized*/false, /*minimizable*/true, /*maximizable*/true, /*minimizeOnClose*/true);
+    var genericWindow = new GenericWindow({
+        name:'Profile search',
+        tooltipMessage:'Used to pick location',
+        iconPath:'images/profiles_logo.png',
+        minWidth:150,
+        maxWidth:1000,
+        minHeight:200, 
+        maxHeight:1000,
+        defaultWidth:500,
+        defaultHeight:500,
+        defaultX:200,
+        defaultY:200,
+        minimized:false,
+        minimizable:true, 
+        maximizable:true,
+        minimizeOnClose:true});
     var entriesDisplay = new EntriesDisplay(function(r) {
         return r.userId;
     },
@@ -14978,8 +15231,8 @@ function ImagesDisplay(path, pictures, callbackUpload, callbackOperations)
                     optionPaneError.show([['Ok', function () {
                             }]], message, function () {
                     });
-                    optionPaneError.div.style.left = '6px';
-                    optionPaneError.div.style.width = String(self.div.offsetWidth)+'px';
+                    optionPaneError.div.style.left = 'calc(50% - 100px)';
+                    optionPaneError.div.style.width = '200px';
                     optionPaneError.div.style.marginLeft = '0px';
     };
     this.resized = function()
@@ -15311,7 +15564,22 @@ function Profile(userId, messenger, editor, mySocketProfiles, callbacks)
     var self = this;
     var settings = new Settings('#ProfileEditor');
     var terminal = messenger.getTerminal(interpret);
-    var genericWindow = new GenericWindow(/*name*/'Profile Editor', /*tooltipMessage*/'Used to pick location', /*iconPath*/'images/profiles_logo.png', /*minWidth*/150, /*maxWidth*/1000, /*minHeight*/200, /*maxHeight*/1000, /*defaultWidth*/500, /*defaultHeight*/500, /*defaultX*/200, /*defaultY*/200, /*minimized*/false, /*minimizable*/true, /*maximizable*/true, /*minimizeOnClose*/editor);
+    var genericWindow = new GenericWindow({
+        name:'Profile Editor',
+        tooltipMessage:'Used to pick location',
+        iconPath:'images/profiles_logo.png',
+        minWidth:150,
+        maxWidth:1000,
+        minHeight:200,
+        maxHeight:1000,
+        defaultWidth:500,
+        defaultHeight:500,
+        defaultX:200,
+        defaultY:200,
+        minimized:false,
+        minimizable:true,
+        maximizable:true,
+        minimizeOnClose:editor});
     var divMainInner = document.createElement('div');
     var divCrossingColor = document.createElement('div');
     var spinner = new Spinner(1);
@@ -15678,4 +15946,4 @@ function LobbySwingers(callbackFinishedLoading, otherCallbacks)
     callbackFinishedLoading();
 }
 
-var Configuration={};Configuration.debugging=true;Configuration.ajaxTimeout=120000;Configuration.authenticationType='full';Configuration.isPersistent=false;if(!window.isCors)Configuration.videoEnabled=true;Configuration.wallsEnabled=false;Configuration.allowRude=true;if(window.isCors==undefined)window.isCors=false;Configuration.emoticonsXmlString = "<?xml version=\'1.0\' encoding=\'UTF-8\' ?> \n<messaging_emoticons>\n  <folder>\n      <path>emoticons-icons-pack-42286<\/path>\n      <name>general<\/name>\n    <emoticon>\n<path>smile.gif<\/path>\n      <string>:)<\/string>\n      <String>:-)<\/String>\n      <string>:smile:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>grin.png<\/path>\n      <string>:D<\/string>\n      <String>:d<\/String>\n      <string>:grin:<\/string>\n    <\/emoticon>\n    <emoticon>\n<path>0.gif<\/path>\n      <string>:kiss:<\/string>\n      <string>:*<\/string>\n      <string>:-*<\/string>\n    <\/emoticon>\n\n    <emoticon>\n<path>1.gif<\/path>\n      <string>:snigger:<\/string>\n      <string>:chuckle:<\/string>\n    <\/emoticon>\n<emoticon>\n<path>2.gif<\/path>\n      <string>:cry:<\/string>\n      <string>:\'(<\/string>\n      <string>:,(<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>3.gif<\/path>\n      <string>:laugh:<\/string>\n      <string>:lol:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>4.gif<\/path>\n      <string>:sun:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>5.gif<\/path>\n      <string>:doubt:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>6.gif<\/path>\n      <string>:rara:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>7.gif<\/path>\n      <string>>:clap:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>8.gif<\/path>\n      <string>:present:<\/string>\n      <string>:gift:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>9.gif<\/path>\n      <string>:angry:<\/string>\n      <string>:snarl:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>10.gif<\/path>\n      <string>:mobile:<\/string>\n      <string>:cell:<\/string>\n      <string>:phone:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>12.gif<\/path>\n      <string>:brokenheart:<\/string>\n      <string>:nolove:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>13.gif<\/path>\n      <string>&lt;3<\/string>\n      <string>:heart:<\/string>\n      <string>:love:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>14.gif<\/path>\n      <string>:drink:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>15.gif<\/path>\n      <string>:peace:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>16.gif<\/path>\n      <string>:wine:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>17.gif<\/path>\n      <string>:fedup:<\/string>\n      <string>:bored:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>18.gif<\/path>\n      <string>:hide:<\/string>\n      <string>:peak:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>19.gif<\/path>\n      <string>:cloud:<\/string>\n      <string>:clouds:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>20.gif<\/path>\n      <string>:music:<\/string>\n      <string>:notes:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>21.gif<\/path>\n      <string>:speachless:<\/string>\n      <string>:shocked:<\/string>\n      <string>:O<\/string>\n      <string>:o<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>23.gif<\/path>\n      <string>:disgusted:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>24.gif<\/path>\n      <string>:karate:<\/string>\n      <string>:threaten:<\/string>\n    <\/emoticon>\n\n\n    <emoticon>\n        <path>25.gif<\/path>\n      <string>:moon:<\/string>\n      <string>:night:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>26.gif<\/path>\n      <string>:bomb:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>27.gif<\/path>\n      <string>:wink:<\/string>\n      <string>;)<\/string>\n      <string>;-)<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>28.gif<\/path>\n      <string>:agent:<\/string>\n      <string>:spy:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>29.gif<\/path>\n      <string>:teary:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>30.gif<\/path>\n      <string>:balloons:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>31.gif<\/path>\n        <string>:rainbow:<\/string>\n\n    <\/emoticon>\n\n    <emoticon>\n        <path>32.gif<\/path>\n      <string>:chopper:<\/string>\n      <string>:cleaver:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>35.gif<\/path>\n      <string>:handshake:<\/string>\n      <string>:shake:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>36.gif<\/path>\n      <string>:stars:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>37.gif<\/path>\n      <string>:coffee:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>39.gif<\/path>\n      <string>:cake:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>40.gif<\/path>\n      <string>:delight:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>41.gif<\/path>\n      <string>:blush:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>43.gif<\/path>\n      <string>:sad:<\/string>\n      <string>:(<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>45.gif<\/path>\n      <string>:snail:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>46.gif<\/path>\n      <string>:poop:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>47.gif<\/path>\n      <string>:wave:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>48.gif<\/path>\n      <string>:idea:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>53.gif<\/path>\n      <string>:shhh:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>42.gif<\/path>\n      <string>:impertinent:<\/string>\n      <string>:-P<\/string>\n      <string>:-p<\/string>\n      <string>:P<\/string>\n      <string>:p<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>54.gif<\/path>\n      <string>:ok:<\/string>\n    <\/emoticon>\n  <\/folder>\n  \n  <folderXXX>\n      <path>evil<\/path>\n      <name>evil<\/name>\n    <emoticon>\n        <path>animated-devil-smiley-image-0164.gif<\/path>\n      <string>:evil1:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>smileys-devil-006872.gif<\/path>\n      <string>:666:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>smileys-devil-195541.gif<\/path>\n      <string>:satan:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>smileys-devil-558545.gif<\/path>\n      <string>:evil5:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>smileys-devil-229910.gif<\/path>\n      <string>:evil2:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>smileys-devil-352992.gif<\/path>\n      <string>:evil3:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>smileys-devil-360723.gif<\/path>\n      <string>:evil4:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>smileys-devil-828560.gif<\/path>\n      <string>:evil6:<\/string>\n    <\/emoticon>\n  <\/folderXXX>\n  \n  <folderXXX>\n    <path>offensive<\/path>\n    <name>offensive<\/name>\n    <emoticon>\n        <path>animated-bizarre-smiley-image-0021.gif<\/path>\n      <string>:bukake:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>animated-bizarre-smiley-image-0043.gif<\/path>\n      <string>:breast:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>animated-bizarre-smiley-image-0038.gif<\/path>\n        <string>:zoophilia:<\/string>\n      <string>:welsh:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>animated-bizarre-smiley-image-0047.gif<\/path>\n      <string>:shag:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>animated-love-smiley-image-0051.gif<\/path>\n      <string>:dogging:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>animated-bizarre-smiley-image-0004.gif<\/path>\n      <string>:flash:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>animated-bizarre-smiley-image-0019.gif<\/path>\n      <string>:wank:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>0084.gif<\/path>\n      <string>:bums:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>fart1.gif<\/path>\n      <string>:fart:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>frombehind.gif<\/path>\n      <string>:anal:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>spermy3.gif<\/path>\n      <string>:sperm:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>animated-bizarre-smiley-image-0017.gif<\/path>\n      <string>:oral:<\/string>\n    <\/emoticon>\n  <\/folderXXX>\n  \n  <folderXXX>\n      <path>toilet<\/path>\n      <name>toilet<\/name>\n    <emoticon>\n        <path>smiley-toilet06.gif<\/path>\n      <string>:2:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>smiley-toilet13.gif<\/path>\n      <string>:sitting:<\/string>\n    <\/emoticon>\n    \n    \n    <emoticon>\n        <path>smiley-toilet02.gif<\/path>\n      <string>:urinal:<\/string>\n    <\/emoticon>\n  <\/folderXXX>\n  <folder>\n      <path>aliens<\/path>\n      <name>aliens<\/name>\n    <emoticon>\n        <path>alien42.gif<\/path>\n      <string>:alien42:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien47.gif<\/path>\n      <string>:alien47:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien48.gif<\/path>\n      <string>:alien48:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien49.gif<\/path>\n      <string>:alien49:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien51.gif<\/path>\n      <string>:alien51:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien60.gif<\/path>\n      <string>:alien60:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien66.gif<\/path>\n      <string>:alien66:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien70.gif<\/path>\n      <string>:alien70:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien72.gif<\/path>\n      <string>:alien72:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien73.gif<\/path>\n      <string>:alien73:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien80.gif<\/path>\n      <string>:alien80:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien81.gif<\/path>\n      <string>:alien81:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien82.gif<\/path>\n      <string>:alien82:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien85.gif<\/path>\n      <string>:alien85:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien93.gif<\/path>\n      <string>:alien93:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien95.gif<\/path>\n      <string>:alien95:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien96.gif<\/path>\n      <string>:alien96:<\/string>\n    <\/emoticon>\n  <\/folder>\n  <folder>\n      <path>signs<\/path>\n      <name>signs<\/name>\n    <emoticon>\n        <path>smileys-smiley-with-sign-363798.gif<\/path>\n      <string>:do not feed:<\/string>\n    <\/emoticon>\n    <emoticonXXX>\n        <path>smileys-smiley-with-sign-083208.gif<\/path>\n      <string>:idiot:<\/string>\n    <\/emoticonXXX>\n    <emoticon>\n        <path>welcome1.gif<\/path>\n      <string>:welcome:<\/string>\n    <\/emoticon>\n    <emoticonXXX>\n        <path>feminazi_smiley.gif<\/path>\n      <string>:feminazi:<\/string>\n    <\/emoticonXXX>\n  <\/folder>\n  <folder>\n      <path>animals<\/path>\n      <name>animals<\/name>\n    <emoticon>\n        <path>serpentbleu.gif<\/path>\n      <string>:snake:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>sponge1.gif<\/path>\n      <string>:spongebob:<\/string>\n    <\/emoticon>\n    <emoticonXXX>\n        <path>bear1.gif<\/path>\n      <string>:bear:<\/string>\n    <\/emoticonXXX>\n    <emoticon>\n        <path>butterfly07.gif<\/path>\n      <string>:butterfly1:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>butterfly08.gif<\/path>\n      <string>:butterfly2:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>fish5.gif<\/path>\n      <string>:fish1:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>fish10.gif<\/path>\n      <string>:fish2:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>parrot.gif<\/path>\n      <string>:parrot:<\/string>\n    <\/emoticon>\n  <\/folder>\n  <folderXXX>\n      <path>drugs<\/path>\n      <name>drugs<\/name>\n    <emoticon>\n        <path>bong.gif<\/path>\n      <string>:bong:<\/string>\n    <\/emoticon>\n    <emoticon>\n      <string>:cigarette:<\/string>\n        <path>cigarette.gif<\/path>\n    <\/emoticon>\n    <emoticon>\n        <path>joint.gif<\/path>\n      <string>:joint:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>passing-joint-smiley-emoticon.gif<\/path>\n      <string>:passing_joint:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-rolling-joint.gif<\/path>\n      <string>:rolling:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>drugs.gif<\/path>\n      <string>:drugs:<\/string>\n    <\/emoticon>\n  <\/folderXXX>\n  <folder>\n      <path>transport<\/path>\n      <name>transport<\/name>\n    <emoticon>\n        <path>smiley-transport003.gif<\/path>\n      <string>:sherif:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-transport022.gif<\/path>\n      <string>:train:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-transport029.gif<\/path>\n      <string>:school_bus:<\/string>\n    <\/emoticon>\n  <\/folder>\n  <folder>\n      <path>violent<\/path>\n      <name>violent<\/name>\n    <emoticon>\n        <path>smiley-violent013.gif<\/path>\n      <string>:chainsaw:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-violent029.gif<\/path>\n      <string>:microwave:<\/string>\n    <\/emoticon>\n  <\/folder>\n  <folder>\n      <path>sport<\/path>\n      <name>sport<\/name>\n    <emoticon>\n        <path>smiley-sport002.gif<\/path>\n      <string>:header:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-sport003.gif<\/path>\n      <string>:goal:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-sport006.gif<\/path>\n      <string>:football:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-sport007.gif<\/path>\n      <string>:surfing:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-sport017.gif<\/path>\n      <string>:weights:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-sport031.gif<\/path>\n      <string>:ref:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-sport035.gif<\/path>\n      <string>:spectator:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-sport037.gif<\/path>\n      <string>:shooting:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-sport038.gif<\/path>\n      <string>:diving:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-sport041.gif<\/path>\n      <string>:fishing:<\/string>\n    <\/emoticon>\n  <\/folder>\n<\/messaging_emoticons>\n";Configuration.radioChannelsXmlString = "<?xml version=\'1.0\' encoding=\'UTF-8\' ?> \n<channels>\n    <channel>\n        <url>http:\/\/bbcmedia.ic.llnwd.net\/stream\/bbcmedia_radio2_mf_q<\/url>\n        <name>BBC Radio 2<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/bbcmedia.ic.llnwd.net\/stream\/bbcmedia_6music_mf_p<\/url>\n        <name>BBC 6<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/media-ice.musicradio.com\/CapitalSouthCoastMP3<\/url>\n        <name>103.2 Capital FM<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/ice-sov.musicradio.com:80\/CapitalXTRALondon<\/url>\n        <name>Capital XTRA London<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/media-ice.musicradio.com:80\/ClassicFMMP3<\/url>\n        <name>Classic FM<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/ice01.va.audionow.com:8000\/DesiBite.mp3<\/url>\n        <name>Desi Bite Radio<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/ice-sov.musicradio.com:80\/HeartLondonMP3<\/url>\n        <name>Heart 106.2 FM<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/icy-e-bz-03-gos.sharp-stream.com:8000\/metro.mp3<\/url>\n        <name>Metro Radio<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/s3.xrad.io:8096<\/url>\n        <name>107.7 Splash FM<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/s04.whooshclouds.net:8220\/live<\/url>\n        <name>Totalrock<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/radio.virginradio.co.uk\/stream<\/url>\n        <name>Virgin Radio UK<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/media-ice.musicradio.com:80\/Capital<\/url>\n        <name>Capital FM<\/name>\n    <\/channel>\n<\/channels>\n";Configuration.pageType='all_desktop';Configuration.ENDPOINT_TYPE =MySocket.Type.WebSocket;Configuration.forcedImports=[pickupElseCreateElement];window.lobbiesToLoad=[];window.lobbiesToLoad.push(LobbyChat);window.lobbiesToLoad.push(LobbySwingers);var preloadedImages=[];var imagesToPreload=[window.thePageUrl+'images/add_image.png',window.thePageUrl+'images/add_image_button.png',window.thePageUrl+'images/add_image_button_blue.png',window.thePageUrl+'images/arrow_left.png',window.thePageUrl+'images/arrow_left_hover.png',window.thePageUrl+'images/arrow_right.png',window.thePageUrl+'images/arrow_right_hover.png',window.thePageUrl+'images/background.png',window.thePageUrl+'images/background2.jpg',window.thePageUrl+'images/black_menu.png',window.thePageUrl+'images/bold.png',window.thePageUrl+'images/button_cancel.png',window.thePageUrl+'images/button_grey_play.png',window.thePageUrl+'images/button_grey_stop.png',window.thePageUrl+'images/button_play_blue.png',window.thePageUrl+'images/button_stop_blue.png',window.thePageUrl+'images/close_black.png',window.thePageUrl+'images/close_red.png',window.thePageUrl+'images/close_white.png',window.thePageUrl+'images/color_picker.png',window.thePageUrl+'images/color_picker_hover.png',window.thePageUrl+'images/delete.png',window.thePageUrl+'images/delete_hover.png',window.thePageUrl+'images/email.png',window.thePageUrl+'images/emoticons-icon-blue.gif',window.thePageUrl+'images/emoticons-icon.gif',window.thePageUrl+'images/font-colors-icon.gif',window.thePageUrl+'images/font-icon.gif',window.thePageUrl+'images/font-icon.png',window.thePageUrl+'images/font.png',window.thePageUrl+'images/gender.png',window.thePageUrl+'images/gender_hover.png',window.thePageUrl+'images/google-maps-marker.png',window.thePageUrl+'images/interests.png',window.thePageUrl+'images/interests_hover.png',window.thePageUrl+'images/italic.png',window.thePageUrl+'images/keyboard.png',window.thePageUrl+'images/location_picker_icon.png',window.thePageUrl+'images/location_picker_icon_blue.png',window.thePageUrl+'images/maximize_black.png',window.thePageUrl+'images/maximize_red.png',window.thePageUrl+'images/maximize_white.png',window.thePageUrl+'images/minimize_black.png',window.thePageUrl+'images/minimize_red.png',window.thePageUrl+'images/minimize_white.png',window.thePageUrl+'images/move.png',window.thePageUrl+'images/nights-sky.jpg',window.thePageUrl+'images/notifications-icon.png',window.thePageUrl+'images/others',window.thePageUrl+'images/profile',window.thePageUrl+'images/profile-picture-icon-blue.gif',window.thePageUrl+'images/profile-picture-icon.gif',window.thePageUrl+'images/profiles_logo.png',window.thePageUrl+'images/Red-Radio-icon.png',window.thePageUrl+'images/reload.png',window.thePageUrl+'images/reload_hover.png',window.thePageUrl+'images/room-icon.gif',window.thePageUrl+'images/rooms-icon.gif',window.thePageUrl+'images/se-resize.png',window.thePageUrl+'images/set_not_profile.png',window.thePageUrl+'images/set_not_profile_hover.png',window.thePageUrl+'images/set_profile.png',window.thePageUrl+'images/set_profile_hover.png',window.thePageUrl+'images/shadow.png',window.thePageUrl+'images/smile.gif',window.thePageUrl+'images/smile_blue.gif',window.thePageUrl+'images/sound-effects-icon-blue.gif',window.thePageUrl+'images/sound-effects-icon.gif',window.thePageUrl+'images/star--background-neon.jpg',window.thePageUrl+'images/star--background-seamless-repeating1.jpg',window.thePageUrl+'images/theme-icon.png',window.thePageUrl+'images/themes-icon.gif',window.thePageUrl+'images/themes-icon2.gif',window.thePageUrl+'images/tick.png',window.thePageUrl+'images/trees.jpg',window.thePageUrl+'images/underline.png',window.thePageUrl+'images/Untitled.png',window.thePageUrl+'images/upload-image-icon-blue.gif',window.thePageUrl+'images/upload-image-icon.gif',window.thePageUrl+'images/user.png',window.thePageUrl+'images/users.gif',window.thePageUrl+'images/users_highlighted.gif',window.thePageUrl+'images/user_info.png',window.thePageUrl+'images/user_info_blue.png',window.thePageUrl+'images/video-icon.png',window.thePageUrl+'images/video-start-icon-blue.gif',window.thePageUrl+'images/video-start-icon.gif',window.thePageUrl+'images/video-stop-icon-blue.gif',window.thePageUrl+'images/video-stop-icon.gif',window.thePageUrl+'images/video_downloader',window.thePageUrl+'images/wall-icon.gif',window.thePageUrl+'images/walls-icon.gif',window.thePageUrl+'images/webcam-settings-icon.gif',window.thePageUrl+'images/webcam.png',window.thePageUrl+'images/white_menu.png',window.thePageUrl+'images/writing.png',window.thePageUrl+'images/writing_hover.png',window.thePageUrl+'images/writing_lock.png',window.thePageUrl+'images/writing_lock_hover.png']; var taskPreloadImages = new Task(function(){for(var i=0; i<imagesToPreload.length; i++){var img = new Image(); img.src=imagesToPreload[i]; preloadedImages.push(img);}});var lobby = new Lobby();
+var Configuration={};Configuration.debugging=true;Configuration.ajaxTimeout=120000;Configuration.authenticationType='full';Configuration.isPersistent=false;if(!window.isCors)Configuration.videoEnabled=true;Configuration.wallsEnabled=false;Configuration.allowRude=true;if(window.isCors==undefined)window.isCors=false;Configuration.emoticonsXmlString = "<?xml version=\'1.0\' encoding=\'UTF-8\' ?> \r\n<messaging_emoticons>\r\n  <folder>\r\n      <path>emoticons-icons-pack-42286<\/path>\r\n      <name>general<\/name>\r\n    <emoticon>\r\n<path>smile.gif<\/path>\r\n      <string>:)<\/string>\r\n      <String>:-)<\/String>\r\n      <string>:smile:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>grin.png<\/path>\r\n      <string>:D<\/string>\r\n      <String>:d<\/String>\r\n      <string>:grin:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n<path>0.gif<\/path>\r\n      <string>:kiss:<\/string>\r\n      <string>:*<\/string>\r\n      <string>:-*<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n<path>1.gif<\/path>\r\n      <string>:snigger:<\/string>\r\n      <string>:chuckle:<\/string>\r\n    <\/emoticon>\r\n<emoticon>\r\n<path>2.gif<\/path>\r\n      <string>:cry:<\/string>\r\n      <string>:\'(<\/string>\r\n      <string>:,(<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>3.gif<\/path>\r\n      <string>:laugh:<\/string>\r\n      <string>:lol:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>4.gif<\/path>\r\n      <string>:sun:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>5.gif<\/path>\r\n      <string>:doubt:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>6.gif<\/path>\r\n      <string>:rara:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>7.gif<\/path>\r\n      <string>>:clap:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>8.gif<\/path>\r\n      <string>:present:<\/string>\r\n      <string>:gift:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>9.gif<\/path>\r\n      <string>:angry:<\/string>\r\n      <string>:snarl:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>10.gif<\/path>\r\n      <string>:mobile:<\/string>\r\n      <string>:cell:<\/string>\r\n      <string>:phone:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>12.gif<\/path>\r\n      <string>:brokenheart:<\/string>\r\n      <string>:nolove:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>13.gif<\/path>\r\n      <string>&lt;3<\/string>\r\n      <string>:heart:<\/string>\r\n      <string>:love:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>14.gif<\/path>\r\n      <string>:drink:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>15.gif<\/path>\r\n      <string>:peace:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>16.gif<\/path>\r\n      <string>:wine:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>17.gif<\/path>\r\n      <string>:fedup:<\/string>\r\n      <string>:bored:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>18.gif<\/path>\r\n      <string>:hide:<\/string>\r\n      <string>:peak:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>19.gif<\/path>\r\n      <string>:cloud:<\/string>\r\n      <string>:clouds:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>20.gif<\/path>\r\n      <string>:music:<\/string>\r\n      <string>:notes:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>21.gif<\/path>\r\n      <string>:speachless:<\/string>\r\n      <string>:shocked:<\/string>\r\n      <string>:O<\/string>\r\n      <string>:o<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>23.gif<\/path>\r\n      <string>:disgusted:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>24.gif<\/path>\r\n      <string>:karate:<\/string>\r\n      <string>:threaten:<\/string>\r\n    <\/emoticon>\r\n\r\n\r\n    <emoticon>\r\n        <path>25.gif<\/path>\r\n      <string>:moon:<\/string>\r\n      <string>:night:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>26.gif<\/path>\r\n      <string>:bomb:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>27.gif<\/path>\r\n      <string>:wink:<\/string>\r\n      <string>;)<\/string>\r\n      <string>;-)<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>28.gif<\/path>\r\n      <string>:agent:<\/string>\r\n      <string>:spy:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>29.gif<\/path>\r\n      <string>:teary:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>30.gif<\/path>\r\n      <string>:balloons:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>31.gif<\/path>\r\n        <string>:rainbow:<\/string>\r\n\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>32.gif<\/path>\r\n      <string>:chopper:<\/string>\r\n      <string>:cleaver:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>35.gif<\/path>\r\n      <string>:handshake:<\/string>\r\n      <string>:shake:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>36.gif<\/path>\r\n      <string>:stars:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>37.gif<\/path>\r\n      <string>:coffee:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>39.gif<\/path>\r\n      <string>:cake:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>40.gif<\/path>\r\n      <string>:delight:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>41.gif<\/path>\r\n      <string>:blush:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>43.gif<\/path>\r\n      <string>:sad:<\/string>\r\n      <string>:(<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>45.gif<\/path>\r\n      <string>:snail:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>46.gif<\/path>\r\n      <string>:poop:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>47.gif<\/path>\r\n      <string>:wave:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>48.gif<\/path>\r\n      <string>:idea:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>53.gif<\/path>\r\n      <string>:shhh:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>42.gif<\/path>\r\n      <string>:impertinent:<\/string>\r\n      <string>:-P<\/string>\r\n      <string>:-p<\/string>\r\n      <string>:P<\/string>\r\n      <string>:p<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>54.gif<\/path>\r\n      <string>:ok:<\/string>\r\n    <\/emoticon>\r\n  <\/folder>\r\n  \r\n  <folderXXX>\r\n      <path>evil<\/path>\r\n      <name>evil<\/name>\r\n    <emoticon>\r\n        <path>animated-devil-smiley-image-0164.gif<\/path>\r\n      <string>:evil1:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>smileys-devil-006872.gif<\/path>\r\n      <string>:666:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>smileys-devil-195541.gif<\/path>\r\n      <string>:satan:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>smileys-devil-558545.gif<\/path>\r\n      <string>:evil5:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>smileys-devil-229910.gif<\/path>\r\n      <string>:evil2:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>smileys-devil-352992.gif<\/path>\r\n      <string>:evil3:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>smileys-devil-360723.gif<\/path>\r\n      <string>:evil4:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>smileys-devil-828560.gif<\/path>\r\n      <string>:evil6:<\/string>\r\n    <\/emoticon>\r\n  <\/folderXXX>\r\n  \r\n  <folderXXX>\r\n    <path>offensive<\/path>\r\n    <name>offensive<\/name>\r\n    <emoticon>\r\n        <path>animated-bizarre-smiley-image-0021.gif<\/path>\r\n      <string>:bukake:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>animated-bizarre-smiley-image-0043.gif<\/path>\r\n      <string>:breast:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>animated-bizarre-smiley-image-0038.gif<\/path>\r\n        <string>:zoophilia:<\/string>\r\n      <string>:welsh:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>animated-bizarre-smiley-image-0047.gif<\/path>\r\n      <string>:shag:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>animated-love-smiley-image-0051.gif<\/path>\r\n      <string>:dogging:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>animated-bizarre-smiley-image-0004.gif<\/path>\r\n      <string>:flash:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>animated-bizarre-smiley-image-0019.gif<\/path>\r\n      <string>:wank:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>0084.gif<\/path>\r\n      <string>:bums:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>fart1.gif<\/path>\r\n      <string>:fart:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>frombehind.gif<\/path>\r\n      <string>:anal:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>spermy3.gif<\/path>\r\n      <string>:sperm:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>animated-bizarre-smiley-image-0017.gif<\/path>\r\n      <string>:oral:<\/string>\r\n    <\/emoticon>\r\n  <\/folderXXX>\r\n  \r\n  <folderXXX>\r\n      <path>toilet<\/path>\r\n      <name>toilet<\/name>\r\n    <emoticon>\r\n        <path>smiley-toilet06.gif<\/path>\r\n      <string>:2:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>smiley-toilet13.gif<\/path>\r\n      <string>:sitting:<\/string>\r\n    <\/emoticon>\r\n    \r\n    \r\n    <emoticon>\r\n        <path>smiley-toilet02.gif<\/path>\r\n      <string>:urinal:<\/string>\r\n    <\/emoticon>\r\n  <\/folderXXX>\r\n  <folder>\r\n      <path>aliens<\/path>\r\n      <name>aliens<\/name>\r\n    <emoticon>\r\n        <path>alien42.gif<\/path>\r\n      <string>:alien42:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien47.gif<\/path>\r\n      <string>:alien47:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien48.gif<\/path>\r\n      <string>:alien48:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien49.gif<\/path>\r\n      <string>:alien49:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien51.gif<\/path>\r\n      <string>:alien51:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien60.gif<\/path>\r\n      <string>:alien60:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien66.gif<\/path>\r\n      <string>:alien66:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien70.gif<\/path>\r\n      <string>:alien70:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien72.gif<\/path>\r\n      <string>:alien72:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien73.gif<\/path>\r\n      <string>:alien73:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien80.gif<\/path>\r\n      <string>:alien80:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien81.gif<\/path>\r\n      <string>:alien81:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien82.gif<\/path>\r\n      <string>:alien82:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien85.gif<\/path>\r\n      <string>:alien85:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien93.gif<\/path>\r\n      <string>:alien93:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien95.gif<\/path>\r\n      <string>:alien95:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien96.gif<\/path>\r\n      <string>:alien96:<\/string>\r\n    <\/emoticon>\r\n  <\/folder>\r\n  <folder>\r\n      <path>signs<\/path>\r\n      <name>signs<\/name>\r\n    <emoticon>\r\n        <path>smileys-smiley-with-sign-363798.gif<\/path>\r\n      <string>:do not feed:<\/string>\r\n    <\/emoticon>\r\n    <emoticonXXX>\r\n        <path>smileys-smiley-with-sign-083208.gif<\/path>\r\n      <string>:idiot:<\/string>\r\n    <\/emoticonXXX>\r\n    <emoticon>\r\n        <path>welcome1.gif<\/path>\r\n      <string>:welcome:<\/string>\r\n    <\/emoticon>\r\n    <emoticonXXX>\r\n        <path>feminazi_smiley.gif<\/path>\r\n      <string>:feminazi:<\/string>\r\n    <\/emoticonXXX>\r\n  <\/folder>\r\n  <folder>\r\n      <path>animals<\/path>\r\n      <name>animals<\/name>\r\n    <emoticon>\r\n        <path>serpentbleu.gif<\/path>\r\n      <string>:snake:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>sponge1.gif<\/path>\r\n      <string>:spongebob:<\/string>\r\n    <\/emoticon>\r\n    <emoticonXXX>\r\n        <path>bear1.gif<\/path>\r\n      <string>:bear:<\/string>\r\n    <\/emoticonXXX>\r\n    <emoticon>\r\n        <path>butterfly07.gif<\/path>\r\n      <string>:butterfly1:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>butterfly08.gif<\/path>\r\n      <string>:butterfly2:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>fish5.gif<\/path>\r\n      <string>:fish1:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>fish10.gif<\/path>\r\n      <string>:fish2:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>parrot.gif<\/path>\r\n      <string>:parrot:<\/string>\r\n    <\/emoticon>\r\n  <\/folder>\r\n  <folderXXX>\r\n      <path>drugs<\/path>\r\n      <name>drugs<\/name>\r\n    <emoticon>\r\n        <path>bong.gif<\/path>\r\n      <string>:bong:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n      <string>:cigarette:<\/string>\r\n        <path>cigarette.gif<\/path>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>joint.gif<\/path>\r\n      <string>:joint:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>passing-joint-smiley-emoticon.gif<\/path>\r\n      <string>:passing_joint:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-rolling-joint.gif<\/path>\r\n      <string>:rolling:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>drugs.gif<\/path>\r\n      <string>:drugs:<\/string>\r\n    <\/emoticon>\r\n  <\/folderXXX>\r\n  <folder>\r\n      <path>transport<\/path>\r\n      <name>transport<\/name>\r\n    <emoticon>\r\n        <path>smiley-transport003.gif<\/path>\r\n      <string>:sherif:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-transport022.gif<\/path>\r\n      <string>:train:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-transport029.gif<\/path>\r\n      <string>:school_bus:<\/string>\r\n    <\/emoticon>\r\n  <\/folder>\r\n  <folder>\r\n      <path>violent<\/path>\r\n      <name>violent<\/name>\r\n    <emoticon>\r\n        <path>smiley-violent013.gif<\/path>\r\n      <string>:chainsaw:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-violent029.gif<\/path>\r\n      <string>:microwave:<\/string>\r\n    <\/emoticon>\r\n  <\/folder>\r\n  <folder>\r\n      <path>sport<\/path>\r\n      <name>sport<\/name>\r\n    <emoticon>\r\n        <path>smiley-sport002.gif<\/path>\r\n      <string>:header:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-sport003.gif<\/path>\r\n      <string>:goal:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-sport006.gif<\/path>\r\n      <string>:football:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-sport007.gif<\/path>\r\n      <string>:surfing:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-sport017.gif<\/path>\r\n      <string>:weights:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-sport031.gif<\/path>\r\n      <string>:ref:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-sport035.gif<\/path>\r\n      <string>:spectator:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-sport037.gif<\/path>\r\n      <string>:shooting:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-sport038.gif<\/path>\r\n      <string>:diving:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-sport041.gif<\/path>\r\n      <string>:fishing:<\/string>\r\n    <\/emoticon>\r\n  <\/folder>\r\n<\/messaging_emoticons>\r\n";Configuration.radioChannelsXmlString = "<?xml version=\'1.0\' encoding=\'UTF-8\' ?> \r\n<channels>\r\n    <channel>\r\n        <url>http:\/\/bbcmedia.ic.llnwd.net\/stream\/bbcmedia_radio2_mf_q<\/url>\r\n        <name>BBC Radio 2<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/bbcmedia.ic.llnwd.net\/stream\/bbcmedia_6music_mf_p<\/url>\r\n        <name>BBC 6<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/media-ice.musicradio.com\/CapitalSouthCoastMP3<\/url>\r\n        <name>103.2 Capital FM<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/ice-sov.musicradio.com:80\/CapitalXTRALondon<\/url>\r\n        <name>Capital XTRA London<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/media-ice.musicradio.com:80\/ClassicFMMP3<\/url>\r\n        <name>Classic FM<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/ice01.va.audionow.com:8000\/DesiBite.mp3<\/url>\r\n        <name>Desi Bite Radio<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/ice-sov.musicradio.com:80\/HeartLondonMP3<\/url>\r\n        <name>Heart 106.2 FM<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/icy-e-bz-03-gos.sharp-stream.com:8000\/metro.mp3<\/url>\r\n        <name>Metro Radio<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/s3.xrad.io:8096<\/url>\r\n        <name>107.7 Splash FM<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/s04.whooshclouds.net:8220\/live<\/url>\r\n        <name>Totalrock<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/radio.virginradio.co.uk\/stream<\/url>\r\n        <name>Virgin Radio UK<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/media-ice.musicradio.com:80\/Capital<\/url>\r\n        <name>Capital FM<\/name>\r\n    <\/channel>\r\n<\/channels>\r\n";Configuration.pageType='all_desktop';Configuration.ENDPOINT_TYPE =MySocket.Type.WebSocket;Configuration.forcedImports=[pickupElseCreateElement];window.lobbiesToLoad=[];window.lobbiesToLoad.push(LobbyChat);window.lobbiesToLoad.push(LobbySwingers);var preloadedImages=[];var imagesToPreload=[window.thePageUrl+'images/add_image.png',window.thePageUrl+'images/add_image_button.png',window.thePageUrl+'images/add_image_button_blue.png',window.thePageUrl+'images/arrow_left.png',window.thePageUrl+'images/arrow_left_hover.png',window.thePageUrl+'images/arrow_right.png',window.thePageUrl+'images/arrow_right_hover.png',window.thePageUrl+'images/background.png',window.thePageUrl+'images/background2.jpg',window.thePageUrl+'images/black_menu.png',window.thePageUrl+'images/bold.png',window.thePageUrl+'images/button_cancel.png',window.thePageUrl+'images/button_grey_play.png',window.thePageUrl+'images/button_grey_stop.png',window.thePageUrl+'images/button_play_blue.png',window.thePageUrl+'images/button_stop_blue.png',window.thePageUrl+'images/close_black.png',window.thePageUrl+'images/close_red.png',window.thePageUrl+'images/close_white.png',window.thePageUrl+'images/color_picker.png',window.thePageUrl+'images/color_picker_hover.png',window.thePageUrl+'images/delete.png',window.thePageUrl+'images/delete_hover.png',window.thePageUrl+'images/email.png',window.thePageUrl+'images/emoticons-icon-blue.gif',window.thePageUrl+'images/emoticons-icon.gif',window.thePageUrl+'images/font-colors-icon.gif',window.thePageUrl+'images/font-icon.gif',window.thePageUrl+'images/font-icon.png',window.thePageUrl+'images/font.png',window.thePageUrl+'images/gender.png',window.thePageUrl+'images/gender_hover.png',window.thePageUrl+'images/google-maps-marker.png',window.thePageUrl+'images/interests.png',window.thePageUrl+'images/interests_hover.png',window.thePageUrl+'images/italic.png',window.thePageUrl+'images/keyboard.png',window.thePageUrl+'images/location_picker_icon.png',window.thePageUrl+'images/location_picker_icon_blue.png',window.thePageUrl+'images/maximize_black.png',window.thePageUrl+'images/maximize_red.png',window.thePageUrl+'images/maximize_white.png',window.thePageUrl+'images/minimize_black.png',window.thePageUrl+'images/minimize_red.png',window.thePageUrl+'images/minimize_white.png',window.thePageUrl+'images/move.png',window.thePageUrl+'images/nights-sky.jpg',window.thePageUrl+'images/notifications-icon.png',window.thePageUrl+'images/others',window.thePageUrl+'images/profile',window.thePageUrl+'images/profile-picture-icon-blue.gif',window.thePageUrl+'images/profile-picture-icon.gif',window.thePageUrl+'images/profiles_logo.png',window.thePageUrl+'images/Red-Radio-icon.png',window.thePageUrl+'images/reload.png',window.thePageUrl+'images/reload_hover.png',window.thePageUrl+'images/room-icon.gif',window.thePageUrl+'images/rooms-icon.gif',window.thePageUrl+'images/se-resize.png',window.thePageUrl+'images/set_not_profile.png',window.thePageUrl+'images/set_not_profile_hover.png',window.thePageUrl+'images/set_profile.png',window.thePageUrl+'images/set_profile_hover.png',window.thePageUrl+'images/shadow.png',window.thePageUrl+'images/smile.gif',window.thePageUrl+'images/smile_blue.gif',window.thePageUrl+'images/sound-effects-icon-blue.gif',window.thePageUrl+'images/sound-effects-icon.gif',window.thePageUrl+'images/star--background-neon.jpg',window.thePageUrl+'images/star--background-seamless-repeating1.jpg',window.thePageUrl+'images/theme-icon.png',window.thePageUrl+'images/themes-icon.gif',window.thePageUrl+'images/themes-icon2.gif',window.thePageUrl+'images/tick.png',window.thePageUrl+'images/trees.jpg',window.thePageUrl+'images/underline.png',window.thePageUrl+'images/Untitled.png',window.thePageUrl+'images/upload-image-icon-blue.gif',window.thePageUrl+'images/upload-image-icon.gif',window.thePageUrl+'images/user.png',window.thePageUrl+'images/users.gif',window.thePageUrl+'images/users_highlighted.gif',window.thePageUrl+'images/user_info.png',window.thePageUrl+'images/user_info_blue.png',window.thePageUrl+'images/video-icon.png',window.thePageUrl+'images/video-start-icon-blue.gif',window.thePageUrl+'images/video-start-icon.gif',window.thePageUrl+'images/video-stop-icon-blue.gif',window.thePageUrl+'images/video-stop-icon.gif',window.thePageUrl+'images/video_downloader',window.thePageUrl+'images/wall-icon.gif',window.thePageUrl+'images/walls-icon.gif',window.thePageUrl+'images/webcam-settings-icon.gif',window.thePageUrl+'images/webcam.png',window.thePageUrl+'images/white_menu.png',window.thePageUrl+'images/writing.png',window.thePageUrl+'images/writing_hover.png',window.thePageUrl+'images/writing_lock.png',window.thePageUrl+'images/writing_lock_hover.png']; var taskPreloadImages = new Task(function(){for(var i=0; i<imagesToPreload.length; i++){var img = new Image(); img.src=imagesToPreload[i]; preloadedImages.push(img);}});var lobby = new Lobby();
