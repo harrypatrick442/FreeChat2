@@ -3,11 +3,11 @@ function ImageUploader(crop, aspectRatio, jObjectExtra, callbacks, forName)
 
 
     var self = this;
-    var settings = new Settings("#image_uploader", function () {
-        this.set("position");
-        this.set("size");
+    //var settings = new Settings("#image_uploader", function () {
+      //  this.set("position");
+       // this.set("size");
         //this is a reset function for this particualr instance of this particular class.
-    });
+    //});
     var genericWindow = new GenericWindow({
         name:'Image Uploader',
         tooltipMessage:'Used to pick location',

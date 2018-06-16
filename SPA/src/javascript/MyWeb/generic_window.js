@@ -45,6 +45,8 @@ function GenericWindow(params)
     divName.style.float = 'left';
     divName.style.paddingLeft = '5px';
     divName.style.fontFamily = 'Arial';
+    divName.style.textOverflow='ellipsis';
+    divName.style.overflow='hidden';
     verticallyCenter(divName);
     setText(divName, name);
     self.divMain.style.height = 'calc(100% - 20px)';
