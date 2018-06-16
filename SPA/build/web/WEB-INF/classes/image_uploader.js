@@ -8,15 +8,23 @@ function ImageUploader(crop, aspectRatio, jObjectExtra, callbacks, forName)
         this.set("size");
         //this is a reset function for this particualr instance of this particular class.
     });
-    var minWidth=250;
-    var minHeight=250;
+    var genericWindow = new GenericWindow({
+        name:'Image Uploader',
+        tooltipMessage:'Used to pick location',
+        iconPath:'images/upload-image-icon.gif',
+        minWidth:250,
+        maxWidth:1000,
+        minHeight:250,
+        maxHeight:1000,
+        defaultWidth:250,
+        defaultHeight:250,
+        defaultX:250,
+        defaultY:250,
+        minimized:true,
+        minimizable:true,
+        maximizable:false,
+        minimizeOnClose:true});
     this.type = 'ImageUploader';
-    this.taskBarInformation = {tooltip: 'Upload an image to: ', icon: ('images/upload-image-icon.gif'), style: {backgroundColor: 'transparent'}, hoverStyle: {backgroundColor: 'rgba(0,255,255, 0.5)'}, activeStyle: {backgroundColor: 'rgba(0, 128, 255, 0.5)'}};
-    this.div = document.createElement('div');
-    var divInner = document.createElement('div');
-    var divTab = document.createElement('div');
-    var divName = document.createElement('div');
-    var divMain = document.createElement('div');
     var buttonChooseCover = document.createElement('input');
     var buttonChoose = document.createElement('input');
     var textPath = document.createElement('input');
@@ -29,69 +37,9 @@ function ImageUploader(crop, aspectRatio, jObjectExtra, callbacks, forName)
     var imgMove = document.createElement('img');
     var imgCroppingToolTab = document.createElement('img');
     var divSpinner = document.createElement('div');
-    var colorProcessText;
-    this.div.style.position = "absolute";
-    this.div.style.width = '400px';
-    this.div.style.height = '400px';
-    this.div.style.top = String(100) + 'px';
-    this.div.style.left = '0px';
-    divInner.style.border = '1px solid #66a3ff';
-    divInner.style.backgroundColor = '#0099ff';
-    divInner.style.padding = '0px 3px 3px 3px';
-    divInner.style.borderRadius = "5px";
-    divInner.style.overflow = 'hidden';
-    var startPosition = settings.get("position");
-    if (startPosition)
-    {
-        this.div.style.left = String(startPosition[0]) + 'px';
-        this.div.style.top = String(startPosition[1]) + 'px';
-    }
-    var startSize = settings.get("size");
-    if (startSize)
-    {
-        if(startSize[0]<minWidth)
-            startSize[0]=minWidth;
-        if(startSize[1]<minHeight)
-            startSize[1]=minHeight;
-        this.div.style.width = String(startSize[0]) + 'px';
-        this.div.style.height = String(startSize[1]) + 'px';
-    }  var startZIndex = settings.get("zIndex");
-        if (startZIndex)
-        {
-            self.div.style.zIndex=String(startZIndex);
-        }
+    var colorProcessText='#ffffff';
+    genericWindow.setName("Image uploader for: "+ forName);
     
-   // var menuBar = new MenuBar({options: [{name: 'Add', options: [{name: 'Text room', callback: function () {
-   //                         CreateRoom.show(createRoom, true, Room.Type.dynamic);
-   //                     }}, {name: 'Video room', callback: function () {
-   //                         CreateRoom.show(createRoom, true, Room.Type.videoDynamic);
-   //                     }}]}]}, {left: -6, top: -8});
-    divTab.style.float = 'left';
-    divTab.style.width = "100%";
-    divTab.style.height = "20px";
-    divTab.style.cursor = 'move';
-    divTab.style.padLeft = '10px';
-    divName.style.float = 'left';
-    divName.style.paddingLeft = '5px';
-    divName.style.fontFamily = 'Arial';
-    verticallyCenter(divName);
-    setText(divName, "Image uploader for: "+forName);
-    divMain.style.backgroundColor = '#555555';
-    divMain.style.position = 'relative';
-    divMain.style.float = 'left';
-    divMain.style.height = 'calc(100% - 22px)';
-    divMain.style.width = "100%";
-    divMain.style.overflowY = 'auto';
-    divMain.style.paddingBottom = '1px';
-    function verticallyCenter(element)
-    {
-        element.style.position = 'relative';
-        element.style.top = '50%';
-        element.style.transform = 'translateY(-50%)';
-        element.style.msTransform = 'translateY(-50%)';
-        element.style.webkitTransform = 'translateY(-50%)';
-        element.style.oTransform = 'translateY(-50%)';
-    }
     this.setup = function (cropIn, aspectRatioIn, jObjectExtraIn, callbacksIn, forNameIn)
     {
         crop = cropIn;
@@ -99,7 +47,7 @@ function ImageUploader(crop, aspectRatio, jObjectExtra, callbacks, forName)
         aspectRatio = aspectRatioIn;
         jObjectExtra = jObjectExtraIn;
         callbacks = callbacksIn;
-        setText(divName, "Image uploader for: "+ forNameIn);
+        genericWindow.setName("Image uploader for: "+ forNameIn);
         setProcessingText("");
         move(); resize();
     };
@@ -213,19 +161,19 @@ function ImageUploader(crop, aspectRatio, jObjectExtra, callbacks, forName)
     var spinner = new Spinner(1);
     spinner.div.style = 'top:calc(50% - ' + String(spinner.div.style.height) + ')';
     divSpinner.appendChild(spinner.div);
-    divMain.appendChild(buttonChooseCover);
-    divMain.appendChild(buttonChoose);
-    divMain.appendChild(textPath);
-    divMain.appendChild(divProcessText);
-    divMain.appendChild(imgPreview);
-    divMain.appendChild(divCroppingFrame);
+    genericWindow.divMain.appendChild(buttonChooseCover);
+    genericWindow.divMain.appendChild(buttonChoose);
+    genericWindow.divMain.appendChild(textPath);
+    genericWindow.divMain.appendChild(divProcessText);
+    genericWindow.divMain.appendChild(imgPreview);
+    genericWindow.divMain.appendChild(divCroppingFrame);
     divCroppingFrame.appendChild(imgCroppingFrame);
-    divMain.appendChild(buttonUpload);
+    genericWindow.divMain.appendChild(buttonUpload);
     divCroppingFrame.appendChild(divCroppingTool);
     divCroppingTool.appendChild(imgCroppingToolTab);
     imgMove.style.display = 'inline';
     divCroppingTool.appendChild(imgMove);
-    divMain.appendChild(divSpinner);
+    genericWindow.divMain.appendChild(divSpinner);
     buttonUpload.onclick = function () {
         if (set) {
             uploadImage(file);
@@ -625,81 +573,47 @@ function ImageUploader(crop, aspectRatio, jObjectExtra, callbacks, forName)
             }
         }
     };
-    function makeUndraggable(element)
-    {
-        element.style.webkitUserDrag = ' none';
-        element.style.khtmlUserDrag = ' none';
-        element.style.mozUserDrag = ' none';
-        element.style.oUserDrag = ' none';
-        element.style.userDrag = ' none';
-    }
-    this.div.appendChild(divInner);
-    divInner.appendChild(divTab);
-    divTab.appendChild(divName);
     //divInner.appendChild(menuBar.div);
-    divInner.appendChild(divMain);
 
     this.show = function ()
     {
-        self.div.style.display = 'inline';
-        self.flash();
-        Windows.bringToFront(self);
+        genericWindow.show();
+        genericWindow.flash();
+        genericWindow.bringToFront(self);
     };
     this.hide = function ()
     {
-        self.div.style.display = 'none';
+        genericWindow.hide();
     };
-    var timerFlash;
-    this.flash = function ()
-    {
-        var flashing = false;
-        timerFlash = new Timer(function () {
-            if (flashing) {
-                styleFromObject(divInner, Themes.theme.components.frame);
-                flashing = false;
-            } else {
-                styleFromObject(divInner, Themes.theme.components.frameFlashing);
-                flashing = true;
-            }
-        }, 50, 6);
-    };
-    Themes.register({components:[
-            {name:'body', elements:[divMain]},
-            {name:'text', elements:[divName, divProcessText]}
-        ],
-    callback:function(theme){
-        colorProcessText=theme.components.text.color;
-    }}, undefined);
-    Window.style(self.div, divInner, divTab);
     makeUnselectable(this.div);
-    var windowInformation = new WindowInformation(true, true, 250, 250, 600, 600, 0, 100, 0, Windows.maxYPx, true,false, true);
-    var windowCallbacks = new WindowCallbacks(
-            
-            function()
-    {
-                settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
-                settings.set("size", [self.div.offsetWidth, self.div.offsetHeight]);
-    },
-    function(){
-        if(self.div.offsetLeft&&self.div.offsetTop)
-        settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
-    },
-    function(){
-        self.task.minimize();}
-    , undefined, function(){
-        self.task.minimize();}
-            , function(zIndex){settings.set("zIndex", zIndex);}
-            ,function(){
-                move(); resize();
-            });
-            var params = {obj: this,
-        minimized: true,
-        divTab: self.divTab,
-        divInner: self.divInner,
-        windowInformation: windowInformation,
-        callbacks: windowCallbacks};
-    Windows.add( params);
-    TaskBar.add(this);
+    //var windowInformation = new WindowInformation(true, true, 250, 250, 600, 600, 0, 100, 0, Windows.maxYPx, true,false, true);
+    //var windowCallbacks = new WindowCallbacks(
+    //        
+     //       function()
+    //{
+      //          settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
+        //        settings.set("size", [self.div.offsetWidth, self.div.offsetHeight]);
+    //},
+    //function(){
+      //  if(self.div.offsetLeft&&self.div.offsetTop)
+        //settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
+    //},
+    //function(){
+      //  self.task.minimize();}
+    //, undefined, function(){
+      //  self.task.minimize();}
+        //    , function(zIndex){settings.set("zIndex", zIndex);}
+          //  ,function(){
+            //    move(); resize();
+            //});
+            //var params = {obj: this,
+        //minimized: true,
+        //divTab: self.divTab,
+        //divInner: self.divInner,
+        //windowInformation: windowInformation,
+        //callbacks: windowCallbacks};
+    //Windows.add( params);
+    //TaskBar.add(this);
 }
 ImageUploader.show = function (crop, aspectRatio, jObjectExtra, callbacks, forName)
 {

@@ -8,7 +8,7 @@ function Profile(userId, messenger, editor, mySocketProfiles, callbacks)
     var genericWindow = new GenericWindow({
         name:'Profile Editor',
         tooltipMessage:'Used to pick location',
-        iconPath:'images/profiles_logo.png',
+        iconPath:'images/profile-picture-icon.gif',
         minWidth:150,
         maxWidth:1000,
         minHeight:200,
