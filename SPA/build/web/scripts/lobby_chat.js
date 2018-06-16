@@ -196,7 +196,7 @@ websocket.addEventListener('message', function(e){
         } else
         {
             if((!isMobile)||(roomInformation.type!=Room.Type.videoDynamic&&roomInformation.type!=Room.Type.videoStatic&&roomInformation.type!=Room.Type.videoPm))
-            mapIdToRoom[roomInformation.roomUuid] = new Room(userInformation, roomInformation, callbackRoomClosed, "room", Configuration.URL_ENDPOINT_ROOM, {unminimize: font.unminimize, getFont: font.getFont}, {unminimize: emoticons.unminimize, getLookupTree: emoticons.getLookupTree}, {unminimize: soundEffects.unminimize}, {show: ImageUploader.show, interpret: ImageUploader.interpret}, {show: showImageUploaderProfilePicture});
+            mapIdToRoom[roomInformation.roomUuid] = new Room(userInformation, roomInformation, callbackRoomClosed, "room", Configuration.URL_ENDPOINT_ROOM, {unminimize: font.unminimize, getFont: font.getFont}, {unminimize: emoticons.unminimize, getLookupTree: emoticons.getLookupTree}, {unminimize: soundEffects.unminimize}, {show: ImageUploader.show, interpret: ImageUploader.interpret}, {show: function(){LobbySwingers.showMyProfile();}});
         }
     };
     Lobby.openWall = function (wallInfo)

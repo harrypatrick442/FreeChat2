@@ -39,6 +39,7 @@ function ImageUploader(crop, aspectRatio, jObjectExtra, callbacks, forName)
     var divSpinner = document.createElement('div');
     var colorProcessText='#ffffff';
     genericWindow.setName("Image uploader for: "+ forName);
+    
     this.setup = function (cropIn, aspectRatioIn, jObjectExtraIn, callbacksIn, forNameIn)
     {
         crop = cropIn;

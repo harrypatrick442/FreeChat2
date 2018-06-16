@@ -3850,7 +3850,7 @@ function Emoticons(xmlString)
     });
     var minWidth=100;
     var minHeight=100;
-    this.taskBarInformation = {tooltip: 'Click emoticons to insert into your current active room', icon: ('images/emoticons-icon.gif'), style: {backgroundColor: 'transparent'}, hoverStyle: {backgroundColor: 'rgba(0,255,255, 0.5)'}, activeStyle: {backgroundColor: 'rgba(0, 128, 255, 0.5)'}};
+    this.taskBarInformation = {tooltip: 'Click emoticons to insert into your current active room', icon: ('images/smiley.png'), style: {backgroundColor: 'transparent'}, hoverStyle: {backgroundColor: 'rgba(0,255,255, 0.5)'}, activeStyle: {backgroundColor: 'rgba(0, 128, 255, 0.5)'}};
     this.div = document.createElement('div');
     var divInner = document.createElement('div');
     var divTab = document.createElement('div');
@@ -8686,6 +8686,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         {
             if (callbacksImageUploaderProfilePicture.show)
             {
+                console.log('doing it');
                 callbacksImageUploaderProfilePicture.show();
             }
         }
@@ -8783,6 +8784,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     this.show = function ()
     {
         self.div.style.display = 'inline';
+        
     };
     this.hide = function ()
     {
@@ -11501,9 +11503,9 @@ function ImageUploader(crop, aspectRatio, jObjectExtra, callbacks, forName)
         //this is a reset function for this particualr instance of this particular class.
     });
     var genericWindow = new GenericWindow({
-        name:'Profile Editor',
+        name:'Image Uploader',
         tooltipMessage:'Used to pick location',
-        iconPath:'images/profiles_logo.png',
+        iconPath:'images/upload-image-icon.gif',
         minWidth:250,
         maxWidth:1000,
         minHeight:250,
@@ -11517,12 +11519,6 @@ function ImageUploader(crop, aspectRatio, jObjectExtra, callbacks, forName)
         maximizable:false,
         minimizeOnClose:true});
     this.type = 'ImageUploader';
-    this.taskBarInformation = {tooltip: 'Upload an image to: ', icon: ('images/upload-image-icon.gif'), style: {backgroundColor: 'transparent'}, hoverStyle: {backgroundColor: 'rgba(0,255,255, 0.5)'}, activeStyle: {backgroundColor: 'rgba(0, 128, 255, 0.5)'}};
-    this.div = document.createElement('div');
-    var divInner = document.createElement('div');
-    var divTab = document.createElement('div');
-    var divName = document.createElement('div');
-    var divMain = genericWindow.divMain;
     var buttonChooseCover = document.createElement('input');
     var buttonChoose = document.createElement('input');
     var textPath = document.createElement('input');
@@ -11535,69 +11531,9 @@ function ImageUploader(crop, aspectRatio, jObjectExtra, callbacks, forName)
     var imgMove = document.createElement('img');
     var imgCroppingToolTab = document.createElement('img');
     var divSpinner = document.createElement('div');
-    var colorProcessText;
-    this.div.style.position = "absolute";
-    this.div.style.width = '400px';
-    this.div.style.height = '400px';
-    this.div.style.top = String(100) + 'px';
-    this.div.style.left = '0px';
-    divInner.style.border = '1px solid #66a3ff';
-    divInner.style.backgroundColor = '#0099ff';
-    divInner.style.padding = '0px 3px 3px 3px';
-    divInner.style.borderRadius = "5px";
-    divInner.style.overflow = 'hidden';
-    var startPosition = settings.get("position");
-    if (startPosition)
-    {
-        this.div.style.left = String(startPosition[0]) + 'px';
-        this.div.style.top = String(startPosition[1]) + 'px';
-    }
-    var startSize = settings.get("size");
-    if (startSize)
-    {
-        if(startSize[0]<minWidth)
-            startSize[0]=minWidth;
-        if(startSize[1]<minHeight)
-            startSize[1]=minHeight;
-        this.div.style.width = String(startSize[0]) + 'px';
-        this.div.style.height = String(startSize[1]) + 'px';
-    }  var startZIndex = settings.get("zIndex");
-        if (startZIndex)
-        {
-            self.div.style.zIndex=String(startZIndex);
-        }
+    var colorProcessText='#ffffff';
+    genericWindow.setName("Image uploader for: "+ forName);
     
-   // var menuBar = new MenuBar({options: [{name: 'Add', options: [{name: 'Text room', callback: function () {
-   //                         CreateRoom.show(createRoom, true, Room.Type.dynamic);
-   //                     }}, {name: 'Video room', callback: function () {
-   //                         CreateRoom.show(createRoom, true, Room.Type.videoDynamic);
-   //                     }}]}]}, {left: -6, top: -8});
-    divTab.style.float = 'left';
-    divTab.style.width = "100%";
-    divTab.style.height = "20px";
-    divTab.style.cursor = 'move';
-    divTab.style.padLeft = '10px';
-    divName.style.float = 'left';
-    divName.style.paddingLeft = '5px';
-    divName.style.fontFamily = 'Arial';
-    verticallyCenter(divName);
-    setText(divName, "Image uploader for: "+forName);
-    divMain.style.backgroundColor = '#555555';
-    divMain.style.position = 'relative';
-    divMain.style.float = 'left';
-    divMain.style.height = 'calc(100% - 22px)';
-    divMain.style.width = "100%";
-    divMain.style.overflowY = 'auto';
-    divMain.style.paddingBottom = '1px';
-    function verticallyCenter(element)
-    {
-        element.style.position = 'relative';
-        element.style.top = '50%';
-        element.style.transform = 'translateY(-50%)';
-        element.style.msTransform = 'translateY(-50%)';
-        element.style.webkitTransform = 'translateY(-50%)';
-        element.style.oTransform = 'translateY(-50%)';
-    }
     this.setup = function (cropIn, aspectRatioIn, jObjectExtraIn, callbacksIn, forNameIn)
     {
         crop = cropIn;
@@ -11605,7 +11541,7 @@ function ImageUploader(crop, aspectRatio, jObjectExtra, callbacks, forName)
         aspectRatio = aspectRatioIn;
         jObjectExtra = jObjectExtraIn;
         callbacks = callbacksIn;
-        setText(divName, "Image uploader for: "+ forNameIn);
+        genericWindow.setName("Image uploader for: "+ forNameIn);
         setProcessingText("");
         move(); resize();
     };
@@ -11719,19 +11655,19 @@ function ImageUploader(crop, aspectRatio, jObjectExtra, callbacks, forName)
     var spinner = new Spinner(1);
     spinner.div.style = 'top:calc(50% - ' + String(spinner.div.style.height) + ')';
     divSpinner.appendChild(spinner.div);
-    divMain.appendChild(buttonChooseCover);
-    divMain.appendChild(buttonChoose);
-    divMain.appendChild(textPath);
-    divMain.appendChild(divProcessText);
-    divMain.appendChild(imgPreview);
-    divMain.appendChild(divCroppingFrame);
+    genericWindow.divMain.appendChild(buttonChooseCover);
+    genericWindow.divMain.appendChild(buttonChoose);
+    genericWindow.divMain.appendChild(textPath);
+    genericWindow.divMain.appendChild(divProcessText);
+    genericWindow.divMain.appendChild(imgPreview);
+    genericWindow.divMain.appendChild(divCroppingFrame);
     divCroppingFrame.appendChild(imgCroppingFrame);
-    divMain.appendChild(buttonUpload);
+    genericWindow.divMain.appendChild(buttonUpload);
     divCroppingFrame.appendChild(divCroppingTool);
     divCroppingTool.appendChild(imgCroppingToolTab);
     imgMove.style.display = 'inline';
     divCroppingTool.appendChild(imgMove);
-    divMain.appendChild(divSpinner);
+    genericWindow.divMain.appendChild(divSpinner);
     buttonUpload.onclick = function () {
         if (set) {
             uploadImage(file);
@@ -12131,81 +12067,47 @@ function ImageUploader(crop, aspectRatio, jObjectExtra, callbacks, forName)
             }
         }
     };
-    function makeUndraggable(element)
-    {
-        element.style.webkitUserDrag = ' none';
-        element.style.khtmlUserDrag = ' none';
-        element.style.mozUserDrag = ' none';
-        element.style.oUserDrag = ' none';
-        element.style.userDrag = ' none';
-    }
-    this.div.appendChild(divInner);
-    divInner.appendChild(divTab);
-    divTab.appendChild(divName);
     //divInner.appendChild(menuBar.div);
-    divInner.appendChild(divMain);
 
     this.show = function ()
     {
-        self.div.style.display = 'inline';
-        self.flash();
-        Windows.bringToFront(self);
+        genericWindow.show();
+        genericWindow.flash();
+        genericWindow.bringToFront(self);
     };
     this.hide = function ()
     {
-        self.div.style.display = 'none';
+        genericWindow.hide();
     };
-    var timerFlash;
-    this.flash = function ()
-    {
-        var flashing = false;
-        timerFlash = new Timer(function () {
-            if (flashing) {
-                styleFromObject(divInner, Themes.theme.components.frame);
-                flashing = false;
-            } else {
-                styleFromObject(divInner, Themes.theme.components.frameFlashing);
-                flashing = true;
-            }
-        }, 50, 6);
-    };
-    Themes.register({components:[
-            {name:'body', elements:[divMain]},
-            {name:'text', elements:[divName, divProcessText]}
-        ],
-    callback:function(theme){
-        colorProcessText=theme.components.text.color;
-    }}, undefined);
-    Window.style(self.div, divInner, divTab);
     makeUnselectable(this.div);
-    var windowInformation = new WindowInformation(true, true, 250, 250, 600, 600, 0, 100, 0, Windows.maxYPx, true,false, true);
-    var windowCallbacks = new WindowCallbacks(
-            
-            function()
-    {
-                settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
-                settings.set("size", [self.div.offsetWidth, self.div.offsetHeight]);
-    },
-    function(){
-        if(self.div.offsetLeft&&self.div.offsetTop)
-        settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
-    },
-    function(){
-        self.task.minimize();}
-    , undefined, function(){
-        self.task.minimize();}
-            , function(zIndex){settings.set("zIndex", zIndex);}
-            ,function(){
-                move(); resize();
-            });
-            var params = {obj: this,
-        minimized: true,
-        divTab: self.divTab,
-        divInner: self.divInner,
-        windowInformation: windowInformation,
-        callbacks: windowCallbacks};
-    Windows.add( params);
-    TaskBar.add(this);
+    //var windowInformation = new WindowInformation(true, true, 250, 250, 600, 600, 0, 100, 0, Windows.maxYPx, true,false, true);
+    //var windowCallbacks = new WindowCallbacks(
+    //        
+     //       function()
+    //{
+      //          settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
+        //        settings.set("size", [self.div.offsetWidth, self.div.offsetHeight]);
+    //},
+    //function(){
+      //  if(self.div.offsetLeft&&self.div.offsetTop)
+        //settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
+    //},
+    //function(){
+      //  self.task.minimize();}
+    //, undefined, function(){
+      //  self.task.minimize();}
+        //    , function(zIndex){settings.set("zIndex", zIndex);}
+          //  ,function(){
+            //    move(); resize();
+            //});
+            //var params = {obj: this,
+        //minimized: true,
+        //divTab: self.divTab,
+        //divInner: self.divInner,
+        //windowInformation: windowInformation,
+        //callbacks: windowCallbacks};
+    //Windows.add( params);
+    //TaskBar.add(this);
 }
 ImageUploader.show = function (crop, aspectRatio, jObjectExtra, callbacks, forName)
 {
@@ -12759,7 +12661,7 @@ function LobbyChat(callbackFinishedLoading, otherCallbacks)
         } else
         {//xxx
             if ((!isMobile) || (roomInformation.type != Room.Type.videoDynamic && roomInformation.type != Room.Type.videoStatic && roomInformation.type != Room.Type.videoPm))
-                mapIdToRoom[roomInformation.roomUuid] = new Room(userInformation, roomInformation, callbackRoomClosed, "room", Configuration.URL_ENDPOINT_ROOM, {unminimize: font.unminimize, getFont: font.getFont}, {unminimize: emoticons.unminimize, getLookupTree: emoticons.getLookupTree}, {unminimize: soundEffects.unminimize}, {show: ImageUploader.show, interpret: ImageUploader.interpret}, {show: showImageUploaderProfilePicture});
+                mapIdToRoom[roomInformation.roomUuid] = new Room(userInformation, roomInformation, callbackRoomClosed, "room", Configuration.URL_ENDPOINT_ROOM, {unminimize: font.unminimize, getFont: font.getFont}, {unminimize: emoticons.unminimize, getLookupTree: emoticons.getLookupTree}, {unminimize: soundEffects.unminimize}, {show: ImageUploader.show, interpret: ImageUploader.interpret}, {show: function(){LobbySwingers.showMyProfile();}});
         }
         if(notifications&&(!leaveNotifications))notifications.clearNotification(roomInformation.roomUuid);
     };
@@ -12891,6 +12793,7 @@ function GenericWindow(params)
    
 
     var self = this;
+    EventEnabledBuilder(this);
     var settings = new Settings(name, function () {
         this.set("position");
         this.set("size");
@@ -12970,6 +12873,7 @@ function GenericWindow(params)
             try
             {
                 self.onshow();
+                dispatchFocusedEvent();
             }
             catch (ex)
             {
@@ -13023,12 +12927,37 @@ function GenericWindow(params)
             try
             {
                 self.onresize();
+                dispatchResizedEvent();
             }
             catch (ex) {
+                console.log(ex);
             }
 
         }
     });
+    var timerFlash;
+    var flashing = false;
+    this.flash = function ()
+    {
+        var flashing = false;
+        timerFlash = new Timer(function () {
+            if (flashing) {
+                styleFromObject(self.divInner, Themes.theme.components.frame);
+                flashing = false;
+            } else {
+                styleFromObject(self.divInner, Themes.theme.components.frameFlashing);
+                flashing = true;
+            }
+        }, 50, 6);
+    };
+    
+    this.bringToFront = function(){
+        Windows.bringToFront(self);
+    };
+    this.setName = function(name){
+        console.log(name);
+        setText(divName, name);
+    };
     var params = {obj: this,
         minimized: false,
         divTab: self.divTab,
@@ -13042,14 +12971,35 @@ function GenericWindow(params)
         Windows.remove(self);
         Themes.remove(themesObject);
         Themes.remove(themesObjectWindow);
-        if (self.onclose)
-        {
-            self.onclose();
-        }
+        dispatchCloseEvent();
     }
     TaskBar.add(this);
     if (bringToFront != false)
         Windows.bringToFront(self);
+    function dispatchResizedEvent(){
+        self.dispatchEvent({type:'resized'});
+    }
+    function dispatchMaximizedEvent(){
+        self.dispatchEvent({type:'maximized'});
+    }
+    function dispatchMinimizedEvent(){
+        self.dispatchEvent({type:'minimized'});
+    }
+    function dispatchFocusedEvent(){
+        self.dispatchEvent({type:'focus'});
+    }
+    function dispatchUnminimized(){
+        self.dispatchEvent({type:'unminimized'});
+    }
+    function dispatchUnmaximized(){
+        self.dispatchEvent({type:'unmaximized'});
+    }
+    function dispatchMoved(){
+        self.dispatchEvent({type:'moved'});
+    }
+    function dispatchCloseEvent(){
+        self.dispatchEvent({type:'close'});
+    }
 }
 var GoogleMaps =new (function () {
     var initialized = false;
@@ -13263,9 +13213,7 @@ function LocationPicker(messenger) {
     genericWindow.onshow = function() {
         //resizeMap();
     };
-    genericWindow.onresize = function() {
-        resizeMap();
-    };
+    genericWindow.addEventListener('close', terminal.close);
     //var buttonFinished = document.createElement('button');
     var autocompleteInput = document.createElement('input');
     var divMap = document.createElement('div');
@@ -13482,9 +13430,7 @@ function LocationPicker(messenger) {
             Windows.bringToFront(genericWindow);
         }
     };
-    genericWindow.onclose = function() {
-        terminal.close();
-    };
+    genericWindow.addEventListener('close', terminal.close);
     function reset() {
         setState(false);
         marker.reset();
@@ -15581,7 +15527,7 @@ function Profile(userId, messenger, editor, mySocketProfiles, callbacks)
     var genericWindow = new GenericWindow({
         name:'Profile Editor',
         tooltipMessage:'Used to pick location',
-        iconPath:'images/profiles_logo.png',
+        iconPath:'images/profile-picture-icon.gif',
         minWidth:150,
         maxWidth:1000,
         minHeight:200,
@@ -15712,6 +15658,7 @@ function Profile(userId, messenger, editor, mySocketProfiles, callbacks)
         var message = e.message;
         interpret(message);
     }
+    this.show =genericWindow.show;
     function interpret(message)
     {
         switch (message.type)
@@ -15910,7 +15857,9 @@ function LobbySwingers(callbackFinishedLoading, otherCallbacks)
     });
     var profilesDisplay = new ProfilesDisplay(mySocketProfiles, messenger, new ProfilesDisplay.Callbacks(function() {
         locationPicker.show(true);
-    }, function(userId) {
+    }, showProfile));
+    var profileEditor;
+    function showProfile(userId) {
         var profile = mapUserIdToProfile[userId];
         if (!profile)
         {
@@ -15922,8 +15871,10 @@ function LobbySwingers(callbackFinishedLoading, otherCallbacks)
         }
         else
             profile.bringToFront();
-    }));
-    var profileEditor;
+    }
+    LobbySwingers.showMyProfile = function(){
+        profileEditor.show();
+    };
     function interpret(jObject)
     {
         switch (jObject.type)
@@ -15960,4 +15911,4 @@ function LobbySwingers(callbackFinishedLoading, otherCallbacks)
     callbackFinishedLoading();
 }
 
-var Configuration={};Configuration.debugging=true;Configuration.ajaxTimeout=120000;Configuration.authenticationType='full';Configuration.isPersistent=false;if(!window.isCors)Configuration.videoEnabled=true;Configuration.wallsEnabled=false;Configuration.allowRude=true;if(window.isCors==undefined)window.isCors=false;Configuration.emoticonsXmlString = "<?xml version=\'1.0\' encoding=\'UTF-8\' ?> \n<messaging_emoticons>\n  <folder>\n      <path>emoticons-icons-pack-42286<\/path>\n      <name>general<\/name>\n    <emoticon>\n<path>smile.gif<\/path>\n      <string>:)<\/string>\n      <String>:-)<\/String>\n      <string>:smile:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>grin.png<\/path>\n      <string>:D<\/string>\n      <String>:d<\/String>\n      <string>:grin:<\/string>\n    <\/emoticon>\n    <emoticon>\n<path>0.gif<\/path>\n      <string>:kiss:<\/string>\n      <string>:*<\/string>\n      <string>:-*<\/string>\n    <\/emoticon>\n\n    <emoticon>\n<path>1.gif<\/path>\n      <string>:snigger:<\/string>\n      <string>:chuckle:<\/string>\n    <\/emoticon>\n<emoticon>\n<path>2.gif<\/path>\n      <string>:cry:<\/string>\n      <string>:\'(<\/string>\n      <string>:,(<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>3.gif<\/path>\n      <string>:laugh:<\/string>\n      <string>:lol:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>4.gif<\/path>\n      <string>:sun:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>5.gif<\/path>\n      <string>:doubt:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>6.gif<\/path>\n      <string>:rara:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>7.gif<\/path>\n      <string>>:clap:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>8.gif<\/path>\n      <string>:present:<\/string>\n      <string>:gift:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>9.gif<\/path>\n      <string>:angry:<\/string>\n      <string>:snarl:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>10.gif<\/path>\n      <string>:mobile:<\/string>\n      <string>:cell:<\/string>\n      <string>:phone:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>12.gif<\/path>\n      <string>:brokenheart:<\/string>\n      <string>:nolove:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>13.gif<\/path>\n      <string>&lt;3<\/string>\n      <string>:heart:<\/string>\n      <string>:love:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>14.gif<\/path>\n      <string>:drink:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>15.gif<\/path>\n      <string>:peace:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>16.gif<\/path>\n      <string>:wine:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>17.gif<\/path>\n      <string>:fedup:<\/string>\n      <string>:bored:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>18.gif<\/path>\n      <string>:hide:<\/string>\n      <string>:peak:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>19.gif<\/path>\n      <string>:cloud:<\/string>\n      <string>:clouds:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>20.gif<\/path>\n      <string>:music:<\/string>\n      <string>:notes:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>21.gif<\/path>\n      <string>:speachless:<\/string>\n      <string>:shocked:<\/string>\n      <string>:O<\/string>\n      <string>:o<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>23.gif<\/path>\n      <string>:disgusted:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>24.gif<\/path>\n      <string>:karate:<\/string>\n      <string>:threaten:<\/string>\n    <\/emoticon>\n\n\n    <emoticon>\n        <path>25.gif<\/path>\n      <string>:moon:<\/string>\n      <string>:night:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>26.gif<\/path>\n      <string>:bomb:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>27.gif<\/path>\n      <string>:wink:<\/string>\n      <string>;)<\/string>\n      <string>;-)<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>28.gif<\/path>\n      <string>:agent:<\/string>\n      <string>:spy:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>29.gif<\/path>\n      <string>:teary:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>30.gif<\/path>\n      <string>:balloons:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>31.gif<\/path>\n        <string>:rainbow:<\/string>\n\n    <\/emoticon>\n\n    <emoticon>\n        <path>32.gif<\/path>\n      <string>:chopper:<\/string>\n      <string>:cleaver:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>35.gif<\/path>\n      <string>:handshake:<\/string>\n      <string>:shake:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>36.gif<\/path>\n      <string>:stars:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>37.gif<\/path>\n      <string>:coffee:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>39.gif<\/path>\n      <string>:cake:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>40.gif<\/path>\n      <string>:delight:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>41.gif<\/path>\n      <string>:blush:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>43.gif<\/path>\n      <string>:sad:<\/string>\n      <string>:(<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>45.gif<\/path>\n      <string>:snail:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>46.gif<\/path>\n      <string>:poop:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>47.gif<\/path>\n      <string>:wave:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>48.gif<\/path>\n      <string>:idea:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>53.gif<\/path>\n      <string>:shhh:<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>42.gif<\/path>\n      <string>:impertinent:<\/string>\n      <string>:-P<\/string>\n      <string>:-p<\/string>\n      <string>:P<\/string>\n      <string>:p<\/string>\n    <\/emoticon>\n\n    <emoticon>\n        <path>54.gif<\/path>\n      <string>:ok:<\/string>\n    <\/emoticon>\n  <\/folder>\n  \n  <folderXXX>\n      <path>evil<\/path>\n      <name>evil<\/name>\n    <emoticon>\n        <path>animated-devil-smiley-image-0164.gif<\/path>\n      <string>:evil1:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>smileys-devil-006872.gif<\/path>\n      <string>:666:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>smileys-devil-195541.gif<\/path>\n      <string>:satan:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>smileys-devil-558545.gif<\/path>\n      <string>:evil5:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>smileys-devil-229910.gif<\/path>\n      <string>:evil2:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>smileys-devil-352992.gif<\/path>\n      <string>:evil3:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>smileys-devil-360723.gif<\/path>\n      <string>:evil4:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>smileys-devil-828560.gif<\/path>\n      <string>:evil6:<\/string>\n    <\/emoticon>\n  <\/folderXXX>\n  \n  <folderXXX>\n    <path>offensive<\/path>\n    <name>offensive<\/name>\n    <emoticon>\n        <path>animated-bizarre-smiley-image-0021.gif<\/path>\n      <string>:bukake:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>animated-bizarre-smiley-image-0043.gif<\/path>\n      <string>:breast:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>animated-bizarre-smiley-image-0038.gif<\/path>\n        <string>:zoophilia:<\/string>\n      <string>:welsh:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>animated-bizarre-smiley-image-0047.gif<\/path>\n      <string>:shag:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>animated-love-smiley-image-0051.gif<\/path>\n      <string>:dogging:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>animated-bizarre-smiley-image-0004.gif<\/path>\n      <string>:flash:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>animated-bizarre-smiley-image-0019.gif<\/path>\n      <string>:wank:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>0084.gif<\/path>\n      <string>:bums:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>fart1.gif<\/path>\n      <string>:fart:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>frombehind.gif<\/path>\n      <string>:anal:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>spermy3.gif<\/path>\n      <string>:sperm:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>animated-bizarre-smiley-image-0017.gif<\/path>\n      <string>:oral:<\/string>\n    <\/emoticon>\n  <\/folderXXX>\n  \n  <folderXXX>\n      <path>toilet<\/path>\n      <name>toilet<\/name>\n    <emoticon>\n        <path>smiley-toilet06.gif<\/path>\n      <string>:2:<\/string>\n    <\/emoticon>\n    \n    <emoticon>\n        <path>smiley-toilet13.gif<\/path>\n      <string>:sitting:<\/string>\n    <\/emoticon>\n    \n    \n    <emoticon>\n        <path>smiley-toilet02.gif<\/path>\n      <string>:urinal:<\/string>\n    <\/emoticon>\n  <\/folderXXX>\n  <folder>\n      <path>aliens<\/path>\n      <name>aliens<\/name>\n    <emoticon>\n        <path>alien42.gif<\/path>\n      <string>:alien42:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien47.gif<\/path>\n      <string>:alien47:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien48.gif<\/path>\n      <string>:alien48:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien49.gif<\/path>\n      <string>:alien49:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien51.gif<\/path>\n      <string>:alien51:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien60.gif<\/path>\n      <string>:alien60:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien66.gif<\/path>\n      <string>:alien66:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien70.gif<\/path>\n      <string>:alien70:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien72.gif<\/path>\n      <string>:alien72:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien73.gif<\/path>\n      <string>:alien73:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien80.gif<\/path>\n      <string>:alien80:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien81.gif<\/path>\n      <string>:alien81:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien82.gif<\/path>\n      <string>:alien82:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien85.gif<\/path>\n      <string>:alien85:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien93.gif<\/path>\n      <string>:alien93:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien95.gif<\/path>\n      <string>:alien95:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>alien96.gif<\/path>\n      <string>:alien96:<\/string>\n    <\/emoticon>\n  <\/folder>\n  <folder>\n      <path>signs<\/path>\n      <name>signs<\/name>\n    <emoticon>\n        <path>smileys-smiley-with-sign-363798.gif<\/path>\n      <string>:do not feed:<\/string>\n    <\/emoticon>\n    <emoticonXXX>\n        <path>smileys-smiley-with-sign-083208.gif<\/path>\n      <string>:idiot:<\/string>\n    <\/emoticonXXX>\n    <emoticon>\n        <path>welcome1.gif<\/path>\n      <string>:welcome:<\/string>\n    <\/emoticon>\n    <emoticonXXX>\n        <path>feminazi_smiley.gif<\/path>\n      <string>:feminazi:<\/string>\n    <\/emoticonXXX>\n  <\/folder>\n  <folder>\n      <path>animals<\/path>\n      <name>animals<\/name>\n    <emoticon>\n        <path>serpentbleu.gif<\/path>\n      <string>:snake:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>sponge1.gif<\/path>\n      <string>:spongebob:<\/string>\n    <\/emoticon>\n    <emoticonXXX>\n        <path>bear1.gif<\/path>\n      <string>:bear:<\/string>\n    <\/emoticonXXX>\n    <emoticon>\n        <path>butterfly07.gif<\/path>\n      <string>:butterfly1:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>butterfly08.gif<\/path>\n      <string>:butterfly2:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>fish5.gif<\/path>\n      <string>:fish1:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>fish10.gif<\/path>\n      <string>:fish2:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>parrot.gif<\/path>\n      <string>:parrot:<\/string>\n    <\/emoticon>\n  <\/folder>\n  <folderXXX>\n      <path>drugs<\/path>\n      <name>drugs<\/name>\n    <emoticon>\n        <path>bong.gif<\/path>\n      <string>:bong:<\/string>\n    <\/emoticon>\n    <emoticon>\n      <string>:cigarette:<\/string>\n        <path>cigarette.gif<\/path>\n    <\/emoticon>\n    <emoticon>\n        <path>joint.gif<\/path>\n      <string>:joint:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>passing-joint-smiley-emoticon.gif<\/path>\n      <string>:passing_joint:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-rolling-joint.gif<\/path>\n      <string>:rolling:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>drugs.gif<\/path>\n      <string>:drugs:<\/string>\n    <\/emoticon>\n  <\/folderXXX>\n  <folder>\n      <path>transport<\/path>\n      <name>transport<\/name>\n    <emoticon>\n        <path>smiley-transport003.gif<\/path>\n      <string>:sherif:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-transport022.gif<\/path>\n      <string>:train:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-transport029.gif<\/path>\n      <string>:school_bus:<\/string>\n    <\/emoticon>\n  <\/folder>\n  <folder>\n      <path>violent<\/path>\n      <name>violent<\/name>\n    <emoticon>\n        <path>smiley-violent013.gif<\/path>\n      <string>:chainsaw:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-violent029.gif<\/path>\n      <string>:microwave:<\/string>\n    <\/emoticon>\n  <\/folder>\n  <folder>\n      <path>sport<\/path>\n      <name>sport<\/name>\n    <emoticon>\n        <path>smiley-sport002.gif<\/path>\n      <string>:header:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-sport003.gif<\/path>\n      <string>:goal:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-sport006.gif<\/path>\n      <string>:football:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-sport007.gif<\/path>\n      <string>:surfing:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-sport017.gif<\/path>\n      <string>:weights:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-sport031.gif<\/path>\n      <string>:ref:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-sport035.gif<\/path>\n      <string>:spectator:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-sport037.gif<\/path>\n      <string>:shooting:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-sport038.gif<\/path>\n      <string>:diving:<\/string>\n    <\/emoticon>\n    <emoticon>\n        <path>smiley-sport041.gif<\/path>\n      <string>:fishing:<\/string>\n    <\/emoticon>\n  <\/folder>\n<\/messaging_emoticons>\n";Configuration.radioChannelsXmlString = "<?xml version=\'1.0\' encoding=\'UTF-8\' ?> \n<channels>\n    <channel>\n        <url>http:\/\/bbcmedia.ic.llnwd.net\/stream\/bbcmedia_radio2_mf_q<\/url>\n        <name>BBC Radio 2<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/bbcmedia.ic.llnwd.net\/stream\/bbcmedia_6music_mf_p<\/url>\n        <name>BBC 6<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/media-ice.musicradio.com\/CapitalSouthCoastMP3<\/url>\n        <name>103.2 Capital FM<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/ice-sov.musicradio.com:80\/CapitalXTRALondon<\/url>\n        <name>Capital XTRA London<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/media-ice.musicradio.com:80\/ClassicFMMP3<\/url>\n        <name>Classic FM<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/ice01.va.audionow.com:8000\/DesiBite.mp3<\/url>\n        <name>Desi Bite Radio<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/ice-sov.musicradio.com:80\/HeartLondonMP3<\/url>\n        <name>Heart 106.2 FM<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/icy-e-bz-03-gos.sharp-stream.com:8000\/metro.mp3<\/url>\n        <name>Metro Radio<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/s3.xrad.io:8096<\/url>\n        <name>107.7 Splash FM<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/s04.whooshclouds.net:8220\/live<\/url>\n        <name>Totalrock<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/radio.virginradio.co.uk\/stream<\/url>\n        <name>Virgin Radio UK<\/name>\n    <\/channel>\n    <channel>\n        <url>http:\/\/media-ice.musicradio.com:80\/Capital<\/url>\n        <name>Capital FM<\/name>\n    <\/channel>\n<\/channels>\n";Configuration.pageType='all_desktop';Configuration.ENDPOINT_TYPE =MySocket.Type.WebSocket;Configuration.forcedImports=[pickupElseCreateElement];window.lobbiesToLoad=[];window.lobbiesToLoad.push(LobbyChat);window.lobbiesToLoad.push(LobbySwingers);var preloadedImages=[];var imagesToPreload=[window.thePageUrl+'images/add_image.png',window.thePageUrl+'images/add_image_button.png',window.thePageUrl+'images/add_image_button_blue.png',window.thePageUrl+'images/arrow_left.png',window.thePageUrl+'images/arrow_left_hover.png',window.thePageUrl+'images/arrow_right.png',window.thePageUrl+'images/arrow_right_hover.png',window.thePageUrl+'images/background.png',window.thePageUrl+'images/background2.jpg',window.thePageUrl+'images/black_menu.png',window.thePageUrl+'images/bold.png',window.thePageUrl+'images/button_cancel.png',window.thePageUrl+'images/button_grey_play.png',window.thePageUrl+'images/button_grey_stop.png',window.thePageUrl+'images/button_play_blue.png',window.thePageUrl+'images/button_stop_blue.png',window.thePageUrl+'images/close_black.png',window.thePageUrl+'images/close_red.png',window.thePageUrl+'images/close_white.png',window.thePageUrl+'images/color_picker.png',window.thePageUrl+'images/color_picker_hover.png',window.thePageUrl+'images/delete.png',window.thePageUrl+'images/delete_hover.png',window.thePageUrl+'images/email.png',window.thePageUrl+'images/emoticons-icon-blue.gif',window.thePageUrl+'images/emoticons-icon.gif',window.thePageUrl+'images/font-colors-icon.gif',window.thePageUrl+'images/font-icon.gif',window.thePageUrl+'images/font-icon.png',window.thePageUrl+'images/font.png',window.thePageUrl+'images/gender.png',window.thePageUrl+'images/gender_hover.png',window.thePageUrl+'images/google-maps-marker.png',window.thePageUrl+'images/interests.png',window.thePageUrl+'images/interests_hover.png',window.thePageUrl+'images/italic.png',window.thePageUrl+'images/keyboard.png',window.thePageUrl+'images/location_picker_icon.png',window.thePageUrl+'images/location_picker_icon_blue.png',window.thePageUrl+'images/maximize_black.png',window.thePageUrl+'images/maximize_red.png',window.thePageUrl+'images/maximize_white.png',window.thePageUrl+'images/minimize_black.png',window.thePageUrl+'images/minimize_red.png',window.thePageUrl+'images/minimize_white.png',window.thePageUrl+'images/move.png',window.thePageUrl+'images/nights-sky.jpg',window.thePageUrl+'images/notifications-icon.png',window.thePageUrl+'images/others',window.thePageUrl+'images/profile',window.thePageUrl+'images/profile-picture-icon-blue.gif',window.thePageUrl+'images/profile-picture-icon.gif',window.thePageUrl+'images/profiles_logo.png',window.thePageUrl+'images/Red-Radio-icon.png',window.thePageUrl+'images/reload.png',window.thePageUrl+'images/reload_hover.png',window.thePageUrl+'images/room-icon.gif',window.thePageUrl+'images/rooms-icon.gif',window.thePageUrl+'images/se-resize.png',window.thePageUrl+'images/set_not_profile.png',window.thePageUrl+'images/set_not_profile_hover.png',window.thePageUrl+'images/set_profile.png',window.thePageUrl+'images/set_profile_hover.png',window.thePageUrl+'images/shadow.png',window.thePageUrl+'images/smile.gif',window.thePageUrl+'images/smile_blue.gif',window.thePageUrl+'images/sound-effects-icon-blue.gif',window.thePageUrl+'images/sound-effects-icon.gif',window.thePageUrl+'images/star--background-neon.jpg',window.thePageUrl+'images/star--background-seamless-repeating1.jpg',window.thePageUrl+'images/theme-icon.png',window.thePageUrl+'images/themes-icon.gif',window.thePageUrl+'images/themes-icon2.gif',window.thePageUrl+'images/tick.png',window.thePageUrl+'images/trees.jpg',window.thePageUrl+'images/underline.png',window.thePageUrl+'images/Untitled.png',window.thePageUrl+'images/upload-image-icon-blue.gif',window.thePageUrl+'images/upload-image-icon.gif',window.thePageUrl+'images/user.png',window.thePageUrl+'images/users.gif',window.thePageUrl+'images/users_highlighted.gif',window.thePageUrl+'images/user_info.png',window.thePageUrl+'images/user_info_blue.png',window.thePageUrl+'images/video-icon.png',window.thePageUrl+'images/video-start-icon-blue.gif',window.thePageUrl+'images/video-start-icon.gif',window.thePageUrl+'images/video-stop-icon-blue.gif',window.thePageUrl+'images/video-stop-icon.gif',window.thePageUrl+'images/video_downloader',window.thePageUrl+'images/wall-icon.gif',window.thePageUrl+'images/walls-icon.gif',window.thePageUrl+'images/webcam-settings-icon.gif',window.thePageUrl+'images/webcam.png',window.thePageUrl+'images/white_menu.png',window.thePageUrl+'images/writing.png',window.thePageUrl+'images/writing_hover.png',window.thePageUrl+'images/writing_lock.png',window.thePageUrl+'images/writing_lock_hover.png']; var taskPreloadImages = new Task(function(){for(var i=0; i<imagesToPreload.length; i++){var img = new Image(); img.src=imagesToPreload[i]; preloadedImages.push(img);}});var lobby = new Lobby();
+var Configuration={};Configuration.debugging=true;Configuration.ajaxTimeout=120000;Configuration.authenticationType='full';Configuration.isPersistent=false;if(!window.isCors)Configuration.videoEnabled=true;Configuration.wallsEnabled=false;Configuration.allowRude=true;if(window.isCors==undefined)window.isCors=false;Configuration.emoticonsXmlString = "<?xml version=\'1.0\' encoding=\'UTF-8\' ?> \r\n<messaging_emoticons>\r\n  <folder>\r\n      <path>emoticons-icons-pack-42286<\/path>\r\n      <name>general<\/name>\r\n    <emoticon>\r\n<path>smile.gif<\/path>\r\n      <string>:)<\/string>\r\n      <String>:-)<\/String>\r\n      <string>:smile:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>grin.png<\/path>\r\n      <string>:D<\/string>\r\n      <String>:d<\/String>\r\n      <string>:grin:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n<path>0.gif<\/path>\r\n      <string>:kiss:<\/string>\r\n      <string>:*<\/string>\r\n      <string>:-*<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n<path>1.gif<\/path>\r\n      <string>:snigger:<\/string>\r\n      <string>:chuckle:<\/string>\r\n    <\/emoticon>\r\n<emoticon>\r\n<path>2.gif<\/path>\r\n      <string>:cry:<\/string>\r\n      <string>:\'(<\/string>\r\n      <string>:,(<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>3.gif<\/path>\r\n      <string>:laugh:<\/string>\r\n      <string>:lol:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>4.gif<\/path>\r\n      <string>:sun:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>5.gif<\/path>\r\n      <string>:doubt:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>6.gif<\/path>\r\n      <string>:rara:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>7.gif<\/path>\r\n      <string>>:clap:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>8.gif<\/path>\r\n      <string>:present:<\/string>\r\n      <string>:gift:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>9.gif<\/path>\r\n      <string>:angry:<\/string>\r\n      <string>:snarl:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>10.gif<\/path>\r\n      <string>:mobile:<\/string>\r\n      <string>:cell:<\/string>\r\n      <string>:phone:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>12.gif<\/path>\r\n      <string>:brokenheart:<\/string>\r\n      <string>:nolove:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>13.gif<\/path>\r\n      <string>&lt;3<\/string>\r\n      <string>:heart:<\/string>\r\n      <string>:love:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>14.gif<\/path>\r\n      <string>:drink:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>15.gif<\/path>\r\n      <string>:peace:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>16.gif<\/path>\r\n      <string>:wine:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>17.gif<\/path>\r\n      <string>:fedup:<\/string>\r\n      <string>:bored:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>18.gif<\/path>\r\n      <string>:hide:<\/string>\r\n      <string>:peak:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>19.gif<\/path>\r\n      <string>:cloud:<\/string>\r\n      <string>:clouds:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>20.gif<\/path>\r\n      <string>:music:<\/string>\r\n      <string>:notes:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>21.gif<\/path>\r\n      <string>:speachless:<\/string>\r\n      <string>:shocked:<\/string>\r\n      <string>:O<\/string>\r\n      <string>:o<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>23.gif<\/path>\r\n      <string>:disgusted:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>24.gif<\/path>\r\n      <string>:karate:<\/string>\r\n      <string>:threaten:<\/string>\r\n    <\/emoticon>\r\n\r\n\r\n    <emoticon>\r\n        <path>25.gif<\/path>\r\n      <string>:moon:<\/string>\r\n      <string>:night:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>26.gif<\/path>\r\n      <string>:bomb:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>27.gif<\/path>\r\n      <string>:wink:<\/string>\r\n      <string>;)<\/string>\r\n      <string>;-)<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>28.gif<\/path>\r\n      <string>:agent:<\/string>\r\n      <string>:spy:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>29.gif<\/path>\r\n      <string>:teary:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>30.gif<\/path>\r\n      <string>:balloons:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>31.gif<\/path>\r\n        <string>:rainbow:<\/string>\r\n\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>32.gif<\/path>\r\n      <string>:chopper:<\/string>\r\n      <string>:cleaver:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>35.gif<\/path>\r\n      <string>:handshake:<\/string>\r\n      <string>:shake:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>36.gif<\/path>\r\n      <string>:stars:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>37.gif<\/path>\r\n      <string>:coffee:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>39.gif<\/path>\r\n      <string>:cake:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>40.gif<\/path>\r\n      <string>:delight:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>41.gif<\/path>\r\n      <string>:blush:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>43.gif<\/path>\r\n      <string>:sad:<\/string>\r\n      <string>:(<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>45.gif<\/path>\r\n      <string>:snail:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>46.gif<\/path>\r\n      <string>:poop:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>47.gif<\/path>\r\n      <string>:wave:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>48.gif<\/path>\r\n      <string>:idea:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>53.gif<\/path>\r\n      <string>:shhh:<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>42.gif<\/path>\r\n      <string>:impertinent:<\/string>\r\n      <string>:-P<\/string>\r\n      <string>:-p<\/string>\r\n      <string>:P<\/string>\r\n      <string>:p<\/string>\r\n    <\/emoticon>\r\n\r\n    <emoticon>\r\n        <path>54.gif<\/path>\r\n      <string>:ok:<\/string>\r\n    <\/emoticon>\r\n  <\/folder>\r\n  \r\n  <folderXXX>\r\n      <path>evil<\/path>\r\n      <name>evil<\/name>\r\n    <emoticon>\r\n        <path>animated-devil-smiley-image-0164.gif<\/path>\r\n      <string>:evil1:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>smileys-devil-006872.gif<\/path>\r\n      <string>:666:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>smileys-devil-195541.gif<\/path>\r\n      <string>:satan:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>smileys-devil-558545.gif<\/path>\r\n      <string>:evil5:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>smileys-devil-229910.gif<\/path>\r\n      <string>:evil2:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>smileys-devil-352992.gif<\/path>\r\n      <string>:evil3:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>smileys-devil-360723.gif<\/path>\r\n      <string>:evil4:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>smileys-devil-828560.gif<\/path>\r\n      <string>:evil6:<\/string>\r\n    <\/emoticon>\r\n  <\/folderXXX>\r\n  \r\n  <folderXXX>\r\n    <path>offensive<\/path>\r\n    <name>offensive<\/name>\r\n    <emoticon>\r\n        <path>animated-bizarre-smiley-image-0021.gif<\/path>\r\n      <string>:bukake:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>animated-bizarre-smiley-image-0043.gif<\/path>\r\n      <string>:breast:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>animated-bizarre-smiley-image-0038.gif<\/path>\r\n        <string>:zoophilia:<\/string>\r\n      <string>:welsh:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>animated-bizarre-smiley-image-0047.gif<\/path>\r\n      <string>:shag:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>animated-love-smiley-image-0051.gif<\/path>\r\n      <string>:dogging:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>animated-bizarre-smiley-image-0004.gif<\/path>\r\n      <string>:flash:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>animated-bizarre-smiley-image-0019.gif<\/path>\r\n      <string>:wank:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>0084.gif<\/path>\r\n      <string>:bums:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>fart1.gif<\/path>\r\n      <string>:fart:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>frombehind.gif<\/path>\r\n      <string>:anal:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>spermy3.gif<\/path>\r\n      <string>:sperm:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>animated-bizarre-smiley-image-0017.gif<\/path>\r\n      <string>:oral:<\/string>\r\n    <\/emoticon>\r\n  <\/folderXXX>\r\n  \r\n  <folderXXX>\r\n      <path>toilet<\/path>\r\n      <name>toilet<\/name>\r\n    <emoticon>\r\n        <path>smiley-toilet06.gif<\/path>\r\n      <string>:2:<\/string>\r\n    <\/emoticon>\r\n    \r\n    <emoticon>\r\n        <path>smiley-toilet13.gif<\/path>\r\n      <string>:sitting:<\/string>\r\n    <\/emoticon>\r\n    \r\n    \r\n    <emoticon>\r\n        <path>smiley-toilet02.gif<\/path>\r\n      <string>:urinal:<\/string>\r\n    <\/emoticon>\r\n  <\/folderXXX>\r\n  <folder>\r\n      <path>aliens<\/path>\r\n      <name>aliens<\/name>\r\n    <emoticon>\r\n        <path>alien42.gif<\/path>\r\n      <string>:alien42:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien47.gif<\/path>\r\n      <string>:alien47:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien48.gif<\/path>\r\n      <string>:alien48:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien49.gif<\/path>\r\n      <string>:alien49:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien51.gif<\/path>\r\n      <string>:alien51:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien60.gif<\/path>\r\n      <string>:alien60:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien66.gif<\/path>\r\n      <string>:alien66:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien70.gif<\/path>\r\n      <string>:alien70:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien72.gif<\/path>\r\n      <string>:alien72:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien73.gif<\/path>\r\n      <string>:alien73:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien80.gif<\/path>\r\n      <string>:alien80:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien81.gif<\/path>\r\n      <string>:alien81:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien82.gif<\/path>\r\n      <string>:alien82:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien85.gif<\/path>\r\n      <string>:alien85:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien93.gif<\/path>\r\n      <string>:alien93:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien95.gif<\/path>\r\n      <string>:alien95:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>alien96.gif<\/path>\r\n      <string>:alien96:<\/string>\r\n    <\/emoticon>\r\n  <\/folder>\r\n  <folder>\r\n      <path>signs<\/path>\r\n      <name>signs<\/name>\r\n    <emoticon>\r\n        <path>smileys-smiley-with-sign-363798.gif<\/path>\r\n      <string>:do not feed:<\/string>\r\n    <\/emoticon>\r\n    <emoticonXXX>\r\n        <path>smileys-smiley-with-sign-083208.gif<\/path>\r\n      <string>:idiot:<\/string>\r\n    <\/emoticonXXX>\r\n    <emoticon>\r\n        <path>welcome1.gif<\/path>\r\n      <string>:welcome:<\/string>\r\n    <\/emoticon>\r\n    <emoticonXXX>\r\n        <path>feminazi_smiley.gif<\/path>\r\n      <string>:feminazi:<\/string>\r\n    <\/emoticonXXX>\r\n  <\/folder>\r\n  <folder>\r\n      <path>animals<\/path>\r\n      <name>animals<\/name>\r\n    <emoticon>\r\n        <path>serpentbleu.gif<\/path>\r\n      <string>:snake:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>sponge1.gif<\/path>\r\n      <string>:spongebob:<\/string>\r\n    <\/emoticon>\r\n    <emoticonXXX>\r\n        <path>bear1.gif<\/path>\r\n      <string>:bear:<\/string>\r\n    <\/emoticonXXX>\r\n    <emoticon>\r\n        <path>butterfly07.gif<\/path>\r\n      <string>:butterfly1:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>butterfly08.gif<\/path>\r\n      <string>:butterfly2:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>fish5.gif<\/path>\r\n      <string>:fish1:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>fish10.gif<\/path>\r\n      <string>:fish2:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>parrot.gif<\/path>\r\n      <string>:parrot:<\/string>\r\n    <\/emoticon>\r\n  <\/folder>\r\n  <folderXXX>\r\n      <path>drugs<\/path>\r\n      <name>drugs<\/name>\r\n    <emoticon>\r\n        <path>bong.gif<\/path>\r\n      <string>:bong:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n      <string>:cigarette:<\/string>\r\n        <path>cigarette.gif<\/path>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>joint.gif<\/path>\r\n      <string>:joint:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>passing-joint-smiley-emoticon.gif<\/path>\r\n      <string>:passing_joint:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-rolling-joint.gif<\/path>\r\n      <string>:rolling:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>drugs.gif<\/path>\r\n      <string>:drugs:<\/string>\r\n    <\/emoticon>\r\n  <\/folderXXX>\r\n  <folder>\r\n      <path>transport<\/path>\r\n      <name>transport<\/name>\r\n    <emoticon>\r\n        <path>smiley-transport003.gif<\/path>\r\n      <string>:sherif:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-transport022.gif<\/path>\r\n      <string>:train:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-transport029.gif<\/path>\r\n      <string>:school_bus:<\/string>\r\n    <\/emoticon>\r\n  <\/folder>\r\n  <folder>\r\n      <path>violent<\/path>\r\n      <name>violent<\/name>\r\n    <emoticon>\r\n        <path>smiley-violent013.gif<\/path>\r\n      <string>:chainsaw:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-violent029.gif<\/path>\r\n      <string>:microwave:<\/string>\r\n    <\/emoticon>\r\n  <\/folder>\r\n  <folder>\r\n      <path>sport<\/path>\r\n      <name>sport<\/name>\r\n    <emoticon>\r\n        <path>smiley-sport002.gif<\/path>\r\n      <string>:header:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-sport003.gif<\/path>\r\n      <string>:goal:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-sport006.gif<\/path>\r\n      <string>:football:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-sport007.gif<\/path>\r\n      <string>:surfing:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-sport017.gif<\/path>\r\n      <string>:weights:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-sport031.gif<\/path>\r\n      <string>:ref:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-sport035.gif<\/path>\r\n      <string>:spectator:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-sport037.gif<\/path>\r\n      <string>:shooting:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-sport038.gif<\/path>\r\n      <string>:diving:<\/string>\r\n    <\/emoticon>\r\n    <emoticon>\r\n        <path>smiley-sport041.gif<\/path>\r\n      <string>:fishing:<\/string>\r\n    <\/emoticon>\r\n  <\/folder>\r\n<\/messaging_emoticons>\r\n";Configuration.radioChannelsXmlString = "<?xml version=\'1.0\' encoding=\'UTF-8\' ?> \r\n<channels>\r\n    <channel>\r\n        <url>http:\/\/bbcmedia.ic.llnwd.net\/stream\/bbcmedia_radio2_mf_q<\/url>\r\n        <name>BBC Radio 2<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/bbcmedia.ic.llnwd.net\/stream\/bbcmedia_6music_mf_p<\/url>\r\n        <name>BBC 6<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/media-ice.musicradio.com\/CapitalSouthCoastMP3<\/url>\r\n        <name>103.2 Capital FM<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/ice-sov.musicradio.com:80\/CapitalXTRALondon<\/url>\r\n        <name>Capital XTRA London<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/media-ice.musicradio.com:80\/ClassicFMMP3<\/url>\r\n        <name>Classic FM<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/ice01.va.audionow.com:8000\/DesiBite.mp3<\/url>\r\n        <name>Desi Bite Radio<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/ice-sov.musicradio.com:80\/HeartLondonMP3<\/url>\r\n        <name>Heart 106.2 FM<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/icy-e-bz-03-gos.sharp-stream.com:8000\/metro.mp3<\/url>\r\n        <name>Metro Radio<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/s3.xrad.io:8096<\/url>\r\n        <name>107.7 Splash FM<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/s04.whooshclouds.net:8220\/live<\/url>\r\n        <name>Totalrock<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/radio.virginradio.co.uk\/stream<\/url>\r\n        <name>Virgin Radio UK<\/name>\r\n    <\/channel>\r\n    <channel>\r\n        <url>http:\/\/media-ice.musicradio.com:80\/Capital<\/url>\r\n        <name>Capital FM<\/name>\r\n    <\/channel>\r\n<\/channels>\r\n";Configuration.pageType='all_desktop';Configuration.ENDPOINT_TYPE =MySocket.Type.WebSocket;Configuration.forcedImports=[pickupElseCreateElement];window.lobbiesToLoad=[];window.lobbiesToLoad.push(LobbyChat);window.lobbiesToLoad.push(LobbySwingers);var preloadedImages=[];var imagesToPreload=[window.thePageUrl+'images/add_image.png',window.thePageUrl+'images/add_image_button.png',window.thePageUrl+'images/add_image_button_blue.png',window.thePageUrl+'images/arrow_left.png',window.thePageUrl+'images/arrow_left_hover.png',window.thePageUrl+'images/arrow_right.png',window.thePageUrl+'images/arrow_right_hover.png',window.thePageUrl+'images/background.png',window.thePageUrl+'images/background2.jpg',window.thePageUrl+'images/black_menu.png',window.thePageUrl+'images/bold.png',window.thePageUrl+'images/button_cancel.png',window.thePageUrl+'images/button_grey_play.png',window.thePageUrl+'images/button_grey_stop.png',window.thePageUrl+'images/button_play_blue.png',window.thePageUrl+'images/button_stop_blue.png',window.thePageUrl+'images/close_black.png',window.thePageUrl+'images/close_red.png',window.thePageUrl+'images/close_white.png',window.thePageUrl+'images/color_picker.png',window.thePageUrl+'images/color_picker_hover.png',window.thePageUrl+'images/delete.png',window.thePageUrl+'images/delete_hover.png',window.thePageUrl+'images/email.png',window.thePageUrl+'images/emoticons-icon-blue.gif',window.thePageUrl+'images/emoticons-icon.gif',window.thePageUrl+'images/font-colors-icon.gif',window.thePageUrl+'images/font-icon.gif',window.thePageUrl+'images/font-icon.png',window.thePageUrl+'images/font.png',window.thePageUrl+'images/gender.png',window.thePageUrl+'images/gender_hover.png',window.thePageUrl+'images/google-maps-marker.png',window.thePageUrl+'images/interests.png',window.thePageUrl+'images/interests_hover.png',window.thePageUrl+'images/italic.png',window.thePageUrl+'images/keyboard.png',window.thePageUrl+'images/location_picker_icon.png',window.thePageUrl+'images/location_picker_icon_blue.png',window.thePageUrl+'images/maximize_black.png',window.thePageUrl+'images/maximize_red.png',window.thePageUrl+'images/maximize_white.png',window.thePageUrl+'images/minimize_black.png',window.thePageUrl+'images/minimize_red.png',window.thePageUrl+'images/minimize_white.png',window.thePageUrl+'images/move.png',window.thePageUrl+'images/nights-sky.jpg',window.thePageUrl+'images/notifications-icon.png',window.thePageUrl+'images/others',window.thePageUrl+'images/profile',window.thePageUrl+'images/profile-picture-icon-blue.gif',window.thePageUrl+'images/profile-picture-icon.gif',window.thePageUrl+'images/profiles_logo.png',window.thePageUrl+'images/Red-Radio-icon.png',window.thePageUrl+'images/reload.png',window.thePageUrl+'images/reload_hover.png',window.thePageUrl+'images/room-icon.gif',window.thePageUrl+'images/rooms-icon.gif',window.thePageUrl+'images/se-resize.png',window.thePageUrl+'images/set_not_profile.png',window.thePageUrl+'images/set_not_profile_hover.png',window.thePageUrl+'images/set_profile.png',window.thePageUrl+'images/set_profile_hover.png',window.thePageUrl+'images/shadow.png',window.thePageUrl+'images/smile.gif',window.thePageUrl+'images/smiley.png',window.thePageUrl+'images/smile_blue.gif',window.thePageUrl+'images/sound-effects-icon-blue.gif',window.thePageUrl+'images/sound-effects-icon.gif',window.thePageUrl+'images/star--background-neon.jpg',window.thePageUrl+'images/star--background-seamless-repeating1.jpg',window.thePageUrl+'images/theme-icon.png',window.thePageUrl+'images/themes-icon.gif',window.thePageUrl+'images/themes-icon2.gif',window.thePageUrl+'images/tick.png',window.thePageUrl+'images/trees.jpg',window.thePageUrl+'images/underline.png',window.thePageUrl+'images/Untitled.png',window.thePageUrl+'images/upload-image-icon-blue.gif',window.thePageUrl+'images/upload-image-icon.gif',window.thePageUrl+'images/user.png',window.thePageUrl+'images/users.gif',window.thePageUrl+'images/users_highlighted.gif',window.thePageUrl+'images/user_info.png',window.thePageUrl+'images/user_info_blue.png',window.thePageUrl+'images/video-icon.png',window.thePageUrl+'images/video-start-icon-blue.gif',window.thePageUrl+'images/video-start-icon.gif',window.thePageUrl+'images/video-stop-icon-blue.gif',window.thePageUrl+'images/video-stop-icon.gif',window.thePageUrl+'images/video_downloader',window.thePageUrl+'images/wall-icon.gif',window.thePageUrl+'images/walls-icon.gif',window.thePageUrl+'images/webcam-settings-icon.gif',window.thePageUrl+'images/webcam.png',window.thePageUrl+'images/white_menu.png',window.thePageUrl+'images/writing.png',window.thePageUrl+'images/writing_hover.png',window.thePageUrl+'images/writing_lock.png',window.thePageUrl+'images/writing_lock_hover.png']; var taskPreloadImages = new Task(function(){for(var i=0; i<imagesToPreload.length; i++){var img = new Image(); img.src=imagesToPreload[i]; preloadedImages.push(img);}});var lobby = new Lobby();

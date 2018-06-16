@@ -621,6 +621,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         {
             if (callbacksImageUploaderProfilePicture.show)
             {
+                console.log('doing it');
                 callbacksImageUploaderProfilePicture.show();
             }
         }
@@ -718,6 +719,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     this.show = function ()
     {
         self.div.style.display = 'inline';
+        
     };
     this.hide = function ()
     {

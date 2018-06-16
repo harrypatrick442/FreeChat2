@@ -10,7 +10,7 @@ function Emoticons(xmlString)
     });
     var minWidth=100;
     var minHeight=100;
-    this.taskBarInformation = {tooltip: 'Click emoticons to insert into your current active room', icon: ('images/emoticons-icon.gif'), style: {backgroundColor: 'transparent'}, hoverStyle: {backgroundColor: 'rgba(0,255,255, 0.5)'}, activeStyle: {backgroundColor: 'rgba(0, 128, 255, 0.5)'}};
+    this.taskBarInformation = {tooltip: 'Click emoticons to insert into your current active room', icon: ('images/smiley.png'), style: {backgroundColor: 'transparent'}, hoverStyle: {backgroundColor: 'rgba(0,255,255, 0.5)'}, activeStyle: {backgroundColor: 'rgba(0, 128, 255, 0.5)'}};
     this.div = document.createElement('div');
     var divInner = document.createElement('div');
     var divTab = document.createElement('div');

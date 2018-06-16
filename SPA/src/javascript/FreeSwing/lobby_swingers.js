@@ -15,7 +15,9 @@ function LobbySwingers(callbackFinishedLoading, otherCallbacks)
     });
     var profilesDisplay = new ProfilesDisplay(mySocketProfiles, messenger, new ProfilesDisplay.Callbacks(function() {
         locationPicker.show(true);
-    }, function(userId) {
+    }, showProfile));
+    var profileEditor;
+    function showProfile(userId) {
         var profile = mapUserIdToProfile[userId];
         if (!profile)
         {
@@ -27,8 +29,10 @@ function LobbySwingers(callbackFinishedLoading, otherCallbacks)
         }
         else
             profile.bringToFront();
-    }));
-    var profileEditor;
+    }
+    LobbySwingers.showMyProfile = function(){
+        new Task(function(){console.log('show');profileEditor.show();}).run();
+    };
     function interpret(jObject)
     {
         switch (jObject.type)

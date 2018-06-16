@@ -20,6 +20,7 @@ function GenericWindow(params)
    
 
     var self = this;
+    EventEnabledBuilder(this);
     var settings = new Settings(name, function () {
         this.set("position");
         this.set("size");
@@ -101,6 +102,7 @@ function GenericWindow(params)
             try
             {
                 self.onshow();
+                dispatchFocusedEvent();
             }
             catch (ex)
             {
@@ -154,8 +156,10 @@ function GenericWindow(params)
             try
             {
                 self.onresize();
+                dispatchResizedEvent();
             }
             catch (ex) {
+                console.log(ex);
             }
 
         }
@@ -196,12 +200,33 @@ function GenericWindow(params)
         Windows.remove(self);
         Themes.remove(themesObject);
         Themes.remove(themesObjectWindow);
-        if (self.onclose)
-        {
-            self.onclose();
-        }
+        dispatchCloseEvent();
     }
     TaskBar.add(this);
     if (bringToFront != false)
         Windows.bringToFront(self);
+    function dispatchResizedEvent(){
+        self.dispatchEvent({type:'resized'});
+    }
+    function dispatchMaximizedEvent(){
+        self.dispatchEvent({type:'maximized'});
+    }
+    function dispatchMinimizedEvent(){
+        self.dispatchEvent({type:'minimized'});
+    }
+    function dispatchFocusedEvent(){
+        self.dispatchEvent({type:'focus'});
+    }
+    function dispatchUnminimized(){
+        self.dispatchEvent({type:'unminimized'});
+    }
+    function dispatchUnmaximized(){
+        self.dispatchEvent({type:'unmaximized'});
+    }
+    function dispatchMoved(){
+        self.dispatchEvent({type:'moved'});
+    }
+    function dispatchCloseEvent(){
+        self.dispatchEvent({type:'close'});
+    }
 }
