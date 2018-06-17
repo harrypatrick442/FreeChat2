@@ -234,11 +234,7 @@ function LocationPicker(messenger) {
     })();
     this.show = function(bringToFront)
     {
-        genericWindow.show();
-        if (bringToFront)
-        {
-            Windows.bringToFront(genericWindow);
-        }
+        genericWindow.show(bringToFront);
     };
     genericWindow.addEventListener('close', terminal.close);
     function reset() {

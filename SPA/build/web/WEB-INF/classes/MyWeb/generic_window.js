@@ -94,21 +94,14 @@ function GenericWindow(params)
     }
     this.div.appendChild(self.divInner);
 
-    this.show = function ()
+    this.show = function (bringToFront)
     {
         self.div.style.display = 'inline';
-        if (self.onshow)
+        if (bringToFront)
         {
-            try
-            {
-                self.onshow();
-                dispatchFocusedEvent();
-            }
-            catch (ex)
-            {
-                console.log(ex);
-            }
+            Windows.bringToFront(self);
         }
+        dispatchFocusedEvent();
     };
     this.hide = function ()
     {

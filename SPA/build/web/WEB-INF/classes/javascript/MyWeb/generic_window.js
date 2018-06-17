@@ -46,6 +46,8 @@ function GenericWindow(params)
     divName.style.float = 'left';
     divName.style.paddingLeft = '5px';
     divName.style.fontFamily = 'Arial';
+    divName.style.textOverflow='ellipsis';
+    divName.style.overflow='hidden';
     verticallyCenter(divName);
     setText(divName, name);
     self.divMain.style.height = 'calc(100% - 20px)';
@@ -92,21 +94,14 @@ function GenericWindow(params)
     }
     this.div.appendChild(self.divInner);
 
-    this.show = function ()
+    this.show = function (bringToFront)
     {
         self.div.style.display = 'inline';
-        if (self.onshow)
+        if (bringToFront)
         {
-            try
-            {
-                self.onshow();
-                dispatchFocusedEvent();
-            }
-            catch (ex)
-            {
-                console.log(ex);
-            }
+            Windows.bringToFront(self);
         }
+        dispatchFocusedEvent();
     };
     this.hide = function ()
     {

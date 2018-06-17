@@ -9,15 +9,16 @@ function Birthday()
     this.div.style.width = '100%';
     function style(select)
     {
-        select.style.width = 'calc(33.33% - 2.66px)';
+        select.style.width = 'calc(33.33% - 1.33px)';
         select.style.height = '100%';
         select.style.position = 'relative';
         select.style.float = 'left';
-        select.style.marginLeft = '2px';
     }
     style(selectDay);
     style(selectMonth);
     style(selectYear);
+    selectMonth.style.marginLeft = '2px';
+    selectYear.style.marginLeft = '2px';
     var now = new Date();
     var year = 1900 + now.getYear();
     var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

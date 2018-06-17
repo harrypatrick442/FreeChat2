@@ -1,4 +1,4 @@
-function TabPanel(tabNames, styleNames)
+function TabPanel(tabNames, autoHeight, styleNames)
 {
     styleNames=!styleNames?{}:styleNames;
     var self = this;
@@ -8,15 +8,18 @@ function TabPanel(tabNames, styleNames)
     this.div = document.createElement('div');
     var divPanelHousing = document.createElement('div');
     var divTabs = document.createElement('div');
-    this.div.style.height = '100%';
+    this.div.style.height =  autoHeight?'auto':'100%';
     this.div.style.width = '100%';
+    this.div.style.float='left';
     divTabs.style.width = '100%';
     divTabs.style.height = '20px';
     var tabPercent = 100 / nPanels;
-    divPanelHousing.style.height = 'calc(100% - 20px)';
+    divPanelHousing.style.height = autoHeight?'auto':'calc(100% - 20px)';
     divPanelHousing.style.width = '100%';
+    if(!autoHeight)
     divPanelHousing.style.top = '20px';
-    divPanelHousing.style.position = 'absolute';
+    divPanelHousing.style.float='left';
+    divPanelHousing.style.position = autoHeight?'relative':'absolute';
     this.div.appendChild(divTabs);
     this.div.appendChild(divPanelHousing);
     function Tab(name, panel, iTab)
@@ -28,7 +31,8 @@ function TabPanel(tabNames, styleNames)
         this.div.style.width = String(tabPercent) + '%';
         this.div.style.left = String(iTab * tabPercent) + '%';
         this.div.style.top = '2px';
-        this.div.style.position = 'absolute';
+        this.div.style.float='left';
+        this.div.style.position='absolute';
         this.div.style.borderTopRightRadius = '10px';
         this.div.style.cursor = 'pointer';
         divName.style.paddingLeft = '5px';
@@ -65,11 +69,12 @@ function TabPanel(tabNames, styleNames)
     {
         var self = this;
         this.div = document.createElement('div');
-        this.div.style.height = 'calc(100% - 3px)';
+        this.div.style.height =autoHeight?'auto':'calc(100% - 3px)';
         this.div.style.width = '100%';
         this.div.style.top = '3px';
+        this.div.style.float='left';
         this.div.style.left = '0px';
-        this.div.style.position = 'absolute';
+        this.div.style.position = autoHeight?'relative':'absolute';
 
         this.show = function () {
             self.div.style.display = 'inline';

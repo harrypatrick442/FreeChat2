@@ -10,17 +10,18 @@ function Message(params)
     this.div.style.padding = '0px 1px 0px 1px';
     this.div.style.minHeight='28px';
     var lookupTree = params.callbackEmoticons.getLookupTree();
-    var font = params.font;
+    var fontObj = params.fontObj;
+    var font = fontObj.font;
     if (font == undefined)
     {
         font = 'Arial';
     }
-    var color = params.color;
+    var color = fontObj.color;
     if (color == undefined)
     {
         color = '#000000';
     }
-    var size = params.size;
+    var size = fontObj.size;
     if (!size)
     {
         size = 12;
@@ -28,11 +29,11 @@ function Message(params)
     var div = document.createElement("div");
     div.style.padding='0px';
     div.style.margin='0px';
-    var bold = params.bold;
+    var bold = fontObj.bold;
     if(bold){
     div.style.fontWeight = 'bold';
     }
-    var italic = params.italic;
+    var italic = fontObj.italic;
     if(italic)
     {
         div.style.fontStyle='italic';

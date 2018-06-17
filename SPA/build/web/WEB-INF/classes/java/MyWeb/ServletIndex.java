@@ -48,6 +48,7 @@ public class ServletIndex extends HttpServlet {
                 + "<meta http-equiv=\"expires\" content=\"Tue, 01 Jan 1980 1:00:00 GMT\" />"
                 + "<meta http-equiv=\"pragma\" content=\"no-cache\" />"
                 + "<link rel=\"icon\" type=\"image/png\" href=\"" + Configuration.getFavicon() + "\">"
+                + "<link  rel=\"stylesheet\" type=\"text/css\" href=\"styles/my-bootstrap.css\">"
                 + "<title>" + Configuration.getTitle() + "</title>"
                 + ""
                 + "<script>\n"

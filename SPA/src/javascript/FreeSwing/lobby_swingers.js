@@ -31,7 +31,7 @@ function LobbySwingers(callbackFinishedLoading, otherCallbacks)
             profile.bringToFront();
     }
     LobbySwingers.showMyProfile = function(){
-        new Task(function(){console.log('show');profileEditor.show();}).run();
+        new Task(function(){console.log('show');profileEditor.show(true);}).run();
     };
     function interpret(jObject)
     {
