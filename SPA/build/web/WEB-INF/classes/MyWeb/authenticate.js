@@ -53,13 +53,18 @@ function Authenticate(callbackSignIn, callbackRegister, enableAge)
         var textPasswordReenterRegister = document.createElement('input');
         var textEmailRegister = document.createElement('input');
         var textUsernameRegister = document.createElement('input');
+        textUsernameRegister.className='form-control';
+        textEmailRegister.className='form-control';
+        textPasswordReenterRegister.className='form-control';
+        textPasswordRegister.className='form-control';
+        textPasswordSignIn.className='form-control';
+        textUsername.className='form-control';
         var birthday = new Birthday();
         var genderPicker = new GenderPicker();
         setLayoutStyle(genderPicker.div);
         setLayoutStyle(birthday.div);
         var buttonRegister = document.createElement('button');
-        setLayoutStyle(buttonRegister);
-        buttonRegister.style.marginBottom='2px';
+        buttonRegister.style.marginBottom='3px';
         styleTextInputRegister(textEmailRegister, 'Email');
         styleTextInputRegister(textUsernameRegister, 'Username');
         styleTextInputRegister(textPasswordRegister, 'Password');
@@ -72,7 +77,7 @@ function Authenticate(callbackSignIn, callbackRegister, enableAge)
         textPasswordRegister.type = 'password';
         textPasswordReenterRegister.type = 'password';
         buttonRegister.style.width = '100%';
-        buttonRegister.style.marginTop = '3px';
+        buttonRegister.style.marginTop = '4px';
         buttonRegister.style.boxSizing = 'border-box';
         buttonRegister.className='btn btn-primary';
         setText(buttonRegister, 'Done');
@@ -157,8 +162,8 @@ function Authenticate(callbackSignIn, callbackRegister, enableAge)
     button.style.position = 'relative';
     button.style.float = 'none';
     button.style.width='100%';
-    button.style.marginTop='3px';
-    button.style.marginBottom='2px';
+    button.style.marginTop='4px';
+    button.style.marginBottom='3px';
     button.className='btn btn-primary';
     divError.style.position = 'relative';
     divError.style.float = 'left';
@@ -167,7 +172,7 @@ function Authenticate(callbackSignIn, callbackRegister, enableAge)
     divError.style.fontFamily = 'Arial';
     divError.style.fontSize = '14px';
     divError.style.display = 'none';
-    divError.style.marginTop = '4px';
+    divError.style.marginTop = '3px';
     divError.style.boxSizing = 'border-box';
     textError.style.position = 'relative';
     textError.style.width = '100%';
@@ -177,6 +182,7 @@ function Authenticate(callbackSignIn, callbackRegister, enableAge)
     textError.style.resize = 'none';
     textError.style.overflowY = 'hidden';
     textError.style.float='left';
+    textError.style.color='#ff3344';
     textError.readOnly = true;
     setText(button, "Enter");
     function setError(error)
@@ -301,6 +307,7 @@ function Authenticate(callbackSignIn, callbackRegister, enableAge)
     element.style.float='left';
     element.style.marginTop='3px';
     element.style.boxSizing='border-box';
+    element.style.height='25px';
     }
 }
 var authenticate;
