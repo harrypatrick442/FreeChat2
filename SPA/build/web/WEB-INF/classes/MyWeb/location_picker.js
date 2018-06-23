@@ -8,9 +8,9 @@ function LocationPicker(messenger) {
             {name:'Location picker',
         tooltipMessage:'Used to pick location', 
         iconPath:'images/location_picker_icon.png', 
-        minWidth:150,
+        minWidth:250,
         maxWidth:1000,
-        minHeight:200, maxHeight : 1000,
+        minHeight:250, maxHeight : 1000,
         defaultWidth:500,
         defaultHeight:500,
         defaultX:200,
@@ -23,15 +23,18 @@ function LocationPicker(messenger) {
     genericWindow.onshow = function() {
         //resizeMap();
     };
-    genericWindow.addEventListener('close', terminal.close);
+    genericWindow.addEventListener('resized', resizeMap);
+    genericWindow.addEventListener('maximized', resizeMap);
+    genericWindow.addEventListener('unmaximized', resizeMap);
     //var buttonFinished = document.createElement('button');
     var autocompleteInput = document.createElement('input');
     var divMap = document.createElement('div');
     var divMapPicker = document.createElement('div');
     autocompleteInput.placeholder = 'Enter your address';
     autocompleteInput.type = 'text';
-    autocompleteInput.style.minWidth = '50%';
-    autocompleteInput.style.top = '40px';
+    autocompleteInput.style.width='50%';
+    autocompleteInput.style.minWidth = '190px';
+    autocompleteInput.style.top = '45px';
     autocompleteInput.style.left = '10px';
     autocompleteInput.style.position = 'absolute';
     autocompleteInput.style.padding = '0';
@@ -39,9 +42,10 @@ function LocationPicker(messenger) {
     autocompleteInput.style.margin = '0';
     autocompleteInput.style.zIndex = '1000';
     autocompleteInput.style.height = "30px";
-    autocompleteInput.style.borderRadius = "1px";
+    autocompleteInput.style.borderRadius = "2px";
     autocompleteInput.style.border = "0";
     autocompleteInput.style.backgroundColor = "#ffffff";
+    autocompleteInput.style.fontWeight='bold';      
     autocompleteInput.disabled = false;
     //divMapPicker.style.height = 'calc(100% - 30px)';
     divMapPicker.style.height = '100%';
@@ -70,8 +74,7 @@ function LocationPicker(messenger) {
     function fillInAddress() {
         var place = autocomplete.getPlace();
         var geolocation = {lat: place.geometry.location.lat(), lng: place.geometry.location.lng()};
-
-        setGeolocation(geolocation);
+        setGeolocation(geolocation, false);
     }
 
 
@@ -86,18 +89,40 @@ function LocationPicker(messenger) {
             });
         }
     }
-
+    var timerResize;
     function resizeMap() {
-        selectedGeolocation = undefined;
-        autocompleteInput.value = '';
+        marker.hide();
+        if(!timerResize)
+        timerResize = new Timer(function(){
         if (map)
         {
             google.maps.event.trigger(map, 'resize');
+            if(selectedGeolocation){
+                //map.setCenter(selectedGeolocation);
+                marker.center();
+            }
 
         }
-        reset();
+    }, 200, 1);
+    else
+        timerResize.reset();
     }
-
+    function movedMap(){
+        resetMarker();
+    }
+    function draggingMap(){
+        clearInput();
+    }
+    function draggedMarker(){
+        clearInput();
+    }
+    function clearInput(){
+        autocompleteInput.value = '';
+    }
+    function resetMarker(){
+        setHousingShowing(true);
+        marker.reset();
+    }
     var markerWidth = 40;
     var markerHeight = 62;
     var divMarkerHousing = document.createElement("div");
@@ -122,14 +147,10 @@ function LocationPicker(messenger) {
         else
             divMarkerHousing.style.display = 'inline';
     }
-    function setState(placed)
-    {
-        setHousingShowing(!placed);
-        //buttonFinished.disabled = !placed;
-    }
     var marker = new (function Marker() {
         var self = this;
         this.div = document.createElement("div");
+        EventEnabledBuilder(this);
         var img = document.createElement("img");
         this.div.style.position = "absolute";
         this.div.style.height = String(markerHeight) + "px";
@@ -148,7 +169,19 @@ function LocationPicker(messenger) {
         this.reset = function() {
             self.div.style.top = "6px";
             self.div.style.left = String(divMap.offsetWidth - (10 + markerWidth)) + "px";
+            show();
         };
+        this.hide=function(){
+            self.div.style.display='none';
+        };
+        this.center = function()
+        {
+            setPosition((divMap.offsetWidth / 2) - (markerWidth / 2), (divMap.offsetHeight / 2) - markerHeight);
+            show();
+        };
+        function show(){
+            self.div.style.display='inline';
+        }
         function setPosition(x, y)
         {
             self.div.style.left = String(x) + 'px';
@@ -205,6 +238,7 @@ function LocationPicker(messenger) {
             var latlng = pixelOffsetToLatLng((markerWidth / 2) + position.x, markerHeight + position.y);
             setGeolocation(latlng);
             settings.set('location', latlng);
+            self.dispatchEvent({type:'moved'});
         }
         var efficientMovingCycle = new EfficientMovingCycle(self.div);
         efficientMovingCycle.onmousedown = function(e) {
@@ -225,13 +259,10 @@ function LocationPicker(messenger) {
             mouseMove(e.changedTouches[e.changedTouches.length - 1].pageX, e.changedTouches[e.changedTouches.length - 1].pageY);
         };
         efficientMovingCycle.ontouchend = mouseUp;
-        this.center = function()
-        {
-            setPosition((divMap.offsetWidth / 2) - (markerWidth / 2), (divMap.offsetHeight / 2) - markerHeight);
-        };
         makeUnselectable(this.div);
         divMapPicker.appendChild(this.div);
     })();
+    marker.addEventListener('moved', draggedMarker);
     this.show = function(bringToFront)
     {
         genericWindow.show();
@@ -241,18 +272,16 @@ function LocationPicker(messenger) {
         }
     };
     genericWindow.addEventListener('close', terminal.close);
-    function reset() {
-        setState(false);
-        marker.reset();
-    }
-    function setGeolocation(geo)
+    function setGeolocation(geo, store)
     {
         map.setZoom(16);      // This will trigger a zoom_changed on the map
         map.setCenter(geo);
-        marker.center();
-        selectedGeolocation = geo;
-        setState(true);
-        picked();
+            if(store==undefined||store){
+            marker.center();
+            selectedGeolocation = geo;
+            setHousingShowing(false);
+            picked();
+        }
     }
     function initMap() {
         var uluru = {lat: -25.363, lng: 131.044};
@@ -261,8 +290,9 @@ function LocationPicker(messenger) {
             center: uluru
         });
         map.addListener('center_changed',
-                resizeMap
+                movedMap
                 );
+        map.addListener('dragstart', draggingMap);
     }
 
     function initAutocomplete() {

@@ -14,6 +14,7 @@ function GenericWindow(params)
     var minimized = params.minimized;
     var minimizable= params.minimizable; 
     var maximizable = params.maximizable;
+    var closeable = params.closeable;
     var minimizeOnClose = params.minimizeOnClose;
     var bringToFront = params.bringToFront;
     
@@ -117,11 +118,11 @@ function GenericWindow(params)
         }
     };
     var callbackMinimize = minimizable ? function () {
-        self.task.minimize();
+        self.task.minimize();dispatchMinimizedEvent();
     } : function () {
     };
     var callbackMaximize = maximizable ? function () {
-        self.task.maximize();
+        self.task.maximize(); console.log('maximized'); dispatchMaximizedEvent();
     } : function () {
     };
     var callbackClose = minimizeOnClose ? function () {
@@ -131,12 +132,13 @@ function GenericWindow(params)
     };
     Themes.register(themesObject, undefined);
     var themesObjectWindow = Window.style(self.div, self.divInner, self.divTab);
-    var windowInformation = new WindowInformation(true, true, minWidth, minHeight, maxWidth, maxHeight, 0, 100, 0, Windows.maxYPx, true, true, true);
+    var windowInformation = new WindowInformation(true, true, minWidth, minHeight, maxWidth, maxHeight, 0, 100, 0, Windows.maxYPx, minimizable, maximizable, minimizeOnClose, closeable);
     var callbacks = new WindowCallbacks(function () {
         settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
         settings.set("size", [self.div.offsetWidth, self.div.offsetHeight]);
     }, function () {
         settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
+        dispatchMovedEvent();
     }
     ,
             callbackMinimize,
@@ -144,19 +146,9 @@ function GenericWindow(params)
             callbackClose, function (zIndex) {
                 settings.set("zIndex", zIndex);
             }, function () {
-        if (self.onresize)
-        {
-            try
-            {
-                self.onresize();
                 dispatchResizedEvent();
-            }
-            catch (ex) {
-                console.log(ex);
-            }
-
-        }
-    });
+    },
+ dispatchUnmaximizedEvent, dispatchUnminimizedEvent);
     var timerFlash;
     var flashing = false;
     this.flash = function ()
@@ -181,7 +173,7 @@ function GenericWindow(params)
         setText(divName, name);
     };
     var params = {obj: this,
-        minimized: false,
+        minimized: minimized,
         divTab: self.divTab,
         divInner: self.divInner,
         windowInformation: windowInformation,
@@ -210,13 +202,13 @@ function GenericWindow(params)
     function dispatchFocusedEvent(){
         self.dispatchEvent({type:'focus'});
     }
-    function dispatchUnminimized(){
+    function dispatchUnminimizedEvent(){
         self.dispatchEvent({type:'unminimized'});
     }
-    function dispatchUnmaximized(){
+    function dispatchUnmaximizedEvent(){
         self.dispatchEvent({type:'unmaximized'});
     }
-    function dispatchMoved(){
+    function dispatchMovedEvent(){
         self.dispatchEvent({type:'moved'});
     }
     function dispatchCloseEvent(){

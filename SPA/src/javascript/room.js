@@ -1,4 +1,4 @@
-function Room(userInformation, roomInformation, callbackClosed, cssName, endpoint, callbacksFont, callbacksEmoticons, callbacksSoundEffects, callbacksImageUploader, callbacksImageUploaderProfilePicture)
+function Room(userInformation, roomInformation, callbackClosed, cssName, endpoint, callbacksFont, callbacksEmoticons, callbacksSoundEffects, callbacksImageUploader, callbacksProfileEditor)
 {
     var self = this;
     var settings = new Settings(roomInformation.name, function () {
@@ -17,25 +17,6 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     var enterPassword;
     var pendingMessages = new PendingMessages();
     var divInner = document.createElement('div');
-    if (!useCalc)
-    {
-        var table = document.createElement('table');
-        var trTab = document.createElement('tr');
-        var tdTab = document.createElement('td');
-        var trMain = document.createElement('tr');
-        var tdMain = document.createElement('td');
-        var tableInner = document.createElement('table');
-        var trInner = document.createElement('tr');
-        var tdLeft = document.createElement('td');
-        var tdUsers = document.createElement('td');
-        var tableMain = document.createElement('table');
-        var trFeed = document.createElement('tr');
-        var tdFeed = document.createElement('td');
-        var trInputControls = document.createElement('tr');
-        var tdInputControls = document.createElement('td');
-        var trInputText = document.createElement('tr');
-        var tdInputText = document.createElement('td');
-    }
     var divTab = document.createElement('div');
     var divName = document.createElement('div');
     var divMain = document.createElement('div');
@@ -48,8 +29,6 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     var imgProfilePicture;
     var divEmoticons;
     var imgEmoticons;
-    var divSoundEffects;
-    var imgSoundEffects;
     var divFont;
     var divVideoStart;
     var imgVideoStart;
@@ -63,6 +42,11 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     var divControls = document.createElement('div');
     var themesObject;
     var themesObjectWindow;
+    var divSoundEffects = document.createElement('div');
+    var imgSoundEffects = document.createElement('img');
+    var divUsers = document.createElement('div');
+    var imgUsers = document.createElement('img');
+    var divFeed = document.createElement('div');
     if (roomInformation.type != Room.Type.videoStatic && roomInformation.type != Room.Type.videoDynamic && roomInformation.type != Room.Type.videoPm)
     {
         divProfilePicture = document.createElement('div');
@@ -85,11 +69,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
             imgVideoStop = document.createElement('img');
         }
     }
-    divSoundEffects = document.createElement('div');
-    imgSoundEffects = document.createElement('img');
-    var divUsers = document.createElement('div');
-    var imgUsers = document.createElement('img');
-    var divFeed = document.createElement('div');
+    //SPINNER----------------------
     var spinner = new Spinner(1);
     spinner.div.style.position = 'absolute';
     spinner.div.style.width = '109px';
@@ -97,6 +77,9 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     spinner.div.style.left = 'calc(50% - 55px)';
     spinner.div.style.top = 'calc(50% - 55px)';
     divMain.appendChild(spinner.div);
+    //!SPINNER-------------------------------
+
+    //Users panel----------------------------------------------------------------------
     var users = new Users(false, "users", userInformation, function (username) {
         if (roomInformation.type == Room.Type.dynamic || roomInformation.type == Room.Type.static)
         {
@@ -107,7 +90,8 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         {
             addAdminMessage(username + " has left the chat!");
         }
-    }, showImageUploaderProfilePicture);
+    }, showProfileEditor);
+    //Users panel---------------------------------------------------------------------------
     this.div.style.position = "absolute";
     this.div.style.width = '700px';
     this.div.style.height = '500px';
@@ -141,76 +125,24 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     divInner.style.padding = '0px 3px 3px 3px';
     divInner.style.borderRadius = "5px";
     divInner.style.overflow = 'hidden';
-    if (useCalc)
+    divMain.style.width = 'calc(100% - 150px)';
+    divMain.style.height = 'calc(100% - 24px)';
+    divMain.style.padding = '2px';
+    divMain.style.marginRight = '2px';
+    users.div.style.float = 'left';
+    users.div.style.width = '150px';
+    users.div.style.height = 'calc(100% - 20px)';
+    //if(!isMobile)
+    //{
+    if (roomInformation.type != Room.Type.videoStatic && roomInformation.type != Room.Type.videoDynamic && roomInformation.type != Room.Type.videoPm)
     {
-        divMain.style.width = 'calc(100% - 150px)';
-        divMain.style.height = 'calc(100% - 24px)';
-        divMain.style.padding = '2px';
-        divMain.style.marginRight = '2px';
-        users.div.style.float = 'left';
-        users.div.style.width = '150px';
-        users.div.style.height = 'calc(100% - 20px)';
-        //if(!isMobile)
-        //{
-        if (roomInformation.type != Room.Type.videoStatic && roomInformation.type != Room.Type.videoDynamic && roomInformation.type != Room.Type.videoPm)
-        {
-            divFeed.style.height = 'calc(100% - 50px)';
-        } else
-        {
-            divFeed.style.height = 'calc(100% - 22px)';
-        }
-        //}
-        //else
-        //{
-        //        divFeed.style.height = 'calc(100% - 150px)';
-        //}
-        divFeed.style.marginBottom = '2px';
-        //if(!isMobile)
-        //{
-        divInputText.style.height = '30px';
-        //}
-        //else{
-        //    divInputText.style.height = '150px';
-        //}
+        divFeed.style.height = 'calc(100% - 50px)';
     } else
     {
-        tableInner.style.height = '100%';
-        table.style.width = "100%";
-        table.style.height = "100%";
-        table.style.maxHeight = '100%';
-        table.style.overflow = 'hidden';
-        table.style.position = 'relative';
-        table.style.float = 'left';
-        table.style.display = 'table';
-        table.className = 'table-room';
-        setTableSkinny(table);
-        trTab.style.height = 'auto';
-        trMain.style.height = "100%";
-        trMain.style.maxHeight = '100%';
-        trMain.style.overflow = 'hidden';
-        tableInner.style.float = 'left';
-        setTableSkinny(tableInner);
-        trInner.style.height = '100%';
-        tdLeft.style.width = '100%';
-        tdUsers.style.width = 'auto';
-        tableMain.style.height = '100%';
-        tableMain.style.width = '100%';
-        setTableSkinny(tableMain);
-        trFeed.style.height = '100%';
-        tdFeed.style.padding = '2px';
-        trInputControls.style.height = 'auto';
-        tdInputControls.style.paddingLeft = '2px';
-        tdInputControls.style.paddingRight = '2px';
-        trInputText.style.height = 'auto';
-        tdInputText.style.paddingLeft = '2px';
-        tdInputText.style.paddingRight = '2px';
-        tdInputText.style.paddingBottom = '2px';
-        divMain.style.height = '100%';
-        divMain.style.width = "100%";
-        divFeed.style.height = '100%';
-        divInputText.style.height = '100%';
+        divFeed.style.height = 'calc(100% - 22px)';
     }
-    //ff0066
+    divFeed.style.marginBottom = '2px';
+    divInputText.style.height = '30px';
     divTab.style.float = 'left';
     divTab.style.width = "100%";
     divTab.style.height = "20px";
@@ -291,9 +223,6 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         //       }});
         //    divFeed.appendChild(videos.div);
         // }
-        console.log('roomInformation : ');
-
-        console.log(roomInformation);
         var name = roomInformation.name;
         if (roomInformation.type == Room.Type.pm) {
             if (roomInformation.usernames.length > 1)
@@ -302,38 +231,6 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         setText(divName, name);
     }
 
-    function close()
-    {
-        if (video)
-        {
-            try
-            {
-                video.disconnect();
-            } catch (ex)
-            {
-                console.log(ex);
-            }
-        } else
-        {
-            if (videos)
-            {
-                videos.dispose();
-            } else
-            {
-                if (callbackFontChanged)
-                {
-                    Font.removeCallback(callbackFontChanged);
-                }
-            }
-        }
-        websocket.close();
-        self.task.remove(self);
-        Windows.remove(self);
-        callbackClosed(roomInformation.roomUuid);
-        Themes.remove(themesObject);
-        Themes.remove(themesObjectWindow);
-        users.dispose();
-    }
     divInputText.style.border = ' 0x solid #333333';
     divInputText.style.borderTop = '0px';
     divInputText.style.overflow = 'hidden';
@@ -353,21 +250,12 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     divControls.style.width = '100%';
     divFeed.style.width = '100%';
     divInputText.style.width = '100%';
-    //if(!isMobile)
-    //{
     divControls.style.height = '20px';
     divControlsInner.style.float = 'right';
     divControlsInner.style.height = '16px';
     divControlsInner.style.marginTop = '2px';
     divControlsInner.style.overflow = 'hidden';
     text.style.height = '26px';
-    //}
-    //else
-    //{
-    //text.style.height = '146px';
-    //divControls.style.height = '0px';
-    //divControls.style.display='none';
-    //}
 
     setupControlButton(divUsers, imgUsers, 'images/users.gif', 'images/users_highlighted.gif', function () {
         if (showingUsers) {
@@ -385,7 +273,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     {
         divFeed.style.backgroundColor = '#e6ffff';
         divFeed.style.overflowY = 'scroll';
-        setupControlButton(divProfilePicture, imgProfilePicture, 'images/profile-picture-icon.gif', 'images/profile-picture-icon-blue.gif', showImageUploaderProfilePicture);
+        setupControlButton(divProfilePicture, imgProfilePicture, 'images/profile-picture-icon.gif', 'images/profile-picture-icon-blue.gif', showProfileEditor);
         setupControlButton(divUploadImage, imgUploadImage, 'images/upload-image-icon.gif', 'images/upload-image-icon-blue.gif', showImageUploader);
         setupControlButton(divEmoticons, imgEmoticons, 'images/emoticons-icon.gif', 'images/emoticons-icon-blue.gif', showEmoticons);
         divFont.className = 'div-' + cssName + '-font';
@@ -442,6 +330,38 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
 
     }
 
+    function close()
+    {
+        if (video)
+        {
+            try
+            {
+                video.disconnect();
+            } catch (ex)
+            {
+                console.log(ex);
+            }
+        } else
+        {
+            if (videos)
+            {
+                videos.dispose();
+            } else
+            {
+                if (callbackFontChanged)
+                {
+                    Font.removeCallback(callbackFontChanged);
+                }
+            }
+        }
+        websocket.close();
+        self.task.remove(self);
+        Windows.remove(self);
+        callbackClosed(roomInformation.roomUuid);
+        Themes.remove(themesObject);
+        Themes.remove(themesObjectWindow);
+        users.dispose();
+    }
     function setupControlButton(div, img, srcImg, srcImgHover, clickCallback)
     {
         div.style.position = 'relative';
@@ -590,11 +510,6 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         element.style.webkitTransform = 'translateY(-50%)';
         element.style.oTransform = 'translateY(-50%)';
     }
-    function setTableSkinny(table)
-    {
-        table.cellSpacing = "0";
-        table.cellPadding = "0";
-    }
     function showFont()
     {
         if (callbacksFont)
@@ -615,14 +530,14 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
             }
         }
     }
-    function showImageUploaderProfilePicture()
+    function showProfileEditor()
     {
-        if (callbacksImageUploaderProfilePicture)
+        if (callbacksProfileEditor)
         {
-            if (callbacksImageUploaderProfilePicture.show)
+            if (callbacksProfileEditor.show)
             {
                 console.log('doing it');
-                callbacksImageUploaderProfilePicture.show();
+                callbacksProfileEditor.show();
             }
         }
     }
@@ -649,42 +564,13 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         }
     }
     this.div.appendChild(divInner);
-    if (!useCalc)
-    {
-        divInner.appendChild(table);
-        table.appendChild(trTab);
-        trTab.appendChild(tdTab);
-        tdTab.appendChild(divTab);
-        table.appendChild(trMain);
-        trMain.appendChild(tdMain);
-
-        tdMain.appendChild(tableInner);
-        tableInner.appendChild(trInner);
-        trInner.appendChild(tdLeft);
-        trInner.appendChild(tdUsers);
-        tdLeft.appendChild(divMain);
-        divMain.appendChild(tableMain);
-        tableMain.appendChild(trFeed);
-        trFeed.appendChild(tdFeed);
-        tdFeed.appendChild(divFeed);
-        tableMain.appendChild(trInputControls);
-        trInputControls.appendChild(tdInputControls);
-        tdInputControls.appendChild(divControls);
-        divControls.appendChild(divControlsInner);
-        tableMain.appendChild(trInputText);
-        trInputText.appendChild(tdInputText);
-        tdInputText.appendChild(divInputText);
-        tdUsers.appendChild(users.div);
-    } else
-    {
-        divInner.appendChild(divTab);
-        divInner.appendChild(divMain);
-        divInner.appendChild(users.div);
-        divMain.appendChild(divFeed);
-        divMain.appendChild(divControls);
-        divControls.appendChild(divControlsInner);
-        divMain.appendChild(divInputText);
-    }
+    divInner.appendChild(divTab);
+    divInner.appendChild(divMain);
+    divInner.appendChild(users.div);
+    divMain.appendChild(divFeed);
+    divMain.appendChild(divControls);
+    divControls.appendChild(divControlsInner);
+    divMain.appendChild(divInputText);
     divTab.appendChild(divName);
     divControlsInner.appendChild(divUsers);
     divUsers.appendChild(imgUsers);
@@ -719,7 +605,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     this.show = function ()
     {
         self.div.style.display = 'inline';
-        
+
     };
     this.hide = function ()
     {
@@ -785,15 +671,15 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
             addMessage.color1 = true;
             addMessage.backgroundColor = '#e6e6ff';
         }
-        
-        var  div = new Message({str:jObject.content,
-            callbackEmoticons:callbacksEmoticons,
-            fontObj:jObject.font,
-            userUuid:jObject.userId,
-            username:jObject.name,
-            backgroundColor:addMessage.backgroundColor,
-            pending:false,
-            menuMessages:menuMessages}).div;
+
+        var div = new Message({str: jObject.content,
+            callbackEmoticons: callbacksEmoticons,
+            fontObj: jObject.font,
+            userUuid: jObject.userId,
+            username: jObject.name,
+            backgroundColor: addMessage.backgroundColor,
+            pending: false,
+            menuMessages: menuMessages}).div;
         if (div)
         {
             divFeed.appendChild(div);
@@ -813,14 +699,14 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
             addMessage.color1 = true;
             addMessage.backgroundColor = '#e6e6ff';
         }
-        
-        var message = new Message({str:str,
-            callbackEmoticons:callbacksEmoticons,
-            fontObj:font, userUuid:userInformation.userId,
-            username:userInformation.name,
-            backgroundColor:addMessage.backgroundColor,
-            pending:true,
-            menuMessages:menuMessages});
+
+        var message = new Message({str: str,
+            callbackEmoticons: callbacksEmoticons,
+            fontObj: font, userUuid: userInformation.userId,
+            username: userInformation.name,
+            backgroundColor: addMessage.backgroundColor,
+            pending: true,
+            menuMessages: menuMessages});
         if (message.div)
         {
             divFeed.appendChild(message.div);
@@ -831,13 +717,13 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     }
     function addAdminMessage(str)
     {
-        var div = new Message({str:str,
-            callbackEmoticons:callbacksEmoticons,
-            fontObj:{color: "#4e0000", font: "Arial", bold: true, italic: false, size: 10},
-            username:"Admin",
-            backgroundColor:addMessage.backgroundColor,
-            pending:false,
-            menuMessages:menuMessages});
+        var div = new Message({str: str,
+            callbackEmoticons: callbacksEmoticons,
+            fontObj: {color: "#4e0000", font: "Arial", bold: true, italic: false, size: 10},
+            username: "Admin",
+            backgroundColor: addMessage.backgroundColor,
+            pending: false,
+            menuMessages: menuMessages});
         if (div)
         {
             divFeed.appendChild(div);
@@ -1142,44 +1028,43 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     Themes.register(themesObject, undefined);
     initializeWebsocket();
     themesObjectWindow = Window.style(self.div, divInner, divTab);
-    var windowInformation =new WindowInformation(true, true, minWidth, minHeight, Windows.maxWidthPx, Windows.maxHeightPx, 0, 100, 0, Windows.maxYPx, true, true, true);
-          var windowCallbacks =  new WindowCallbacks(function () {
+    var windowInformation = new WindowInformation(true, true, minWidth, minHeight, Windows.maxWidthPx, Windows.maxHeightPx, 0, 100, 0, Windows.maxYPx, true, true, false);
+    var windowCallbacks = new WindowCallbacks(function () {
+        if (videos)
+        {
+            videos.resize();
+        }
+        else {
+            scrollFeed();
+        }
+        settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
+        settings.set("size", [self.div.offsetWidth, self.div.offsetHeight]);
+    }, function () {
+        settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
+    }
+    ,
+            function () {
+                self.task.minimize();
+            },
+            function () {
+                self.task.maximize();
                 if (videos)
                 {
                     videos.resize();
                 }
-                if (roomInformation.type == Room.Type.static || roomInformation.type == Room.Type.dynamic || roomInformation.type == Room.Type.pm)
-                {
-                    scrollFeed();
-                }
-                settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
-                settings.set("size", [self.div.offsetWidth, self.div.offsetHeight]);
-            }, function () {
-                settings.set("position", [self.div.offsetLeft, self.div.offsetTop]);
-            }
-            ,
-                    function () {
-                        self.task.minimize();
-                    },
-                    function () {
-                        self.task.maximize();
-                        if (videos)
-                        {
-                            videos.resize();
-                        }
-                    },
-                    function () {
-                        close();
-                    }, function (zIndex) {
-                settings.set("zIndex", zIndex);
-            });
-            var  params = {obj: this,
+            },
+            function () {
+                close();
+            }, function (zIndex) {
+        settings.set("zIndex", zIndex);
+    });
+    var params = {obj: this,
         minimized: false,
         divTab: divTab,
         divInner: divInner,
         windowInformation: windowInformation,
         callbacks: windowCallbacks};
-    Windows.add( params);
+    Windows.add(params);
     TaskBar.add(this);
     if (roomInformation.type == Room.Type.pm && roomInformation.username != userInformation.name)
     {

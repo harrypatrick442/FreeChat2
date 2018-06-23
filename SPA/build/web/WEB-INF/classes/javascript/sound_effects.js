@@ -56,8 +56,8 @@ function SoundEffects(userInformation)
     this.div.style.position = "absolute";
     this.div.style.width = '200px';
     this.div.style.height = '500px';
-    this.div.style.top = '100px';
-    this.div.style.left = '1400px';
+    this.div.style.top = '50px';
+    this.div.style.left = '550px';
     divInner.style.position = 'absolute';
     divInner.style.border = '1px solid #66a3ff';
     //divInner.style.border = '3px solid #0099ff';

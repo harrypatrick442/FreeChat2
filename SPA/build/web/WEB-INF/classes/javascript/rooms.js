@@ -20,7 +20,7 @@ function Rooms(mapIdToRoom, callbacks, userInformation)
     this.div.style.position = "absolute";
     this.div.style.width = '200px';
     this.div.style.height = '300px';
-    this.div.style.top = '300px';
+    this.div.style.top = '80px';
     this.div.style.left = '10px';
     divInner.style.position='absolute';
     divInner.style.border = '1px solid #66a3ff';

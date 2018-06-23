@@ -238,6 +238,7 @@ function TaskBar()
         };
         this.minimize = function ()
         {
+            if(!self.obj.windowInformation||self.obj.windowInformation.minimizable){
             Windows.hide(self.obj);
             var active = Windows.getActive();
             if (active != null)
@@ -247,6 +248,7 @@ function TaskBar()
             {
                 setActiveTask(null);
             }
+        }
         };
         this.maximize = function ()
         {

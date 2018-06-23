@@ -30,8 +30,8 @@ function Radio(xmlString)
     this.div.style.position = "absolute";
     this.div.style.width = '390px';
     this.div.style.height = '80px';
-    this.div.style.top = '720px';
-    this.div.style.left = '520px';
+    this.div.style.top = '300px';
+    this.div.style.left = '360px';
     this.div.style.overflow='hidden';
     divInner.style.position='absolute';
     divInner.style.border = '1px solid #66a3ff';

@@ -33,18 +33,15 @@ function LobbyChat(callbackFinishedLoading, otherCallbacks)
     });
     var onEnter = function ()
     {
-        soundEffects = new SoundEffects(userInformation);
         rooms = new Rooms(mapIdToRoom, {send:
                     websocket.send
         }, userInformation);
         if (Configuration.wallsEnabled)
             walls = new Walls({send:
                         websocket.send}, userInformation);
-        users = new Users(true, "users", userInformation, undefined, undefined, showImageUploaderProfilePicture);
         if (Configuration.videoEnabled && !isMobile)
             webcamSettings = new WebcamSettings(userInformation);
         getRooms();
-        getUsers();
         //if(Configuration.wallsEnabled)
         //getWalls();
         //if(Configuration.wallsEnabled)
@@ -119,9 +116,9 @@ function LobbyChat(callbackFinishedLoading, otherCallbacks)
     }
     function gotNotifications(jObject)
     {
-		console.log('got notifications');
-		if(notifications)
-			notifications.listNotifications(jObject.notifications);
+        console.log('got notifications');
+        if (notifications)
+            notifications.listNotifications(jObject.notifications);
     }
     function getRooms()
     {
@@ -161,8 +158,8 @@ function LobbyChat(callbackFinishedLoading, otherCallbacks)
     this.authenticate = function (jObject) {
         if (jObject.successful)
         {
-            console.log('authenticated');
-            console.log(jObject);
+            soundEffects = new SoundEffects(userInformation);
+            users = new Users(true, "users", userInformation, undefined, undefined, showImageUploaderProfilePicture);
             rooms.enableOpen();
             for (var i = 0; i < openOnEnter.length; i++)
             {
@@ -203,9 +200,12 @@ function LobbyChat(callbackFinishedLoading, otherCallbacks)
         } else
         {//xxx
             if ((!isMobile) || (roomInformation.type != Room.Type.videoDynamic && roomInformation.type != Room.Type.videoStatic && roomInformation.type != Room.Type.videoPm))
-                mapIdToRoom[roomInformation.roomUuid] = new Room(userInformation, roomInformation, callbackRoomClosed, "room", Configuration.URL_ENDPOINT_ROOM, {unminimize: font.unminimize, getFont: font.getFont}, {unminimize: emoticons.unminimize, getLookupTree: emoticons.getLookupTree}, {unminimize: soundEffects.unminimize}, {show: ImageUploader.show, interpret: ImageUploader.interpret}, {show: function(){LobbySwingers.showMyProfile();}});
+                mapIdToRoom[roomInformation.roomUuid] = new Room(userInformation, roomInformation, callbackRoomClosed, "room", Configuration.URL_ENDPOINT_ROOM, {unminimize: font.unminimize, getFont: font.getFont}, {unminimize: emoticons.unminimize, getLookupTree: emoticons.getLookupTree}, {unminimize: soundEffects.unminimize}, {show: ImageUploader.show, interpret: ImageUploader.interpret}, {show: function () {
+                        LobbySwingers.showMyProfile();
+                    }});
         }
-        if(notifications&&(!leaveNotifications))notifications.clearNotification(roomInformation.roomUuid);
+        if (notifications && (!leaveNotifications))
+            notifications.clearNotification(roomInformation.roomUuid);
     };
     Lobby.openWall = function (wallInfo)
     {

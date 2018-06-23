@@ -7,15 +7,13 @@ function LobbySwingers(callbackFinishedLoading, otherCallbacks)
 {
     var messenger = new Messenger();
     var terminal = messenger.getTerminal(interpret);
-    var locationPicker = new LocationPicker(messenger);
+    var locationPicker;
     var mySocketProfiles = otherCallbacks.getMySocketProfiles();
+    var profilesDisplay;
     var mapUserIdToProfile = {};
     mySocketProfiles.addEventListener('message', function(e) {
         interpret(e.message);
     });
-    var profilesDisplay = new ProfilesDisplay(mySocketProfiles, messenger, new ProfilesDisplay.Callbacks(function() {
-        locationPicker.show(true);
-    }, showProfile));
     var profileEditor;
     function showProfile(userId) {
         var profile = mapUserIdToProfile[userId];
@@ -53,6 +51,10 @@ function LobbySwingers(callbackFinishedLoading, otherCallbacks)
     {
         if (jObject.successful)
         {
+    locationPicker = new LocationPicker(messenger);
+    profilesDisplay = new ProfilesDisplay(mySocketProfiles, messenger, new ProfilesDisplay.Callbacks(function() {
+        locationPicker.show(true);
+    }, showProfile));
             profileEditor = new Profile(jObject.userId, messenger, true, mySocketProfiles, new Profile.Callbacks(function() {
                 locationPicker.show(true);
             },

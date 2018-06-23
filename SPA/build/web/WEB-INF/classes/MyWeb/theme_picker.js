@@ -29,8 +29,8 @@ function ThemePicker()
     this.div.style.position = "absolute";
     this.div.style.width = '200px';
     this.div.style.height = '400px';
-    this.div.style.top = '100px';
-    this.div.style.left = '1150px';
+    this.div.style.top = '40px';
+    this.div.style.left = '450px';
     divInner.style.position = 'absolute';
     divInner.style.border = '1px solid #66a3ff';
     divInner.style.backgroundColor = '#0099ff';
