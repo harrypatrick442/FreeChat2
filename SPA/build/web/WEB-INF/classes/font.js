@@ -45,7 +45,7 @@ function Font()
     this.div.style.position = 'absolute';
     this.div.style.display = 'none';
     if(!isMobile)
-    this.div.style.width='300px';
+    this.div.style.width='307px';
     divInner.style.height = 'auto';
     divInner.style.border = '1px solid #66a3ff';
     divInner.style.backgroundColor = '#0099ff';

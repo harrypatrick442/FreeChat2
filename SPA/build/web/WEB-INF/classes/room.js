@@ -128,6 +128,8 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     divMain.style.width = 'calc(100% - 150px)';
     divMain.style.height = 'calc(100% - 24px)';
     divMain.style.padding = '2px';
+    divMain.style.paddingBottom = '0px';
+    divMain.style.position = 'relative';
     divMain.style.marginRight = '2px';
     users.div.style.float = 'left';
     users.div.style.width = '150px';
@@ -142,7 +144,11 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         divFeed.style.height = 'calc(100% - 22px)';
     }
     divFeed.style.marginBottom = '2px';
-    divInputText.style.height = '30px';
+    divFeed.style.overflowX='hidden';
+    divFeed.style.float='left';
+    divInputText.style.height = '26px';
+    divInputText.style.position='relative';
+    divInputText.style.bottom='0px';
     divTab.style.float = 'left';
     divTab.style.width = "100%";
     divTab.style.height = "20px";
@@ -242,12 +248,14 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     text.style.margin = '0px';
     text.addEventListener('click', function ()
     {
-        text.focus();
+        focusText();
     });
     text.style.boxSizing = 'border-box';
     divControls.style.backgroundColor = '#ccb3ff';
     divControls.style.border = '0px';
     divControls.style.width = '100%';
+    divControls.style.position = 'relative';
+    divControls.style.float = 'left';
     divFeed.style.width = '100%';
     divInputText.style.width = '100%';
     divControls.style.height = '20px';
@@ -255,7 +263,8 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     divControlsInner.style.height = '16px';
     divControlsInner.style.marginTop = '2px';
     divControlsInner.style.overflow = 'hidden';
-    text.style.height = '26px';
+    divControlsInner.style.position = 'relative';
+    text.style.height = '100%';
 
     setupControlButton(divUsers, imgUsers, 'images/users.gif', 'images/users_highlighted.gif', function () {
         if (showingUsers) {
@@ -784,7 +793,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         var str = text.value;
         str = str.insert(index, string);
         text.value = str;
-        text.focus();
+        focusText();
         index += string.length;
         text.setSelectionRange(index, index);
     };
@@ -1052,12 +1061,15 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
                 {
                     videos.resize();
                 }
+                focusText();
             },
             function () {
                 close();
-            }, function (zIndex) {
-        settings.set("zIndex", zIndex);
-    });
+            }, function (zIndex) {settings.set("zIndex", zIndex);}, 
+            function(){}, 
+            function(){}, 
+            function(){}, 
+            function(){focusText();});
     var params = {obj: this,
         minimized: false,
         divTab: divTab,
@@ -1077,5 +1089,9 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     }
     if (roomInformation.show)
         self.task.unminimize();
+    function focusText(){
+        console.log('focus');
+        new Task(function(){text.focus();}).run();
+    }
 }
 Room.Type = {static: 'static', dynamic: 'dynamic', pm: 'pm', videoStatic: 'video_static', videoDynamic: 'video_dynamic', videoPm: 'video_pm'};

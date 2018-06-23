@@ -1,5 +1,6 @@
 function Message(params)
 {
+    var self = this;
     var fontScale = isMobile?Font.mobileScale: 1;
     if (params.str == undefined)
     {
@@ -9,9 +10,24 @@ function Message(params)
     this.div.style.backgroundColor = params.backgroundColor;
     this.div.style.padding = '0px 1px 0px 1px';
     this.div.style.minHeight='28px';
+    this.div.style.float='left';
+    this.div.style.width='100%';
+    this.div.style.position='relative';
+    var cover;
     var lookupTree = params.callbackEmoticons.getLookupTree();
     var fontObj = params.fontObj;
     var font = fontObj.font;
+    if(params.pending)
+        { 
+            cover = document.createElement('div');
+            cover.style.width='100%';
+            cover.style.height='100%';
+            cover.style.backgroundColor='rgba(0, 0, 0, 0.3)';
+            cover.style.zIndex='10';
+            cover.style.position='absolute';
+            self.div.appendChild(cover);
+        }
+    
     if (font == undefined)
     {
         font = 'Arial';
@@ -79,7 +95,7 @@ function Message(params)
     this.div.appendChild(div);
     this.unpend = function(){
         if(params.pending){
-            
+            self.div.removeChild(cover);
         };
     };
     this.equals = function(jObject){

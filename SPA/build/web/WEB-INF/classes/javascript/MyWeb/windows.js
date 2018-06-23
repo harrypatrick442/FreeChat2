@@ -175,6 +175,12 @@ var Windows = new (function () {
     this.hide = function (obj)
     {
         obj.hide();
+        var spliced = self.instances.splice(self.instances.indexOf(obj), 1)[0];
+        if (spliced)
+        {
+            self.instances.splice(0, 0, spliced);
+            focusFrontWindow();
+        }
     };
     this.show = function (obj)
     {
@@ -202,11 +208,17 @@ var Windows = new (function () {
             }
             zIndex++;
         }
+        focusFrontWindow();
     };
+    function focusFrontWindow(){
+        var frontWindow = self.instances[self.instances.length-1];
+        if(frontWindow.windowMethods.callbacks.focussed){
+            frontWindow.windowMethods.callbacks.focussed();}
+    }
     this.getActive = function ()
     {
         var i = self.instances.length - 1;
-        while (i > 0)
+        while (i >= 0)
         {
             var active = self.instances[i];
             if (active.div.style.display != 'none')
@@ -466,7 +478,7 @@ var Window = new (function () {
 
 })();
 
-function WindowCallbacks(resized, dragged, minimize, maximize, close, callbackZIndexChanged, resizedInstantaneous, unmaximized, unminimized)
+function WindowCallbacks(resized, dragged, minimize, maximize, close, callbackZIndexChanged, resizedInstantaneous, unmaximized, unminimized, focussed)
 {
     this.resized = resized;
     this.dragged = dragged;
@@ -477,6 +489,7 @@ function WindowCallbacks(resized, dragged, minimize, maximize, close, callbackZI
     this.resizedInstantaneous = resizedInstantaneous;
     this.unmaximized = unmaximized;
     this.unminimized = unminimized;
+    this.focussed=focussed;
 }
 function WindowInformation(resizable, dragable, minWidthPx, minHeightPx, maxWidthPx, maxHeightPx, minXPercent, maxXPercent, minYPx, maxYPx, minimizable, maximizable, minimizeOnClose, closeable)
 {
