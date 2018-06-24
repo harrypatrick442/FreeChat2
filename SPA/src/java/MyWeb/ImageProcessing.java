@@ -70,14 +70,13 @@ public class ImageProcessing {
         sb.append("]; var taskPreloadImages = new Task(function(){for(var i=0; i<imagesToPreload.length; i++){var img = new Image(); img.src=imagesToPreload[i]; preloadedImages.push(img);}});");
         return sb.toString();
     }
-
+/*
     private class Cleanup2 implements Runnable {
 
         private Thread thread;
 
         public Cleanup2() {
-            GuarbageWatch.add(this);
-            thread = new Thread(this);
+            //GuarbageWatch.add(this);
         }
 
         @Override
@@ -109,7 +108,7 @@ public class ImageProcessing {
             }
         }
     }
-
+*/
     public static String getTempFolder() {
         File file = new File(System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "UploadedImages" + File.separator);
         if (!file.exists()) {

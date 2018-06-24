@@ -8,6 +8,7 @@ import FreeChat2.Room;
 import FreeChat2.RoomType;
 import FreeChat2.Wall;
 import MySocket.Enums;
+import MySocket.MySocketInstances;
 import Profiles.IConfigurationPassword;
 import Profiles.InterpreterProfiles;
 import Youtube.InterpreterDownloader;
@@ -56,11 +57,11 @@ public class Configuration implements InterfaceConfiguration, IConfigurationPass
     }
 
     public static void initialize() {
-
+        
     }
 
     static {
-        MySocket.setIGetInterpreter(new IGetInterpreter() {
+        MySocketInstances.getInstance().setIGetInterpreter(new IGetInterpreter() {
             @Override
             public Interpreter getInstance(MySocket mySocket, String className, String name, Enums.Type type) {
                 if (className.equals("chat_lobby")) {

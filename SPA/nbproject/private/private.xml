@@ -9,16 +9,24 @@
             <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/build/web/WEB-INF/classes/javascript/FreeSwing/profile.js</file>
             <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/src/javascript/FreeSwing/lobby_swingers.js</file>
             <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/build/web/WEB-INF/classes/FreeSwing/profile.js</file>
+            <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/src/java/MyWeb/Ticker.java</file>
             <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/src/javascript/lobby_chat.js</file>
             <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/build/web/scripts/FreeSwing/profile.js</file>
             <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/web/scripts/MyWeb/generic_window.js</file>
             <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/src/javascript/emoticons.js</file>
+            <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/src/java/MySocket/MySocket.java</file>
+            <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/src/java/MySocket/MySocketInstances.java</file>
+            <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/src/java/MyWeb/Context.java</file>
             <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/src/javascript/FreeSwing/profile.js</file>
+            <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/src/java/MyWeb/Database/TableRoomUuidToUsers.java</file>
+            <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/src/java/FreeChat2/InterpreterRoom.java</file>
             <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/src/java/FreeChat2/ServletContact.java</file>
             <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/src/java/FreeChat2/User.java</file>
             <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/src/javascript/image_uploader.js</file>
             <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/web/scripts/FreeSwing/profile.js</file>
-            <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/src/java/MyWeb/Database/TableLobbyToUsers.java</file>
+            <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/src/java/MyWeb/Database/TableRoomUuidToInfo.java</file>
+            <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/src/java/FreeChat2/InterpreterLobby.java</file>
+            <file>file:/C:/Users/SoftwareEngineer/Desktop/SPA/SPA/src/java/MyWeb/Configuration.java</file>
         </group>
     </open-files>
 </project-private>

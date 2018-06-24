@@ -184,19 +184,13 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
             String reason = null;
             authenticate(session);
             boolean successful = false;
-            System.out.println("before user");
             if (user != null) {
-                System.out.println("after user");
                 String name = jObject.getString("name");
                 boolean hasPassword = jObject.getBoolean("has_password");
                 try {
-                    System.out.println("a");
                     IGetAsynchronousSenders i = AsynchronousSenders.getInstance();
-                    System.out.println(i);
                     Rooms.createNew(name, RoomType.Text, hasPassword, hasPassword ? jObject.getString("password") : null, Database.getInstance(), i);
-                    System.out.println("b");
                     successful = true;
-                System.out.println("sneding");
                     Users.sendMessageToAllOnline(Rooms.getPopularJSONObject(Database.getInstance(), AsynchronousSenders.getInstance()), Database.getInstance(), AsynchronousSenders.getInstance());
                 } catch (RoomCreationException ex) {
                     reason = ex.toString();
@@ -208,7 +202,6 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
             jObjectReply.put("successful", successful);
             jObjectReply.put("reason", reason);
             iSend.send(jObjectReply);
-                System.out.println("sent 2");
         } catch (JSONException ex) {
             throw ex;
         }
@@ -217,6 +210,7 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
     public void close() {
         if (user != null) {
             try {
+                System.out.println("remove");
                 Database.getInstance().getLobbyToUsers().remove(user.id);
                 users(true);
             } catch (Exception ex) {

@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Base64;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -180,10 +182,8 @@ public class InterpreterRoom extends Interpreter implements Serializable {
 
     private void message(JSONObject jObject) throws Exception {
         try {
-            String jObjectString = jObject.toString();
-            if (jObjectString != lastMessage && stopWatchLastMessage.get_ms() > 1300) {
+            if (stopWatchLastMessage.get_ms() > 1000) {
                 if (user != null && room != null) {
-                    lastMessage = jObjectString;
                     jObject.put("userId", user.id);
                     if(jObject.has("notify")){
                         PmsHelper.notifyOtherUser(user, Database.getInstance(), AsynchronousSenders.getInstance(), room);
@@ -329,5 +329,10 @@ public class InterpreterRoom extends Interpreter implements Serializable {
     }
 
     public void close() {
+        try {
+            Database.getInstance().getRoomUuidToUsers().remove(room.id, user.id);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }

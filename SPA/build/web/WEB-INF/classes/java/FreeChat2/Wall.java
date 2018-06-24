@@ -270,7 +270,6 @@ public class Wall implements Serializable {
         private Thread thread;
         public TimeoutWall() {
             //xxx
-            //thread = new Thread(this);
             //thread.start();
         }
         

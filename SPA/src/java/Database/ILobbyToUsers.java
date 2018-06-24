@@ -21,4 +21,5 @@ public interface ILobbyToUsers {
     public ArrayList<Tuple<User, String>> get() throws Exception;
     public String getEndpoint(UUID userUuid) throws Exception;
     public int getNUsers() throws Exception;
+    public void clear() throws Exception;
 }

@@ -5,6 +5,7 @@
  */
 package MyWeb;
 import Database.UUID;
+import FreeChat2.Global;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -15,9 +16,9 @@ import java.util.Iterator;
 public class Sessions {
 
     private static HashMap<UUID, Session> mapSessions = new HashMap<UUID, Session>();
-    private static Thread threadTimeout = new Thread(new RunnableTimeout());
 
     static {
+    Ticker.add(new RunnableTimeout(),30000);
         //xxx
         //threadTimeout.start();
     }
@@ -111,16 +112,9 @@ public class Sessions {
         @Override
         public void run() {
             //xxx
-            /*
-            while (Global.run) {
-                try {
-                    Thread.sleep(30000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Sessions.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                HashMap<String, Session> clone;
+                HashMap<UUID, Session> clone;
                 synchronized (mapSessions) {
-                    clone = new HashMap<String, Session>(mapSessions);
+                    clone = new HashMap<UUID, Session>(mapSessions);
                 }
                 Iterator<Session> iterator = clone.values().iterator();
                 while (iterator.hasNext()) {
@@ -132,7 +126,6 @@ public class Sessions {
                         }
                     }
                 }
-            }*/
         }
     }
 

@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import FreeChat2.User;
 import MyWeb.Tuple;
 import java.util.ArrayList;
+import java.util.Iterator;
 /**
  *
  * @author EngineeringStudent
@@ -39,6 +40,15 @@ public class TableLobbyToUsers extends Table implements ILobbyToUsers {
             + "`endpoint` TEXT NOT NULL, "
             + "PRIMARY KEY (`userUuid`),"
             + "INDEX `indexJoined` (`joined`)"
+            + ")","CREATE TABLE IF NOT EXISTS `lobby_users_history`"
+            + "("         
+            + "`id` INT NOT NULL AUTO_INCREMENT,"
+            + "`userUuid` BINARY(16) NOT NULL,"
+            + "`joined` BIGINT(20) NOT NULL, "
+            + "`left` BIGINT(20) NOT NULL, "
+            + "PRIMARY KEY (`id`),"
+            + "INDEX `indexJoined` (`joined`),"
+            + "INDEX `indexLeft` (`left`)"
             + ")",
             "DROP PROCEDURE IF EXISTS `lobby_users_get`; ",
             "CREATE PROCEDURE `lobby_users_get`("
@@ -68,13 +78,14 @@ public class TableLobbyToUsers extends Table implements ILobbyToUsers {
             +"INSERT INTO lobby_users(userUuid, joined, endpoint) VALUES(UNHEX(userUuidIn), joined, endpointIn) ON DUPLICATE KEY UPDATE userUuid = UNHEX(userUuidIn), endpoint = endpointIn;",
             "DROP PROCEDURE IF EXISTS `lobby_users_remove`; ",
             "CREATE PROCEDURE `lobby_users_remove`("
-            + "IN userUuid VARCHAR(32),"
+            + "IN userUuidIn VARCHAR(32),"
             + "IN `left` BIGINT(20)"
             + ")"
             + "BEGIN "
-            + "INSERT INTO lobby_users_history(roomUuid, userUuid, joined, `left`) "
-            + "VALUES( UNHEX(roomUuid), UNHEX(userUuid), (SELECT joined FROM lobby_users_history WHERE roomUuid = UNHEX(roomUuid) AND userUuid = UNHEX(userUuid)), `left`);"
-            + "DELETE FROM lobby_users WHERE userUuid = UNHEX(userUuid);"
+                + "SET @userUuidUnhexed=UNHEX(userUuidIn);"
+            + "INSERT INTO lobby_users_history( userUuid, joined, `left`) "
+            + "VALUES(@userUuidUnhexed, (SELECT joined FROM lobby_users WHERE userUuid = @userUuidUnhexed limit 1), `left`);"
+            + "DELETE FROM lobby_users WHERE userUuid = @userUuidUnhexed;"
             + "END;"};
         try {
             conn = getConnection();
@@ -187,9 +198,10 @@ public class TableLobbyToUsers extends Table implements ILobbyToUsers {
             conn = getConnection();
             String str = "CALL `lobby_users_remove`(?,?);";
             st = conn.prepareCall(str);
+            System.out.println(userUuid.toString());
             st.setString(1, userUuid.toString());
             st.setLong(2, System.currentTimeMillis());
-            st.executeQuery();
+            st.executeUpdate();
         } catch (SQLException se) {
             se.printStackTrace();
             throw se;
@@ -287,6 +299,16 @@ public class TableLobbyToUsers extends Table implements ILobbyToUsers {
             }
         }
         throw new Exception("counting Failed");
+    }
+    @Override
+    public void clear() throws Exception
+    {
+        Iterator<Tuple<User, String>> iterator = get().iterator();
+        while(iterator.hasNext())
+        {
+            Tuple<User, String> user = iterator.next();
+            remove(user.x.id);
+        }
     }
 }
 

@@ -77,6 +77,7 @@ public class TableRoomUuidToInfo extends Table implements IRoomUuidToInfo {
             + "BEGIN "
             + "SELECT COUNT(*) FROM room_uuid_to_info WHERE roomUuid = UNHEX(roomUuidIn);"
             + " END;",
+            "DROP PROCEDURE IF EXISTS `room_uuid_to_info_name_exists`",
             "CREATE PROCEDURE `room_uuid_to_info_name_exists`("
             + "IN nameIn VARCHAR(32)"
             + ")"
@@ -102,6 +103,7 @@ public class TableRoomUuidToInfo extends Table implements IRoomUuidToInfo {
             conn = getConnection();
             st = conn.createStatement();
             for (String str : strs) {
+                System.out.println(str);
                 st.executeUpdate(str);
             }
         } catch (SQLException se) {

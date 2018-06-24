@@ -144,11 +144,11 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
         divFeed.style.height = 'calc(100% - 22px)';
     }
     divFeed.style.marginBottom = '2px';
-    divFeed.style.overflowX='hidden';
-    divFeed.style.float='left';
+    divFeed.style.overflowX = 'hidden';
+    divFeed.style.float = 'left';
     divInputText.style.height = '26px';
-    divInputText.style.position='relative';
-    divInputText.style.bottom='0px';
+    divInputText.style.position = 'relative';
+    divInputText.style.bottom = '0px';
     divTab.style.float = 'left';
     divTab.style.width = "100%";
     divTab.style.height = "20px";
@@ -416,32 +416,31 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     function isGoodMessage(str)
     {
         var newTime = new Date().getTime();
-        if (str != lastMessage)
+        if (newTime - lastSentMessage > 1300)
         {
-            if (newTime - lastSentMessage > 1300)
+            if (str.length < 8 || str != lastMessage)
             {
-                if (badCount > 0)
-                    badCount--;
                 lastSentMessage = newTime;
+                lastMessage = str;
                 return true;
+                //{
+                //  badCount++;
+                //}
             } else
             {
-                badCount++;
+                if (!this.optionPaneDisconnected)
+                    this.optionPaneDisconnected = new OptionPane(document.body);
+                this.optionPaneDisconnected.show([['Ok', function () {
+                        }]], "Please don't spam the same message!", function () {
+                });
             }
-        } else
-        {
-            badCount++;
-        }
-        lastSentMessage = newTime;
-        if (badCount > 2)
-        {
-            Lobby.closedReason = 'spam';
-            MySocket.closeAll();
-            this.optionPaneDisconnected = new OptionPane(document.body);
-            this.optionPaneDisconnected.show([['Ok', function () {
-                    }]], "You were disconnected for attempting to spam lol!", function () {
-            });
-        }
+        } //else
+        //lastSentMessage = newTime;
+        //if (badCount > 2)
+        //{
+        //  Lobby.closedReason = 'spam';
+        //MySocket.closeAll();
+        //}
         return false;
     }
     text.onkeydown = function (evt) {
@@ -461,13 +460,13 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
                 if (isGoodMessage(str))
                 {
                     sendMessage(str);
+                    addMyMessage(str);
+                    if (wasTruncated)
+                    {
+                        addAdminMessage("The message was truncated to the maximum length of 500 characters.");
+                    }
+                    text.value = "";
                 }
-                addMyMessage(str);
-                if (wasTruncated)
-                {
-                    addAdminMessage("The message was truncated to the maximum length of 500 characters.");
-                }
-                text.value = "";
             } else
             {
                 addAdminMessage("You must enter a username before you can message!");
@@ -1065,11 +1064,18 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
             },
             function () {
                 close();
-            }, function (zIndex) {settings.set("zIndex", zIndex);}, 
-            function(){}, 
-            function(){}, 
-            function(){}, 
-            function(){focusText();});
+            }, function (zIndex) {
+        settings.set("zIndex", zIndex);
+    },
+            function () {
+            },
+            function () {
+            },
+            function () {
+            },
+            function () {
+                focusText();
+            });
     var params = {obj: this,
         minimized: false,
         divTab: divTab,
@@ -1089,9 +1095,11 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
     }
     if (roomInformation.show)
         self.task.unminimize();
-    function focusText(){
+    function focusText() {
         console.log('focus');
-        new Task(function(){text.focus();}).run();
+        new Task(function () {
+            text.focus();
+        }).run();
     }
 }
 Room.Type = {static: 'static', dynamic: 'dynamic', pm: 'pm', videoStatic: 'video_static', videoDynamic: 'video_dynamic', videoPm: 'video_pm'};

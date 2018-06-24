@@ -11,7 +11,7 @@ import MySocket.IRun;
  *
  * @author SoftwareEngineer7
  */
-public class Timer {
+public class Timer implements IRemove<Timer.RunnableTimer>{
 
     private IRun iRun;
     private int delayMs;
@@ -22,61 +22,54 @@ public class Timer {
         this.iRun = iRun;
         this.delayMs = delayMs;
         this.times = times;
-        runnableTimer = new RunnableTimer();
+        runnableTimer = new RunnableTimer(this);
+        Ticker.add(runnableTimer, delayMs);
     }
 
     public void reset() {
         if (runnableTimer != null) {
             runnableTimer.stop();
         }
-        runnableTimer = new RunnableTimer();
+        runnableTimer = new RunnableTimer(this);
+        Ticker.add(runnableTimer, delayMs);
     }
 
     public void stop() {
         runnableTimer.stop();
     }
 
-    private class RunnableTimer implements Runnable {
+    @Override
+    public void remove(RunnableTimer t) {
+        Ticker.remove(t);
+    }
 
-        private Thread thread;
+    public class RunnableTimer implements Runnable {
+
         private volatile boolean stopped = false;
         private int count = 0;
-
-        public RunnableTimer() {
-            thread = new Thread(this);
-            thread.start();
+        private IRemove<RunnableTimer> iRemove;
+        public RunnableTimer(IRemove<RunnableTimer> iRemove) {
+            this.iRemove = iRemove;
         }
-
         @Override
         public void run() {
-            while (!stopped) {
                 if (times > 0) {
                     if (count >= times) {
-                        break;
+                        iRemove.remove(this);
                     }
                     count++;
                 }
-                try {
-                    Thread.sleep(delayMs);
-                } catch (InterruptedException ex) {
-
-                }
                 if (stopped) {
-                    break;
+                    iRemove.remove(this);
                 }
                 try {
                     iRun.run();
                 } catch (Exception ex) {
 
                 }
-            }
         }
-
         public void stop() {
             stopped=true;
-            if (!thread.interrupted()) {
-                thread.interrupt();
-            }
         }
     }
 }

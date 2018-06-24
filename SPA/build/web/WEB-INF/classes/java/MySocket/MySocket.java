@@ -34,13 +34,9 @@ import org.json.JSONObject;
  */
 public class MySocket implements IAsynchronousSender, IGetIp, IInterfaces, IClose {
 
-    private static HashMap<String, IGetInterpreter> mapClassNameToIGetInterpreter = new HashMap<String, IGetInterpreter>();
     private HashMap<String, Interpreter> mapNameToInterpreter = new HashMap<String, Interpreter>();
-    private static volatile List<MySocket> instances = new ArrayList<MySocket>();
     public volatile boolean active = true;
     private Sessions.Session session;
-    private static Timeout timeout;
-    private static IGetInterpreter iGetInterpreter;
     private Enums.Type type;
     private ISend iSend;
     private IGot iGotBefore;
@@ -49,10 +45,6 @@ public class MySocket implements IAsynchronousSender, IGetIp, IInterfaces, IClos
     private MessagePersistenceBuffer messagePersistenceBuffer;
     private MessageAccumulator messageAccumulator;
     private MessageBufferStreamlined bufferAccumulatedAjax;
-
-    static {
-        timeout = new Timeout();
-    }
 
     public MySocket(ISend iSend, Sessions.Session session, Enums.Type type, Boolean isPersistent) {
         GuarbageWatch.add(this);
@@ -113,15 +105,9 @@ public class MySocket implements IAsynchronousSender, IGetIp, IInterfaces, IClos
             MyConsole.out.println(3);
             iSendBefore = type.equals(Enums.Type.AJAX) ? messageAccumulator : iSend;
         }
-        synchronized (instances) {
-            instances.add(this);
-        }
 
         MyConsole.out.println(4);
-    }
-
-    public static void setIGetInterpreter(IGetInterpreter iGetInterpreterIn) {
-        iGetInterpreter = iGetInterpreterIn;
+        MySocketInstances.getInstance().add(this);
     }
 
     public <T> List<T> getAllInterfacesOfType(Class<T> c) {
@@ -144,8 +130,7 @@ public class MySocket implements IAsynchronousSender, IGetIp, IInterfaces, IClos
     }
 
     public void connect(String name, String className) {
-        System.out.println("MySocket.connect");
-        Interpreter interpreter = iGetInterpreter.getInstance(this, className, name, type);
+        Interpreter interpreter = MySocketInstances.getInstance().getIGetInterpreter().getInstance(this, className, name, type);
         if (interpreter != null) {
         System.out.println(interpreter);
             mapNameToInterpreter.put(name, interpreter);
@@ -248,10 +233,12 @@ public class MySocket implements IAsynchronousSender, IGetIp, IInterfaces, IClos
         if (messagePersistenceBuffer != null) {
             messagePersistenceBuffer.close();
         }
-
+        System.out.println("closing it now");
         Iterator<String> iterator = mapNameToInterpreter.keySet().iterator();
         while (iterator.hasNext()) {
-            mapNameToInterpreter.get(iterator.next()).close();
+                    String name = iterator.next();
+                    System.out.println("closing: "+name);
+            mapNameToInterpreter.get(name).close();
 
         }
     }
@@ -280,51 +267,4 @@ public class MySocket implements IAsynchronousSender, IGetIp, IInterfaces, IClos
         iGotBefore.got(jObject);
 
     }
-
-    private static class Timeout implements Runnable {
-
-        private Thread thread;
-
-        public Timeout() {
-            thread = new Thread(this);
-            thread.start();
-        }
-
-        @Override
-        public void run() {
-            //xxx
-            StopWatch stopWatch = new StopWatch();
-            /*
-            while (Global.run) {
-                try {
-                    Thread.sleep(4000);
-                    if (stopWatch.get_ms() > Configuration.timeoutMs) {
-                        stopWatch.Reset();
-                        synchronized (instances) {
-                            Iterator<MySocket> iterator = instances.iterator();
-                            while (iterator.hasNext()) {
-                                MySocket mySocket = iterator.next();
-                                if (!mySocket.active) {
-                                    mySocket.close();
-                                    iterator.remove();
-                                    try {
-                                        //mySocket.session.removeAttribute("mySocket"); DOnt do this because it often happens after the new page has already loaded and put the new ajax into session.
-                                        //session will dispose of its self. taking the wrapper with it, or alternatively wrapper will be dereferenced when new one referenced.
-                                    } catch (IllegalStateException ise) {
-
-                                    }
-                                } else {
-                                    mySocket.active = false;
-                                }
-                            }
-                        }
-                    }
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(MySocket.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }*/
-        }
-
-    }
-
 }

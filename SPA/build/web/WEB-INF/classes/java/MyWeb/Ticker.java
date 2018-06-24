@@ -10,15 +10,19 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author SoftwareEngineer7
  */
-public class Ticker {
+public class Ticker implements Runnable{
 
     private static Thread thread;
     private volatile static List<Tuple<Runnable, Integer>> toAdd = new ArrayList<Tuple<Runnable, Integer>>();
+
+    private volatile static List<Runnable> toRemove = new ArrayList<Runnable>();
 
     public static void add(Runnable r, int d) {
         synchronized (toAdd) {
@@ -26,22 +30,24 @@ public class Ticker {
         }
         initializeIfNotAlready();
     }
-
+    public static void remove(Runnable r){
+        synchronized (toRemove) {
+            toRemove.add(r);
+        }
+    }
     private static void initializeIfNotAlready() {
         if (thread == null) {
-            final Runner r = new Runner();
-            thread = new Thread(r);
+                final Ticker t = new Ticker();
+            thread = new Thread(t);
+            thread.start();
             Context.addOnDestroyed(new Runnable() {
                 @Override
                 public void run() {
-                    r.stop();
+                    t.stop();
                 }
             });
         }
     }
-
-    private static class Runner implements Runnable {
-
         private class Instance {
             private int delay;
             private long time;
@@ -53,7 +59,7 @@ public class Ticker {
                 this.r = r;
             }
 
-            public void tick(long now) {
+            public void tick(long now, Instance instance) {
                 while (time < now) {
                     time += delay;
                     r.run();
@@ -66,6 +72,11 @@ public class Ticker {
         @Override
         public void run() {
             while (!stop) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    System.out.println(ex);
+                }
                 long now = System.currentTimeMillis();
                 synchronized (toAdd) {
                     if (toAdd.size() > 0) {
@@ -74,11 +85,21 @@ public class Ticker {
                             Tuple<Runnable, Integer> p = iterator.next();
                             runnables.add(new Instance(now, p.x, p.y));
                         }
+                        toAdd.clear();
                     }
+                }
                     Iterator<Instance> iterator = runnables.iterator();
                     while(iterator.hasNext()){
                         Instance instance = iterator.next();
-                        instance.tick(now);
+                        instance.tick(now, instance);
+                    }
+                synchronized (toRemove) {
+                    if (toRemove.size() > 0) {
+                        Iterator<Runnable> iteratorRemove = toRemove.iterator();
+                        while (iteratorRemove.hasNext()) {
+                            runnables.remove(iteratorRemove.next());
+                        }
+                        toRemove.clear();
                     }
                 }
             }
@@ -87,5 +108,4 @@ public class Ticker {
         public void stop() {
             stop = true;
         }
-    }
 }

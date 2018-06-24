@@ -95,6 +95,12 @@ public class TableRoomUuidToUsers extends Table implements IRoomUuidToUsers {
             + ")"
             + "BEGIN "
             + "SELECT HEX(r.roomUuid) FROM room_uuid_to_users r INNER JOIN room_uuid_to_info i ON r.roomUuid = i.roomUuid WHERE i.type!=\"pm\" GROUP BY r.roomUuid ORDER BY COUNT(*)DESC LIMIT nRooms;"
+            + " END;",
+            "DROP PROCEDURE IF EXISTS `room_uuid_to_users_exit_all`; ",
+            "CREATE PROCEDURE `room_uuid_to_users_exit_all`("
+            + ")"
+            + "BEGIN "
+            + "DELETE * FROM room_uuid_to_users);"
             + " END;"};
         try {
             conn = getConnection();

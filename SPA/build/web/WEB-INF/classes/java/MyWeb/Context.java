@@ -16,6 +16,8 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class Context implements ServletContextListener {
 
     private static Set<Runnable> onDestroyed = new HashSet<Runnable>();
@@ -23,6 +25,11 @@ public class Context implements ServletContextListener {
     public void contextInitialized(ServletContextEvent servletContextEvent) {
        MyConsole.out.println("Initialized");
         Configuration.initialize();
+        try {
+            Database.getInstance().getLobbyToUsers().clear();
+        } catch (Exception ex) {
+            Logger.getLogger(Context.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
