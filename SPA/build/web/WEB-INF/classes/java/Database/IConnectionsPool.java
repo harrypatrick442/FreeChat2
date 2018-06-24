@@ -6,6 +6,7 @@
 package Database;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 
 /**
@@ -13,5 +14,5 @@ import java.sql.Connection;
  * @author EngineeringStudent
  */
 public interface IConnectionsPool {
-   public Connection getConnection ();
+   public Connection getConnection () throws SQLException;
 }

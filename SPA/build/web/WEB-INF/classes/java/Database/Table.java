@@ -48,7 +48,7 @@ public abstract class Table implements ISetup {
     @Override
     public abstract void createIfNotExists();
 
-    protected Connection getConnection() {
+    protected Connection getConnection() throws SQLException {
         return iConnectionsPool.getConnection();
     }
 
