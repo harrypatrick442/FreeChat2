@@ -52,7 +52,6 @@ public class ServletMySocket extends HttpServlet {
         } 
         String type = request.getParameter("type");
         String sessionId = request.getParameter("session_id");
-        MyConsole.out.println("SESSION: " + sessionId);
         MySocket mySocket = null;
         Sessions.Session session = null;
         if (sessionId != null && sessionId != "") {
@@ -65,8 +64,6 @@ public class ServletMySocket extends HttpServlet {
         } else {
             session = Sessions.getNew();
         }
-        MyConsole.out.println("MYSOCKET: " + mySocket);
-        MyConsole.out.println(type);
         if (type.equals("initialize")) {
             if (mySocket != null) {
                 mySocket.close();//close previous wrapper, useful on page reload.

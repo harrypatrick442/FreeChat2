@@ -44,7 +44,7 @@ public class Configuration implements InterfaceConfiguration, IConfigurationPass
     public static int timeoutMs = 120000;
     public static int longPollingDelayMax = 55000;
     public static boolean allowRude = true;
-    public static boolean useAjax = false;
+    public static boolean useAjax = true;
     public static boolean isCors = false;
     public static boolean isPersistent = false;
     public static String pageUrl = "http://chatdimension.com";

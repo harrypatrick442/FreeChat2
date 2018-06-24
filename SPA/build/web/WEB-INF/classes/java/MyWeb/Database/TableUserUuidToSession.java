@@ -63,6 +63,13 @@ public class TableUserUuidToSession extends Table implements IUserUuidToSession 
             + ")"
             + "BEGIN "
             + "DELETE FROM user_uuid_to_session WHERE sessionUuid=UNHEX(sessionUuid);"
+            + " END;",
+            "DROP PROCEDURE IF EXISTS `user_uuid_to_session_count_user_sessions`; ",
+            "CREATE PROCEDURE `user_uuid_to_session_count_user_sessions` ("
+            + "IN uUuid VARCHAR(32)"
+            + ")"
+            + "BEGIN "
+            + "SELECT COUNT(*) FROM user_uuid_to_session WHERE userUuid=UNHEX(uUuid);"
             + " END;"};
         try {
             conn = getConnection();
@@ -217,6 +224,45 @@ public class TableUserUuidToSession extends Table implements IUserUuidToSession 
     @Override
     public List<UUID> getAllOnlineUserUuids() throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean getIsLastSession(UUID userUuid) throws Exception{
+     Connection conn = null;
+        CallableStatement st = null;
+        try {
+            conn = getConnection();
+            String str = "CALL `user_uuid_to_session_count_user_sessions`(?);";
+            st = conn.prepareCall(str);
+            st.setString(1, userUuid.toString());
+            ResultSet rS = st.executeQuery();
+            if(rS.next())
+            {
+                if(rS.getInt(1)<=1)
+                    return true;
+            }
+            return false;
+        } catch (SQLException se) {
+            se.printStackTrace();
+            throw se;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+            } catch (SQLException se) {
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+        }
     }
 }
 

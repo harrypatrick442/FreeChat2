@@ -346,6 +346,7 @@ var MySocket;
         }
         else
         {
+            sendAsynchronous = httpPostAsynchronous;
             usingWebsocket = true;
             urlWS = window.thePageUrl;
             var b = 7;
@@ -356,10 +357,15 @@ var MySocket;
             console.log(urlWS);
         }
         window.onbeforeunload = function (e) {
+            try{
             var urlDisconnect = window.thePageUrl + "ServletMySocket";
             var parameters = "t=" + new Date().getTime() + "&type=disconnect" + getSessionParameterString();
-            sendAsynchronous(urlDisconnect, function () {
+            console.log(sendAsynchronous);
+                sendAsynchronous(urlDisconnect, function () {
             }, parameters);
+            //try{closeAll();
+            }catch(ex){console.log(ex);}
+            return "are you sure";
         };
     }
     function closeAll()
@@ -376,6 +382,7 @@ var MySocket;
         websocket.close();
         delete websocket;
     };
+    this.closeAll=closeAll;
     function getSessionParameterString()
     {
 

@@ -17,4 +17,5 @@ public interface IUserUuidToSession {
     public void map(UUID sessionUuid, UUID userUuid) throws Exception;
     public void delete(UUID sessionUuid) throws Exception;
     public List<UUID> getAllOnlineUserUuids() throws Exception;
+    public boolean getIsLastSession(UUID userUuid) throws Exception;
 }

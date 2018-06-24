@@ -12,6 +12,7 @@ package MyWeb;
  */
 import FreeChat2.Rooms;
 import MyWeb.Database.Database;
+import Profiles.IDatabase;
 import javax.servlet.ServletContextEvent;  
 import javax.servlet.ServletContextListener;
 import java.util.Set;
@@ -26,7 +27,9 @@ public class Context implements ServletContextListener {
        MyConsole.out.println("Initialized");
         Configuration.initialize();
         try {
-            Database.getInstance().getLobbyToUsers().clear();
+            IDatabase database = Database.getInstance();
+            database.getLobbyToUsers().clear();
+            database.getRoomUuidToUsers().exitAll();
         } catch (Exception ex) {
             Logger.getLogger(Context.class.getName()).log(Level.SEVERE, null, ex);
         }

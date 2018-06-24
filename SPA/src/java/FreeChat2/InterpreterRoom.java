@@ -330,6 +330,7 @@ public class InterpreterRoom extends Interpreter implements Serializable {
 
     public void close() {
         try {
+                if(Database.getInstance().getUserUuidToSession().getIsLastSession(user.id))
             Database.getInstance().getRoomUuidToUsers().remove(room.id, user.id);
         } catch (Exception ex) {
             ex.printStackTrace();

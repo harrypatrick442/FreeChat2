@@ -25,4 +25,5 @@ public interface IRoomUuidToUsers {
     public String getEndpoint(UUID roomUuid, UUID userUuid) throws Exception;
     public int getNUsers(UUID roomUuid) throws Exception;
     public ArrayList<UUID> getNRoomsWithMostUsers(int nRooms) throws Exception;
+    public void exitAll() throws Exception;
 }

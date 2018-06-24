@@ -26,7 +26,7 @@ public class Sessions {
     public static Session getSession(String id) {
         if (id != null && id != "") {
             synchronized (mapSessions) {
-                Session session = mapSessions.get(id);
+                Session session = mapSessions.get(new UUID(id));
                 if (session != null) {
                     session.wasActive();
                 }

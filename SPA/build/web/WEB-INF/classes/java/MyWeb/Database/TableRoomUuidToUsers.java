@@ -86,7 +86,7 @@ public class TableRoomUuidToUsers extends Table implements IRoomUuidToUsers {
             + ")"
                 + "BEGIN "
             + "INSERT INTO room_uuid_to_users_history(roomUuid, userUuid, `joined`, `left`) "
-            + "VALUES( UNHEX(roomUuidIn), UNHEX(userUuidIn), (SELECT `joined` FROM room_uuid_to_users WHERE roomUuid =UNHEX(roomUuidIn) AND userUuid = UNHEX(userUuidIn)), leftIn);"
+            + "VALUES( UNHEX(roomUuidIn), UNHEX(userUuidIn), (SELECT `joined` FROM room_uuid_to_users WHERE roomUuid =UNHEX(roomUuidIn) AND userUuid = UNHEX(userUuidIn) LIMIT 1), leftIn);"
             + "DELETE FROM room_uuid_to_users WHERE roomUuid=UNHEX(roomUuidIn) AND userUuid = UNHEX(userUuidIn);"
             + " END;",
             "DROP PROCEDURE IF EXISTS `room_uuid_to_users_get_n_rooms_most_users`; ",
@@ -100,7 +100,7 @@ public class TableRoomUuidToUsers extends Table implements IRoomUuidToUsers {
             "CREATE PROCEDURE `room_uuid_to_users_exit_all`("
             + ")"
             + "BEGIN "
-            + "DELETE * FROM room_uuid_to_users);"
+            + "DELETE FROM room_uuid_to_users;"
             + " END;"};
         try {
             conn = getConnection();
@@ -358,6 +358,37 @@ public class TableRoomUuidToUsers extends Table implements IRoomUuidToUsers {
             }
         }
         return returns;
+    }
+    @Override
+    public void exitAll() throws Exception {
+        Connection conn = null;
+        CallableStatement st = null;
+            try {
+            conn = getConnection();
+            String str = "CALL `room_uuid_to_users_exit_all`( );";
+            st = conn.prepareCall(str);
+            st.executeUpdate();
+        } catch (SQLException se) {
+            se.printStackTrace();
+            throw se;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+            } catch (SQLException se) {
+            }
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+        }
     }
 }
 

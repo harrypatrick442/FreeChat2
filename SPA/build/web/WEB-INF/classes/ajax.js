@@ -26,6 +26,7 @@ function httpPostAsynchronous(theUrl, callback, toSend, timeout, callbackTimedOu
 		},
 		error:function(err){
 			console.log(err);
+                        console.log(err.error());
 		}
     });
 }
@@ -40,6 +41,7 @@ function httpGetAsynchronous(theUrl, callback, timeout, callbackTimedOut) {
 		},
 		error:function(err){
 			console.log(err);
+                        console.log(err.error());
 		}
     });
 }
