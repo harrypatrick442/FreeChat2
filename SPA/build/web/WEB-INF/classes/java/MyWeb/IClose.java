@@ -7,6 +7,7 @@
 package MyWeb;
 
 import MySocket.*;
+import MyWeb.Sessions.Session;
 import java.util.List;
 import org.json.JSONObject;
 

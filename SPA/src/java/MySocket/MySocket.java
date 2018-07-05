@@ -139,7 +139,7 @@ public class MySocket implements IAsynchronousSender, IGetIp, IInterfaces, IClos
 
     public void close(String name) {
         Interpreter interpreter = mapNameToInterpreter.get(name);
-        interpreter.close();
+        interpreter.close(session);
         mapNameToInterpreter.remove(name);
     }
 
@@ -238,7 +238,7 @@ public class MySocket implements IAsynchronousSender, IGetIp, IInterfaces, IClos
         while (iterator.hasNext()) {
                     String name = iterator.next();
                     System.out.println("closing: "+name);
-            mapNameToInterpreter.get(name).close();
+            mapNameToInterpreter.get(name).close(session);
 
         }
     }

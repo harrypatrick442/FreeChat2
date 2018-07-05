@@ -162,7 +162,7 @@ System.out.println("interpreter");
     }
 
     @Override
-    public void close() {
+    public void close(Session session) {
 
         listInfoReferences.clear();
     }

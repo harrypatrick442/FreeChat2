@@ -59,10 +59,10 @@ public class TableUserUuidToSession extends Table implements IUserUuidToSession 
             +" END;",
             "DROP PROCEDURE IF EXISTS `user_uuid_to_session_delete`; ",
             "CREATE PROCEDURE `user_uuid_to_session_delete` ("
-            + "IN sessionUuid VARCHAR(32)"
+            + "IN sessionUuidIn VARCHAR(32)"
             + ")"
             + "BEGIN "
-            + "DELETE FROM user_uuid_to_session WHERE sessionUuid=UNHEX(sessionUuid);"
+            + "DELETE FROM user_uuid_to_session WHERE sessionUuid=UNHEX(sessionUuidIn);"
             + " END;",
             "DROP PROCEDURE IF EXISTS `user_uuid_to_session_count_user_sessions`; ",
             "CREATE PROCEDURE `user_uuid_to_session_count_user_sessions` ("
@@ -70,6 +70,15 @@ public class TableUserUuidToSession extends Table implements IUserUuidToSession 
             + ")"
             + "BEGIN "
             + "SELECT COUNT(*) FROM user_uuid_to_session WHERE userUuid=UNHEX(uUuid);"
+            + " END;",
+            "DROP PROCEDURE IF EXISTS `user_uuid_to_session_count_other_user_sessions`; ",
+            "CREATE PROCEDURE `user_uuid_to_session_count_other_user_sessions` ("
+            + "IN sessionUuidIn VARCHAR(32),"
+                + "IN userUuidIn VARCHAR(32)"
+            + ")"
+            + "BEGIN "
+                + "SET @sessionUuidUnhexed = UNHEX(sessionUuidIn); SET @userUuidUnhexed=UNHEX(userUuidIn);"
+            + "SELECT COUNT(*) FROM user_uuid_to_session WHERE @sessionUuidUnhexed!=sessionUuid AND userUuid = @userUuidUnhexed;"
             + " END;"};
         try {
             conn = getConnection();
@@ -227,18 +236,19 @@ public class TableUserUuidToSession extends Table implements IUserUuidToSession 
     }
 
     @Override
-    public boolean getIsLastSession(UUID userUuid) throws Exception{
+    public boolean getIsLastSession(UUID userUuid, UUID sessionUuid) throws Exception{
      Connection conn = null;
         CallableStatement st = null;
         try {
             conn = getConnection();
-            String str = "CALL `user_uuid_to_session_count_user_sessions`(?);";
+            String str = "CALL `user_uuid_to_session_count_other_user_sessions`(?,?);";
             st = conn.prepareCall(str);
-            st.setString(1, userUuid.toString());
+            st.setString(1, sessionUuid.toString());
+            st.setString(2, userUuid.toString());
             ResultSet rS = st.executeQuery();
             if(rS.next())
             {
-                if(rS.getInt(1)<=1)
+                if(rS.getInt(1)<1)
                     return true;
             }
             return false;

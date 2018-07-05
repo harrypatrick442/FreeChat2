@@ -83,9 +83,12 @@ public class TableLobbyToUsers extends Table implements ILobbyToUsers {
             + ")"
             + "BEGIN "
                 + "SET @userUuidUnhexed=UNHEX(userUuidIn);"
+                + "IF  ((select COUNT(*)  FROM lobby_users where userUuid = @userUuidUnhexed)>=1) "
+                + "THEN "
             + "INSERT INTO lobby_users_history( userUuid, joined, `left`) "
             + "VALUES(@userUuidUnhexed, (SELECT joined FROM lobby_users WHERE userUuid = @userUuidUnhexed limit 1), `left`);"
             + "DELETE FROM lobby_users WHERE userUuid = @userUuidUnhexed;"
+                + "  END IF; "
             + "END;"};
         try {
             conn = getConnection();

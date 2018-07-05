@@ -144,7 +144,7 @@ public class Room implements Serializable {
         return jObject;
     }
 
-    private void sendUsers(IDatabase iDatabase) throws Exception {
+    public void sendUsers(IDatabase iDatabase) throws Exception {
         try {
             JSONObject jObject = new JSONObject();
             jObject.put("type", "users");

@@ -31,13 +31,17 @@ public class Context implements ServletContextListener {
             database.getLobbyToUsers().clear();
             database.getRoomUuidToUsers().exitAll();
         } catch (Exception ex) {
-            Logger.getLogger(Context.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
-        MyConsole.out.println("Shutting down!");
+        try {
+            Database.getInstance().getLobbyToUsers().clear();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
     public static void addOnDestroyed(Runnable r){
         if(!onDestroyed.contains(r))

@@ -185,7 +185,7 @@ try {
     }*/
 
     @Override
-    public void close() {
+    public void close(Session session) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

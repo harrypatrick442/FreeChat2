@@ -14,5 +14,5 @@ import MyWeb.Sessions.Session;
  */
 public abstract class Interpreter  implements Serializable{
     public abstract void interpret(JSONObject jObject, Session session) throws Exception;
-    public abstract void close();
+    public abstract void close(Session session);
 }

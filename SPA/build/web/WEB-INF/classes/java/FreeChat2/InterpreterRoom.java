@@ -5,6 +5,7 @@
  */
 package FreeChat2;
 
+import Database.IUserUuidToSession;
 import Database.UUID;
 import MyWeb.Interpreter;
 import MyWeb.GuarbageWatch;
@@ -327,11 +328,13 @@ public class InterpreterRoom extends Interpreter implements Serializable {
         //    VideoPms.openForOtherUser(u, r , jObject);
         //}
     }
-
-    public void close() {
+    @Override
+    public void close(Session session) {
         try {
-                if(Database.getInstance().getUserUuidToSession().getIsLastSession(user.id))
-            Database.getInstance().getRoomUuidToUsers().remove(room.id, user.id);
+                IUserUuidToSession s = Database.getInstance().getUserUuidToSession();
+                s.delete(session.id);
+                if(s.getIsLastSession(user.id, session.id))
+                    Database.getInstance().getRoomUuidToUsers().remove(room.id, user.id);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

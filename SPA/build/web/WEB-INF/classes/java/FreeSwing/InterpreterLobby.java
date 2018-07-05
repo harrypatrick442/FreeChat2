@@ -36,7 +36,7 @@ public class InterpreterLobby extends Interpreter implements IInterpreterAuthent
     }
 
     @Override
-    public void close() {
+    public void close(Session session) {
     }
 
     @Override

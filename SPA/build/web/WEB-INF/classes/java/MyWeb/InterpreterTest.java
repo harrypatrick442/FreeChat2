@@ -61,7 +61,7 @@ public class InterpreterTest extends Interpreter {
     }
 
     @Override
-    public void close() {
+    public void close(Session session) {
 
     }
 }

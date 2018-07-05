@@ -5,6 +5,7 @@
  */
 package Profiles;
 
+import Database.IUserUuidToSession;
 import Database.UUID;
 import MyWeb.Configuration;
 import MyWeb.Interpreter;
@@ -19,6 +20,8 @@ import MyWeb.TimeOffset;
 import MyWeb.Tuple;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -338,7 +341,14 @@ public class InterpreterProfiles extends Interpreter {
     }
 
     @Override
-    public void close() {
-
+    public void close(Session session) {
+            IUserUuidToSession s = Database.getInstance().getUserUuidToSession();
+        try {
+               s.delete(session.id);
+                
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+                    
     }
 }

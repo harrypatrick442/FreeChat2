@@ -5,6 +5,7 @@
  */
 package FreeChat2;
 
+import Database.IUserUuidToSession;
 import Database.UUID;
 import MyWeb.Interpreter;
 import MyWeb.ImageProcessing;
@@ -39,6 +40,7 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
     private StopWatch stopWatchProfilePicture = new StopWatch();
     private ISend iSend = AsynchronousSendersSet.Empty;
     private AsynchronousSender asynchronousSender;
+
     public InterpreterLobby(AsynchronousSender asynchronousSender, IGetIp iGetIp) {
         GuarbageWatch.add(this);
         this.ip = iGetIp.getIp();
@@ -104,7 +106,7 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
     }
 
     private void getRooms() throws Exception {
-       asynchronousSender.send(Rooms.getPopularJSONObject(Database.getInstance(), AsynchronousSenders.getInstance()));
+        asynchronousSender.send(Rooms.getPopularJSONObject(Database.getInstance(), AsynchronousSenders.getInstance()));
     }
 
     private void getNotifications(Session session) throws Exception {
@@ -168,11 +170,11 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
             throw ex;
         }
     }
-    
+
     private User authenticate(Session session) throws Exception {
         user = Users.validate(session.id, Database.getInstance());
         if (user != null) {
-            
+
         }
         return user;
     }
@@ -194,8 +196,9 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
                     Users.sendMessageToAllOnline(Rooms.getPopularJSONObject(Database.getInstance(), AsynchronousSenders.getInstance()), Database.getInstance(), AsynchronousSenders.getInstance());
                 } catch (RoomCreationException ex) {
                     reason = ex.toString();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                catch(Exception e){e.printStackTrace();}
             } else {
                 reason = "You must be signed in to create a room!";
             }
@@ -207,12 +210,16 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
         }
     }
 
-    public void close() {
+    @Override
+    public void close(Session session) {
         if (user != null) {
             try {
                 System.out.println("remove");
-                if(Database.getInstance().getUserUuidToSession().getIsLastSession(user.id))
-                Database.getInstance().getLobbyToUsers().remove(user.id);
+                IUserUuidToSession s = Database.getInstance().getUserUuidToSession();
+                s.delete(session.id);
+                if (s.getIsLastSession(user.id, session.id)) {
+                    Database.getInstance().getLobbyToUsers().remove(user.id);
+                }
                 users(true);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -223,7 +230,7 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
     @Override
     public void preSendAuthenticationReply(String username, Boolean successful, Profiles.User user) throws Exception {
         if (successful) {
-            System.out.println("authentication user is: "+user.getUuid());
+            System.out.println("authentication user is: " + user.getUuid());
             iSend = AsynchronousSenders.getInstance().add(asynchronousSender, user.getUuid());
             Database.getInstance().getLobbyToUsers().add(user.getUuid(), asynchronousSender.getName());
         }
