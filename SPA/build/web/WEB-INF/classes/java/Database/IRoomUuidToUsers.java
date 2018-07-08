@@ -19,8 +19,8 @@ import java.util.Set;
  * @author EngineeringStudent
  */
 public interface IRoomUuidToUsers {
-    public void add(UUID roomUuid, UUID userUuid, String endpoint) throws Exception;
-    public void remove(UUID roomUuid, UUID userUuid) throws Exception;
+    public void add(UUID roomUuid, UUID userUuid, UUID sessionUuid,  String endpoint) throws Exception;
+    public void remove(UUID roomUuid, UUID userUuid, UUID sessionUuid) throws Exception;
     public ArrayList<Tuple<User, String>> get(UUID roomUuid) throws Exception;
     public String getEndpoint(UUID roomUuid, UUID userUuid) throws Exception;
     public int getNUsers(UUID roomUuid) throws Exception;

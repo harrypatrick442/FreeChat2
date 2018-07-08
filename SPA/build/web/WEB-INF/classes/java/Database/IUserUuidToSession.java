@@ -18,4 +18,5 @@ public interface IUserUuidToSession {
     public void delete(UUID sessionUuid) throws Exception;
     public List<UUID> getAllOnlineUserUuids() throws Exception;
     public boolean getIsLastSession(UUID userUuid, UUID sessionUuid) throws Exception;
+    public void clearUserSessions(UUID userUuid) throws Exception;
 }

@@ -35,7 +35,7 @@ import org.json.JSONObject;
 public class MySocket implements IAsynchronousSender, IGetIp, IInterfaces, IClose {
 
     private HashMap<String, Interpreter> mapNameToInterpreter = new HashMap<String, Interpreter>();
-    public volatile boolean active = true;
+    private volatile boolean active = true;
     private Sessions.Session session;
     private Enums.Type type;
     private ISend iSend;
@@ -109,7 +109,13 @@ public class MySocket implements IAsynchronousSender, IGetIp, IInterfaces, IClos
         MyConsole.out.println(4);
         MySocketInstances.getInstance().add(this);
     }
-
+    //public Boolean getActive(){
+        //return active;
+    //}
+    //public void setActive(){
+      //  System.out.println("set active");
+        //active = true;
+   // }
     public <T> List<T> getAllInterfacesOfType(Class<T> c) {
         HashMap<String, Interpreter> map = (HashMap<String, Interpreter>) mapNameToInterpreter.clone();
         List<Interpreter> interpreters = new ArrayList<Interpreter>();
@@ -124,7 +130,7 @@ public class MySocket implements IAsynchronousSender, IGetIp, IInterfaces, IClos
     }
 
     public void got(String str) throws Exception {
-        active = true;
+        //setActive();
         JSONObject jObject = new JSONObject(str);
         got(jObject);
     }
@@ -230,6 +236,8 @@ public class MySocket implements IAsynchronousSender, IGetIp, IInterfaces, IClos
     }
 
     public void close() {
+        Exception ex = new Exception("£printing callstack");
+        ex.printStackTrace();
         if (messagePersistenceBuffer != null) {
             messagePersistenceBuffer.close();
         }
@@ -241,6 +249,7 @@ public class MySocket implements IAsynchronousSender, IGetIp, IInterfaces, IClos
             mapNameToInterpreter.get(name).close(session);
 
         }
+        MySocketInstances.getInstance().remove(this);
     }
 
     public String getIp() {
@@ -249,7 +258,7 @@ public class MySocket implements IAsynchronousSender, IGetIp, IInterfaces, IClos
 
     private void setsMessages(JSONObject jObject) throws JSONException, Exception {
         System.out.println("Incoming messages: " + jObject.toString());
-        active = true;
+        //setActive();
         JSONArray jArrayMessages = jObject.getJSONArray(("messages"));
         for (int i = 0; i < jArrayMessages.length(); i++) {
             JSONObject jObjectMessage = jArrayMessages.getJSONObject(i);

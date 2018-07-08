@@ -248,10 +248,12 @@ var MySocket;
     function firstRun()
     {
         var messagePersistenceBuffer;
+        var pingTimer;
         send = function (jObject)
         {
             if (usingWebsocket)
             {
+                pingTimer.reset();
                 console.log('websocket it sending : ');
                 console.log(jObject);
                 websocket.send(JSON.stringify({type: 'messages', data: jObject, persistent: (Configuration.isPersistent ? true : false)}));
@@ -367,6 +369,12 @@ var MySocket;
             }catch(ex){console.log(ex);}
             return "are you sure";
         };
+        if(usingWebsocket){
+            pingTimer = new Timer(function ping(){
+                websocket.send(JSON.stringify({type: 'ping'}));
+        }, 20000, -1);
+        }
+        
     }
     function closeAll()
     {

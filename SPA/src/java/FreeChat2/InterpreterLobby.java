@@ -220,7 +220,6 @@ public class InterpreterLobby extends Interpreter implements Serializable, IInte
                 if (s.getIsLastSession(user.id, session.id)) {
                     Database.getInstance().getLobbyToUsers().remove(user.id);
                     s.clearUserSessions(user.id);
-                    
                 }
                 users(true);
             } catch (Exception ex) {

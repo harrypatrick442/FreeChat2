@@ -11,6 +11,7 @@ import MyWeb.GuarbageWatch;
 import MySocket.AsynchronousSender;
 import MySocket.AsynchronousSendersSet;
 import MySocket.IGetAsynchronousSenders;
+import MyWeb.Sessions.Session;
 import MyWeb.Tuple;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -97,15 +98,15 @@ public class Room implements Serializable {
         return iDatabase.getRoomUuidToUsers().getNUsers(id);
     }
 
-    public void addUser(User user, AsynchronousSender asynchronousSender, IDatabase iDatabase) throws Exception {
+    public void addUser(User user, Session session, AsynchronousSender asynchronousSender, IDatabase iDatabase) throws Exception {
         System.out.println("user.id is: ");
         System.out.println(user.id);
-        iDatabase.getRoomUuidToUsers().add(id, user.id, asynchronousSender.getName());
+        iDatabase.getRoomUuidToUsers().add(id, user.id, session.id,  asynchronousSender.getName());
         sendUsers(iDatabase);
     }
 
-    public void removeUser(User user, IDatabase iDatabase) throws Exception {
-        iDatabase.getRoomUuidToUsers().remove(id, user.id);
+    public void removeUser(User user, Session session, IDatabase iDatabase) throws Exception {
+        iDatabase.getRoomUuidToUsers().remove(id, user.id, session.id);
         sendUsers(iDatabase);
     }
 
@@ -144,7 +145,7 @@ public class Room implements Serializable {
         return jObject;
     }
 
-    private void sendUsers(IDatabase iDatabase) throws Exception {
+    public void sendUsers(IDatabase iDatabase) throws Exception {
         try {
             JSONObject jObject = new JSONObject();
             jObject.put("type", "users");

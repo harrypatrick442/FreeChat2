@@ -4,6 +4,10 @@
     <listener-class>
        MyWeb.Context
     </listener-class>
+</listener>  <listener>  
+    <listener-class>
+       MyWeb.ApplicationLifetime
+    </listener-class>
 </listener>  
     <web-resource-collection>
         <web-resource-name>Protected resource</web-resource-name>

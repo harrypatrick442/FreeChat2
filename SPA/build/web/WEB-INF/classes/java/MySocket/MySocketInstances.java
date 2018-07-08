@@ -5,6 +5,7 @@
  */
 package MySocket;
 
+import MyWeb.ApplicationLifetime;
 import MyWeb.Configuration;
 import MyWeb.GuarbageWatch;
 import MyWeb.StopWatch;
@@ -17,7 +18,7 @@ import java.util.List;
  *
  * @author EngineeringStudent
  */
-public class MySocketInstances implements Runnable{
+public class MySocketInstances{
 
     private static MySocketInstances mySocketInstances = new MySocketInstances();
     private HashMap<String, IGetInterpreter> mapClassNameToIGetInterpreter = new HashMap<String, IGetInterpreter>();
@@ -27,7 +28,6 @@ public class MySocketInstances implements Runnable{
 
     private MySocketInstances() {
         GuarbageWatch.add(this);
-        Ticker.add(this, 4000);
     }
     public void setIGetInterpreter(IGetInterpreter iGetInterpreterIn) {
         iGetInterpreter = iGetInterpreterIn;
@@ -40,24 +40,16 @@ public class MySocketInstances implements Runnable{
             instances.add(mySocket);
         }
     }
-    public void run() {
-        if (stopWatch.get_ms() > Configuration.timeoutMs) {
-            stopWatch.Reset();
-            synchronized (instances) {
-                Iterator<MySocket> iterator = instances.iterator();
-                while (iterator.hasNext()) {
-                    MySocket mySocket = iterator.next();
-                    if (!mySocket.active) {
-                        mySocket.close();
-                        iterator.remove();
-                    }
-                }
-            }
+    public void remove(MySocket mySocket){
+        synchronized(instances){
+            instances.remove(mySocket);
         }
     }
     public static MySocketInstances getInstance(){
-        if(mySocketInstances==null)
+        if(mySocketInstances==null){
             mySocketInstances = new MySocketInstances();
+            ApplicationLifetime.hold(mySocketInstances);
+            }
         return mySocketInstances;
     }
 }

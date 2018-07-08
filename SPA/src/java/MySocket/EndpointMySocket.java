@@ -113,6 +113,7 @@ public class EndpointMySocket implements ISend {
                     }
                 }
                 if (mySocket != null) {
+                    session.wasActive();
                     System.out.println("mysocket not null");
                     System.out.println(mySocket.toString());
                     System.out.println(jObject.toString());

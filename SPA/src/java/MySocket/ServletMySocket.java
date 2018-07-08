@@ -107,7 +107,7 @@ public class ServletMySocket extends HttpServlet {
                             } else {
 
                                 if (type.equals("read")) {
-                                    mySocket.active = true;
+                                    //mySocket.setActive();
                                     doResponse(true, session, isPost, out, mySocket, request, true);
                                 }
                             }

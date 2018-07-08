@@ -120,14 +120,14 @@ public class InterpreterRoom extends Interpreter implements Serializable {
                     System.out.println(room.id);
                     if (room.hasPassword(iDatabase)) {
                         if (room.validatePassword(jObject.getString("password"), Database.getInstance())) {
-                            room.addUser(user, asynchronousSender, Database.getInstance());
+                            room.addUser(user, session, asynchronousSender, Database.getInstance());
                             break;
 
                         } else {
                             reason = "Wrong password!";
                         }
                     } else {
-                        room.addUser(user, asynchronousSender, Database.getInstance());
+                        room.addUser(user, session, asynchronousSender, Database.getInstance());
                         break;
                     }
                 }
@@ -331,10 +331,9 @@ public class InterpreterRoom extends Interpreter implements Serializable {
     @Override
     public void close(Session session) {
         try {
-                IUserUuidToSession s = Database.getInstance().getUserUuidToSession();
-                s.delete(session.id);
-                if(s.getIsLastSession(user.id, session.id))
-                    Database.getInstance().getRoomUuidToUsers().remove(room.id, user.id);
+            IDatabase d = Database.getInstance();
+            d.getRoomUuidToUsers().remove(room.id, user.id, session.id);
+            room.sendUsers(d);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
