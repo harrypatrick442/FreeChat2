@@ -137,6 +137,7 @@ public class EndpointMySocket implements ISend {
 
                             } else {
                                 if (type.equals("close")) {
+							System.out.println("doing close");
                                     mySocket.close(jObject.getString("name"));
 
                                 } else {

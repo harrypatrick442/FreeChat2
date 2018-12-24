@@ -75,10 +75,6 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library dirs="200">
-                    <file>${file.reference.notsoserial-1.0-SNAPSHOT.jar-1}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
-                <library dirs="200">
                     <file>${file.reference.FreeChat2-src}</file>
                     <path-in-war>WEB-INF/classes</path-in-war>
                 </library>
@@ -92,6 +88,10 @@
                 </library>
                 <library dirs="200">
                     <file>${file.reference.java_websocket.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library dirs="200">
+                    <file>${file.reference.notsoserial-1.0-SNAPSHOT.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
             </web-module-libraries>

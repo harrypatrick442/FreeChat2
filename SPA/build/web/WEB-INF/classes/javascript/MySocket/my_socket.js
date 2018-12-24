@@ -41,6 +41,7 @@ var MySocket;
         };
         self.close = function (skipMessage)
         {
+			console.log('inside close');
             instances.splice(instances.indexOf(self), 1);
             delete mapNameToInstance[self.name];
             if (!skipMessage)
@@ -60,6 +61,11 @@ var MySocket;
                         console.log(ex);
                     }
                 }
+				else
+				{
+					console.log('closing instnace');
+					websocket.send(JSON.stringify({type:'close', name:self.name}));
+				}
             new Task(function () {
                 try
                 {

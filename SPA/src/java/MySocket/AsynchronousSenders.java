@@ -76,4 +76,23 @@ public class AsynchronousSenders implements IGetAsynchronousSenders {
         }
         return s;
     }
+    public void remove(AsynchronousSender asynchronousSender, UUID uuid) {
+        
+        System.out.println("add: ");
+        System.out.println(uuid);
+        HashMap<String, AsynchronousSendersSet> m = map.get(uuid);
+        String name = asynchronousSender.getName();
+        AsynchronousSendersSet s;
+        if (m != null) {
+        {
+            s = m.get(name);
+            if(s!=null){
+			System.out.println("in final stage");
+                s.remove(asynchronousSender);
+				if(s.size()<1)
+					m.remove(name);
+            }
+        }
+    }
+	}
 }

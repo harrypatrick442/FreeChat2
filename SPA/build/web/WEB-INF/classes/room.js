@@ -363,6 +363,7 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
                 }
             }
         }
+		console.log('close');
         websocket.close();
         self.task.remove(self);
         Windows.remove(self);

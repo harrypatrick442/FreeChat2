@@ -331,6 +331,8 @@ public class InterpreterRoom extends Interpreter implements Serializable {
     @Override
     public void close(Session session) {
         try {
+			System.out.println("removing");
+			AsynchronousSenders.getInstance().remove(asynchronousSender, user.id);
             IDatabase d = Database.getInstance();
             d.getRoomUuidToUsers().remove(room.id, user.id, session.id);
             room.sendUsers(d);

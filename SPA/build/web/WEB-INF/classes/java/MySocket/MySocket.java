@@ -144,6 +144,7 @@ public class MySocket implements IAsynchronousSender, IGetIp, IInterfaces, IClos
     }
 
     public void close(String name) {
+		System.out.println("called close");
         Interpreter interpreter = mapNameToInterpreter.get(name);
         interpreter.close(session);
         mapNameToInterpreter.remove(name);
@@ -236,7 +237,7 @@ public class MySocket implements IAsynchronousSender, IGetIp, IInterfaces, IClos
     }
 
     public void close() {
-        Exception ex = new Exception("£printing callstack");
+        Exception ex = new Exception("called close 2");
         ex.printStackTrace();
         if (messagePersistenceBuffer != null) {
             messagePersistenceBuffer.close();

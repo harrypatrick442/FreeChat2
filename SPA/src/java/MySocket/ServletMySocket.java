@@ -97,6 +97,7 @@ public class ServletMySocket extends HttpServlet {
 
                     } else {
                         if (type.equals("close")) {
+							System.out.println("doing close");
                             mySocket.close(request.getParameter("name"));
                             doResponse(false, session, isPost, out, mySocket, request, false);
 
