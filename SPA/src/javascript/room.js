@@ -688,7 +688,8 @@ function Room(userInformation, roomInformation, callbackClosed, cssName, endpoin
             username: jObject.name,
             backgroundColor: addMessage.backgroundColor,
             pending: false,
-            menuMessages: menuMessages}).div;
+            menuMessages: menuMessages,
+      userInformation:userInformation}).div;
         if (div)
         {
             divFeed.appendChild(div);

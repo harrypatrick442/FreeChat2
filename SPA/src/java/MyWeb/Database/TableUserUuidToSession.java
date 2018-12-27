@@ -40,7 +40,8 @@ public class TableUserUuidToSession extends Table implements IUserUuidToSession 
             + "INDEX `indexUserUuid` (`userUuid`),"
             + "INDEX `indexSessionUuid` (`sessionUuid`),"            
             + "INDEX `indexCreatedTimestamp` (`createdTimestamp`)"
-            + ")",
+            + ")"
+                , "Delete from `user_uuid_to_session`;",
             "DROP PROCEDURE IF EXISTS `user_uuid_to_session_get`; ",
             "CREATE PROCEDURE `user_uuid_to_session_get`("
             + "IN sessionUuidIn VARCHAR (32)"
@@ -282,11 +283,15 @@ public class TableUserUuidToSession extends Table implements IUserUuidToSession 
             conn = getConnection();
             String str = "CALL `user_uuid_to_session_count_other_user_sessions`(?,?);";
             st = conn.prepareCall(str);
+            System.out.println("session is: "+sessionUuid.toString());
+            System.out.println("userUuid is: "+userUuid.toString());
             st.setString(1, sessionUuid.toString());
             st.setString(2, userUuid.toString());
             ResultSet rS = st.executeQuery();
             if(rS.next())
             {
+                System.out.println("got result: ");
+                System.out.println(rS.getInt(1));
                 if(rS.getInt(1)<1)
                     return true;
             }

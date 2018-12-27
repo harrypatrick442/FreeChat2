@@ -27,6 +27,7 @@ public class AsynchronousSendersSet extends HashSet<AsynchronousSender> implemen
     }
     public void send(List<JSONObject> jObjects)
     {
+        System.out.println("iterating senders: ");
         for(AsynchronousSender a : this)
             a.send(jObjects);
     }

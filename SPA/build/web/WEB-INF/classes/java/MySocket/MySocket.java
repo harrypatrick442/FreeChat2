@@ -237,8 +237,6 @@ public class MySocket implements IAsynchronousSender, IGetIp, IInterfaces, IClos
     }
 
     public void close() {
-        Exception ex = new Exception("called close 2");
-        ex.printStackTrace();
         if (messagePersistenceBuffer != null) {
             messagePersistenceBuffer.close();
         }

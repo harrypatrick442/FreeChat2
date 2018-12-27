@@ -42,7 +42,8 @@ public class TableRoomUuidToUsers extends Table implements IRoomUuidToUsers {
             + "`endpoint` TEXT, "
             + "PRIMARY KEY (`roomUuid`, `userUuid`, `sessionUuid`),"
             + "INDEX `indexJoined` (`joined`)"
-            + ")",
+            +")",
+            "delete from room_uuid_to_users;",
             "CREATE TABLE IF NOT EXISTS `room_uuid_to_users_history`"
             + "("
             + "`id` INT NOT NULL AUTO_INCREMENT,"

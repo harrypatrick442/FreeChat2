@@ -1,7 +1,11 @@
-function ProfilePicture(usersName)
+function ProfilePicture(params)
 {
+	var usersName = params.usersName;
+	var userUuid = params.userUuid;
+    var self = this;
     this.usersName = usersName;
     this.div = document.createElement('div');
+    this.div.classList.add('profile-picture');
     var img = document.createElement('img');
     this.div.style.height = '100%';
     this.div.style.width = '100%';
@@ -27,7 +31,15 @@ function ProfilePicture(usersName)
     {
         img.src = window.thePageUrl+url;
     }
+    else{
+        console.log('none');
+		if(params.userUuid)
+			img.src = 'profile_image/'+params.userUuid;
+     }
     instances.push(this);
+    this.dispose = function(){
+        ProfilePicture.remove(self);
+    };
 }
 ProfilePicture.mapNameToUrl = {};
 ProfilePicture.mapNameToInstances = {};

@@ -2,6 +2,7 @@ function ProfilePicture(usersName)
 {
     this.usersName = usersName;
     this.div = document.createElement('div');
+    this.div.classList.add('profile-picture');
     var img = document.createElement('img');
     this.div.style.height = '100%';
     this.div.style.width = '100%';

@@ -50,6 +50,7 @@ public class TableLobbyToUsers extends Table implements ILobbyToUsers {
             + "INDEX `indexJoined` (`joined`),"
             + "INDEX `indexLeft` (`left`)"
             + ")",
+            "delete from lobby_users;",
             "DROP PROCEDURE IF EXISTS `lobby_users_get`; ",
             "CREATE PROCEDURE `lobby_users_get`("
             + ")"

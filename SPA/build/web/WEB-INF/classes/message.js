@@ -1,6 +1,8 @@
 function Message(params)
 {
     var self = this;
+    var profilePicture;
+    var userInformation = params.userInformation;
     var fontScale = isMobile?Font.mobileScale: 1;
     if (params.str == undefined)
     {
@@ -58,13 +60,12 @@ function Message(params)
     div.style.fontFamily=font?font:'verdana, geneva, sans-serif';
     div.style.fontSize=String(size*fontScale)+'px';
     if(params.userUuid){
-    var img = document.createElement('img');
-    img.style="width:26px; height:26px; max-height:100%; float:left; margin:1px;overflow:hidden;";
-    img.src='http://localhost/FreeChat2/profile_image/'+params.userUuid;
-    this.div.appendChild(img);
-    img.onerror = function () {
-        img.src = window.thePageUrl+'images/user.png';
-    };
+    var divImg = document.createElement('div');
+    divImg.style="width:26px; height:26px; max-height:100%; float:left; margin:1px;overflow:hidden;";
+    this.div.appendChild(divImg);
+    profilePicture = new ProfilePicture({userName:params.username, userUuid:params.userUuid});
+	divImg.appendChild(profilePicture.div);
+    
     }
     if (params.username != undefined)
     {
@@ -96,6 +97,8 @@ function Message(params)
     this.unpend = function(){
         if(params.pending){
             self.div.removeChild(cover);
+            if(profilePicture)
+                profilePicture.dispose();
         };
     };
     this.equals = function(jObject){
@@ -160,15 +163,22 @@ function Message(params)
     }
     function getDivUsername(user){
         var div = document.createElement('div');
-        div.textContent=user;
         div.style.padding='0px !important';
         div.style.margin='0px !important';
-        div.style.cursor='pointer';
-        div.style.color='rgb(59, 89, 152)';
-        div.style.fontWeight = "bold";
         div.style.float = "top";
-        div.style.fontSize = String(11*fontScale) + 'px';
-        new HoverAndClick(div, function(){div.style.textDecoration = 'underline';}, function(){}, function(e){
+        div.style.overflow='hidden';
+		var divInner = document.createElement('div');
+        divInner.style.fontSize = String(11*fontScale) + 'px';
+        divInner.style.cursor='pointer';
+        divInner.style.color='rgb(59, 89, 152)';
+        divInner.style.fontWeight = "bold";
+        divInner.style.float='left';
+        divInner.textContent=user;
+		div.appendChild(divInner);
+        new HoverAndClick(divInner, function(){divInner.style.textDecoration = 'underline';}, function(){}, function(e){
+            console.log(userInformation);
+            console.log(params);
+            if(userInformation&&params.userUuid!=userInformation.userId)
             params.menuMessages.show(e.pageX, e.pageY, function () {
                 }, {}, [{userUiud:params.userUuid},{}, {}]);
         });

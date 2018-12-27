@@ -222,7 +222,9 @@ function Users(independant, cssName, userInformation, callbackEntered, callbackL
         divPicture.style.float = 'left';
         verticallyCenter(divPicture);
         setText(divName, r.name);
-        var profilePicture = new ProfilePicture(r.name);
+        console.log('r is ');
+        console.log(r);
+        var profilePicture = new ProfilePicture({userName:r.name, userUuid:r.userId});
         divPicture.appendChild(profilePicture.div);
         if (r.relativePathImage)
         {
